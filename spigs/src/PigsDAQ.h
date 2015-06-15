@@ -55,11 +55,11 @@ public:
 	int32_t PigsDAQ::SetDAQParams();	// Set custom DAQ parameters
 	int32_t PigsDAQ::InitDPPLib();		// Initialize the DPP library
 	int32_t PigsDAQ::AddBoardUSB();		// Adds board 0 on USB bus to the DPP library
-//	int32_t PigsDAQ::PrintBoardInfo();    // Prints board info
+//	int32_t PigsDAQ::PrintBoardInfo();  // Prints board info
 	int32_t PigsDAQ::ConfigureBoard();	// Configures the board with digitizer and DAQ parameters
 
 	int32_t PigsDAQ::isChannelDisabled(int32_t ch);
-	int32_t PigsDAQ::PrintChannelParameters(int32_t ch); //Prints Channel Parameters
+	void PigsDAQ::PrintChannelParameters(int32_t ch); //Prints Channel Parameters
 	char * PigsDAQ::decodeError(char *dest, int32_t code); // Decodes the given error code into a message
 
 	~PigsDAQ();

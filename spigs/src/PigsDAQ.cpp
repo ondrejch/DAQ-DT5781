@@ -126,10 +126,34 @@ int32_t PigsDAQ::PigsDAQ::ConfigureBoard() {
 	return fErrCode;
 }
 
-int32_t PigsDAQ::PigsDAQ::PrintChannelParameters(int32_t ch) {
+void PigsDAQ::PigsDAQ::PrintChannelParameters(int32_t ch) {
+	/// \fn      void PrintChannelParameters(int32_t ch);
+	/// \brief   Prints the given Channel Parameters
+	///
+	/// \param   [IN]   ch      : The channel to modify
+	///
+	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
 
-
-	return fErrCode;
+	// Print the Configuration
+	printf("\nChannel %d configuration:\n",ch);
+	printf(" Decay Time\t\t\t= %.2f us\n", (float)dgtzParams.DPPParams.M[ch] / 1000.0);
+	printf(" Flat Top\t\t\t= %.2f us\n", (float)dgtzParams.DPPParams.m[ch] / 1000.0);
+	printf(" Trapezoid Rise Time\t\t= %.2f us\n", (float)dgtzParams.DPPParams.k[ch] / 1000.0);
+	printf(" Peaking Delay\t\t\t= %.2f us\n", (float)dgtzParams.DPPParams.ftd[ch] / 1000.0);
+	printf(" Smoothing Factor\t\t= %d\n", dgtzParams.DPPParams.a[ch]);
+	printf(" Input Rise time\t\t= %.2f us\n", (float)dgtzParams.DPPParams.b[ch] / 1000.0);
+	printf(" Threshold\t\t\t= %d\n", dgtzParams.DPPParams.thr[ch]);
+	printf(" Baseline Mean\t\t\t= %d\n", dgtzParams.DPPParams.nsbl[ch]);
+	printf(" Peak Mean\t\t\t= %d\n", dgtzParams.DPPParams.nspk[ch]);
+	printf(" Peak Hold Off\t\t\t= %.2f us\n", (float)dgtzParams.DPPParams.pkho[ch] / 1000.0);
+	printf(" Baseline Hold Off\t\t= %.2f us\n", (float)dgtzParams.DPPParams.blho[ch] / 1000.0);
+	printf(" Trigger Hold Off\t\t= %.2f us\n", (float)dgtzParams.DPPParams.trgho[ch] / 1000.0);
+	printf(" Digital Gain\t\t\t= %d\n", dgtzParams.DPPParams.dgain[ch]);
+	printf(" Energy Normalization Factor\t= %.2f\n", dgtzParams.DPPParams.enf[ch]);
+	printf(" Decimation\t\t\t= %d\n", dgtzParams.DPPParams.decimation[ch]);
+	printf(" Polarity\t\t\t= %s\n", dgtzParams.PulsePolarity[ch] == CAENDPP_PulsePolarityPositive ? "POS" : "NEG");
+	printf(" DCOffset\t\t\t= %.2f\n", ((float)(dgtzParams.DCoffset[ch]) / 655.35) - 50.0);
+	printf("\n");
 }
 
 
