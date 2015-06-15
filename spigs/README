@@ -1,1 +1,9 @@
-Sample readme file for spigs project.
+Single-channel Position Indicating Gamma Sensing system (SPIGS)
+===============================================================
+
+The code serves as a DAQ for SPIGS. 
+Currently an early alpha version. 
+
+No warranties. 
+License: GNU/GPL v2.
+Author: Ondrej Chvala 
