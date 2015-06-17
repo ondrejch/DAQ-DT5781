@@ -22,8 +22,8 @@
 #include <CAENDPPLib.h>
 
 // ROOT
-//#include <TROOT.h>
-//#include <TH1I.h>
+#include <TROOT.h>
+#include <TH1I.h>
 
 // The maximum number of board's channels.
 // NOTE: MAX_NUMCHB is defined in 'CAENDPPLibTypes.h'
@@ -93,7 +93,7 @@ private:
 
 	static const int32_t fVerbose;	// verbosity level settings
 	int32_t fErrCode;	// error code from DPP calls
-//	TH1I *fCurrHist;	// Current histogram
+	TH1I *fCurrHist;	// Current histogram
 
 };
 

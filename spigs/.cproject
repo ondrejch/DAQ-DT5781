@@ -49,7 +49,7 @@
 								</option>
 								<option id="gnu.cpp.link.option.flags.1819220348" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="" valueType="string"/>
 								<option id="gnu.cpp.link.option.other.1731265461" name="Other options (-Xlinker [option])" superClass="gnu.cpp.link.option.other" valueType="stringList">
-									<listOptionValue builtIn="false" value="`root-config --libs` ${FLAGS} "/>
+									<listOptionValue builtIn="false" value="`root-config  --cflags  --libs`"/>
 								</option>
 								<option id="gnu.cpp.link.option.shared.1722721846" name="Shared (-shared)" superClass="gnu.cpp.link.option.shared" value="false" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1784028956" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
