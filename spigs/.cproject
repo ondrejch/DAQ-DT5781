@@ -120,7 +120,7 @@
 		<project id="newDAQ.cdt.managedbuild.target.gnu.exe.1610899926" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
 	</storageModule>
 	<storageModule moduleId="refreshScope" versionNumber="1">
-		<resource resourceType="PROJECT" workspacePath="/newDAQ"/>
+		<resource resourceType="PROJECT" workspacePath="/spigs"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
