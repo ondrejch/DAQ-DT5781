@@ -47,6 +47,11 @@
 								<option id="gnu.cpp.link.option.paths.270276844" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/local/lib/CAEN"/>
 								</option>
+								<option id="gnu.cpp.link.option.flags.1819220348" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="" valueType="string"/>
+								<option id="gnu.cpp.link.option.other.1731265461" name="Other options (-Xlinker [option])" superClass="gnu.cpp.link.option.other" valueType="stringList">
+									<listOptionValue builtIn="false" value="`root-config --libs` ${FLAGS} "/>
+								</option>
+								<option id="gnu.cpp.link.option.shared.1722721846" name="Shared (-shared)" superClass="gnu.cpp.link.option.shared" value="false" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1784028956" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -56,6 +61,7 @@
 								<option id="gnu.both.asm.option.include.paths.829509410" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/usr/local/include/CAEN"/>
 								</option>
+								<option id="gnu.both.asm.option.flags.520916794" name="Assembler flags" superClass="gnu.both.asm.option.flags" value="q" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.973508149" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
@@ -122,22 +128,26 @@
 	<storageModule moduleId="refreshScope" versionNumber="1">
 		<resource resourceType="PROJECT" workspacePath="/spigs"/>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings">
+		<doc-comment-owner id="org.eclipse.cdt.ui.doxygen">
+			<path value=""/>
+		</doc-comment-owner>
+	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1360272084;cdt.managedbuild.config.gnu.exe.debug.1360272084.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1786566965;cdt.managedbuild.tool.gnu.cpp.compiler.input.466617626">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1604393177;cdt.managedbuild.config.gnu.exe.release.1604393177.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1576097061;cdt.managedbuild.tool.gnu.c.compiler.input.445518318">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1360272084;cdt.managedbuild.config.gnu.exe.debug.1360272084.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1712436197;cdt.managedbuild.tool.gnu.c.compiler.input.125402018">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1604393177;cdt.managedbuild.config.gnu.exe.release.1604393177.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1598233037;cdt.managedbuild.tool.gnu.cpp.compiler.input.1415800263">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1360272084">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1604393177;cdt.managedbuild.config.gnu.exe.release.1604393177.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1598233037;cdt.managedbuild.tool.gnu.cpp.compiler.input.1415800263">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1360272084;cdt.managedbuild.config.gnu.exe.debug.1360272084.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1786566965;cdt.managedbuild.tool.gnu.cpp.compiler.input.466617626">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
 	</storageModule>

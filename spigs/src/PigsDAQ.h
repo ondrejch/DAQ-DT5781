@@ -18,8 +18,10 @@
 #include <exception>      	// std::exception
 #include <string.h>			// strcpy
 
+// CAEN
 #include <CAENDPPLib.h>
 
+// ROOT
 //#include <TROOT.h>
 //#include <TH1I.h>
 
@@ -50,13 +52,14 @@ class PigsDAQ {
 protected:
 	static PigsDAQ * instance;
 	static bool instantiated;
+	PigsDAQ(){};
+	~PigsDAQ(){};
 
 public:
-	PigsDAQ();
-	~PigsDAQ();
+	int32_t BasicInit();	    // Does all basic initialization
 	int32_t InitDgtzParams(); 	// Initialize the digitizer parameters to their default value
 	int32_t SetDgtzParams(); 	// Set custom digitizer parameters
-	int32_t SetDAQParams();	// Set custom DAQ parameters
+	int32_t SetDAQParams();	    // Set custom DAQ parameters
 	int32_t InitDPPLib();		// Initialize the DPP library
 	int32_t AddBoardUSB();		// Adds board 0 on USB bus to the DPP library
 //	int32_t PigsDAQ::PrintBoardInfo();  // Prints board info
@@ -66,11 +69,7 @@ public:
 	void PrintChannelParameters(int32_t ch); //Prints Channel Parameters
 	char * decodeError(char *dest, int32_t code); // Decodes the given error code into a message
 
-	PigsDAQ* getInstance();
-	//	static PigsDAQ * getInstance(){
-	//		if(!instantiated) cout<<"<PigsDAQ * getInstance> Please instantiate correct Helper fist"<<endl;
-	//		return instance;
-	//	}
+	static PigsDAQ * getInstance();
 
 private:
 	int32_t ch;  		//  ch is the variable used to identify a board's channel inside DPPLibrary.
@@ -91,9 +90,9 @@ private:
 	char codeStr[MAX_ERRMSG_LEN + 1];
 	char histoFName[MAX_HISTOFNAME_LEN];
 
-	int32_t fVerbose;	// verbosity level settings
+	static const int32_t fVerbose;	// verbosity level settings
 	int32_t fErrCode;	// error code from DPP calls
-	//TH1I *fCurrHist;	// Current histogram
+//	TH1I *fCurrHist;	// Current histogram
 
 };
 

@@ -11,11 +11,11 @@
 
 using namespace std;
 
-PigsDAQ *daq;
 
 int main(void) {
-	daq  = new PigsDAQ();
+	PigsDAQ *daq  = PigsDAQ::getInstance();
 	cout << "Hello World" << endl; /* prints Hello World */
-	delete daq;
+    daq->BasicInit();
+
 	return 0;
 }

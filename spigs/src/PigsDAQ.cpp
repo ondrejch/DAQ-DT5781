@@ -11,47 +11,42 @@
 #include "PigsDAQ.h"
 
 bool PigsDAQ::instantiated   = false;
-PigsDAQ * PigsDAQ::instance = 0;
+PigsDAQ * PigsDAQ::instance  = 0;
+const int32_t PigsDAQ::fVerbose = 1;
 
 //------------------------------------------------
-PigsDAQ* PigsDAQ::getInstance(){
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
+PigsDAQ * PigsDAQ::getInstance(){
 	if(!instantiated) {
 		instance = new PigsDAQ();
-		// Setting the digitizer and DAQ parameters is safe, no need to error check.
-		// Init digitizer parameters to default value
-		fErrCode = instance->InitDgtzParams();
-		// Custom digitizer parameters
-		fErrCode = instance->SetDgtzParams();
-		// Custom DAQ parameters
-		fErrCode = instance->SetDAQParams();
-
-		//	 instance->InitGeometry();
-		//  RestoreCalibration();
-		//instance->ShowCalibration();
 		instantiated = true;
-		//			if(fVerbose) std::cout<<"<PigsDAQ> Instantiated" << std::endl;
-
+		std::cout<<"<PigsDAQ> Instantiated" << std::endl;
 	}
 	return instance ;
 }
 
-PigsDAQ::PigsDAQ() {
-	fVerbose = 1;
-	// ** The constructor is called by PigsDAQ->getInstance() !!! **
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
+int32_t PigsDAQ::BasicInit() {
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 	fErrCode = 0;
-	// Allocate the histogram to the given number of bins.
+	// Setting the digitizer and DAQ parameters is safe, no need to error check.
+    // Init digitizer parameters to default value
+    fErrCode = instance->InitDgtzParams();
+// Custom digitizer parameters
+    fErrCode += instance->SetDgtzParams();
+// Custom DAQ parameters
+    fErrCode += instance->SetDAQParams();
+
+//	// Allocate the histogram to the given number of bins.
 	h1 = (uint32_t *)calloc(MAX_HISTO_NBINS, sizeof(uint32_t));
 	if (h1 == 0) {
 		std::cerr<<"__PRETTY_FUNCTION__ Cannot allocate h1"<<std::endl;
 		throw std::bad_alloc(); //std::exception();
 	}
+	return fErrCode;
 }
 
-PigsDAQ::~PigsDAQ() {
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
-}
+//PigsDAQ::~PigsDAQ() {
+//	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+//}
 
 int32_t PigsDAQ::SetDAQParams(){
 	/// \fn      int32_t SetDAQParams();
@@ -61,22 +56,20 @@ int32_t PigsDAQ::SetDAQParams(){
 	/// \param   No parameters yet, it could be implemented better.
 	///
 	/// \return  0 = Success; negative numbers are error codes
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
-
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
 	// Set the Acquisition Mode
 	acqMode = CAENDPP_AcqMode_Histogram;    // For Histogram mode (no waveforms)
 	//acqMode = CAENDPP_AcqMode_Waveform;   // For Oscilloscope mode (waves + histogram)
 	iputLevel = CAENDPP_InputRange_1_0Vpp;  // Channel input level - could be per channel
 	usecSleepPollDAQ = 50000;				// [ns] DAQ acquisition poll
-
 	return 0;
 }
 
 
 int32_t PigsDAQ::InitDPPLib() {
 	// Initialize the DPP library
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 	fErrCode = CAENDPP_InitLibrary(&handle); // The handle will be used to command the library
 	if(!fErrCode) std::cerr<<"Problem initializing the library: "<< decodeError(codeStr,fErrCode) << std::endl;
 	return fErrCode;
@@ -84,7 +77,7 @@ int32_t PigsDAQ::InitDPPLib() {
 
 int32_t PigsDAQ::AddBoardUSB() {
 	// Adds board 0 & prints board information
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 	// The following is for direct USB connection
 	connParam.LinkType = CAENDPP_USB;
 	connParam.LinkNum = 0;              // This defines the USB port to use and must increase with board number; ex: for board 3 must be 3
@@ -112,7 +105,7 @@ int32_t PigsDAQ::AddBoardUSB() {
 
 int32_t PigsDAQ::ConfigureBoard() {
 	// Configures board 0
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
 	fErrCode  = CAENDPP_SetBoardConfiguration(handle, 0, acqMode, dgtzParams);
 	if(fErrCode != CAENDPP_RetCode_Ok) {
@@ -132,7 +125,7 @@ void PigsDAQ::PrintChannelParameters(int32_t ch) {
 	///
 	/// \param   [IN]   ch      : The channel to modify
 	///
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
 	// Print the Configuration
 	printf("\nChannel %d configuration:\n",ch);
@@ -165,7 +158,7 @@ int32_t PigsDAQ::isChannelDisabled(int32_t ch) {
 	/// \param   [IN] ch        : Channel index to check
 	///
 	/// \return  0 if the channel is enabled, 1 if it is disabled
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 	int32_t enabled;
 	int32_t ret;
 	ret = CAENDPP_IsChannelEnabled(handle, ch, &enabled);
@@ -181,7 +174,7 @@ int32_t PigsDAQ::SetDgtzParams() {
 	/// \param   [OUT]  Params      : Pointer to the parameters structure
 	///
 	/// \return  0 = Success; negative numbers are error codes
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
 	// The channel mask is used to set the enabled Acquisition Input Channels
 	// Binary mask in hex, 0 to F
@@ -222,7 +215,7 @@ int32_t PigsDAQ::InitDgtzParams() {
 	/// \param   [OUT]  Params      : Pointer to the parameters structure to fill
 	///
 	/// \return  0 = Success; negative numbers are error codes
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
 	int32_t ch;
 
@@ -324,7 +317,7 @@ char * PigsDAQ::decodeError(char *dest, int32_t code) {
 	/// \param   [IN] ret    : the error code
 	///
 	/// \return  a pointer to the string if success, otherwise NULL
-	if(fVerbose) std::cout<<"__PRETTY_FUNCTION__" << std::endl;
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
 	char codeStr[10];
 	size_t nc = MAX_ERRMSG_LEN;
