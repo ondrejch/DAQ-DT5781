@@ -64,6 +64,7 @@ public:
 	int32_t AddBoardUSB();		// Adds board 0 on USB bus to the DPP library
 //	int32_t PigsDAQ::PrintBoardInfo();  // Prints board info
 	int32_t ConfigureBoard();	// Configures the board with digitizer and DAQ parameters
+    int32_t EndLibrary();       // Cleanup: call this before the program ends!
 
 	int32_t isChannelDisabled(int32_t ch);
 	void PrintChannelParameters(int32_t ch); //Prints Channel Parameters

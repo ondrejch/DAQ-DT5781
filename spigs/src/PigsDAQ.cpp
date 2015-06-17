@@ -28,14 +28,14 @@ int32_t PigsDAQ::BasicInit() {
 	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 	fErrCode = 0;
 	// Setting the digitizer and DAQ parameters is safe, no need to error check.
-    // Init digitizer parameters to default value
-    fErrCode = instance->InitDgtzParams();
-// Custom digitizer parameters
-    fErrCode += instance->SetDgtzParams();
-// Custom DAQ parameters
-    fErrCode += instance->SetDAQParams();
+	// Init digitizer parameters to default value
+	fErrCode = instance->InitDgtzParams();
+	// Custom digitizer parameters
+	fErrCode += instance->SetDgtzParams();
+	// Custom DAQ parameters
+	fErrCode += instance->SetDAQParams();
 
-//	// Allocate the histogram to the given number of bins.
+	//	// Allocate the histogram to the given number of bins.
 	h1 = (uint32_t *)calloc(MAX_HISTO_NBINS, sizeof(uint32_t));
 	if (h1 == 0) {
 		std::cerr<<"__PRETTY_FUNCTION__ Cannot allocate h1"<<std::endl;
@@ -43,10 +43,6 @@ int32_t PigsDAQ::BasicInit() {
 	}
 	return fErrCode;
 }
-
-//PigsDAQ::~PigsDAQ() {
-//	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-//}
 
 int32_t PigsDAQ::SetDAQParams(){
 	/// \fn      int32_t SetDAQParams();
@@ -65,7 +61,6 @@ int32_t PigsDAQ::SetDAQParams(){
 	usecSleepPollDAQ = 50000;				// [ns] DAQ acquisition poll
 	return 0;
 }
-
 
 int32_t PigsDAQ::InitDPPLib() {
 	// Initialize the DPP library
@@ -372,4 +367,14 @@ char * PigsDAQ::decodeError(char *dest, int32_t code) {
 	}
 	strcat(dest, codeStr);
 	return dest;
+}
+
+int32_t PigsDAQ::EndLibrary() {
+	// Close the Library
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+	fErrCode =  CAENDPP_EndLibrary(handle);
+	if(fErrCode != CAENDPP_RetCode_Ok) {
+		std::cerr<<"Error closing the library: "<< decodeError(codeStr,fErrCode) << std::endl;
+	}
+	return fErrCode;
 }

@@ -13,9 +13,12 @@ using namespace std;
 
 
 int main(void) {
+	int ret = 0;
+	cout << "Welcome to SPIGS DAQ!" << endl;
 	PigsDAQ *daq  = PigsDAQ::getInstance();
-	cout << "Hello World" << endl; /* prints Hello World */
-    daq->BasicInit();
+    ret = daq->BasicInit();
 
-	return 0;
+
+    ret = daq->EndLibrary();
+	return ret;
 }
