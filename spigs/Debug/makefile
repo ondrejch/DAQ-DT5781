@@ -44,7 +44,7 @@ all: spigs
 spigs: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -L/usr/local/lib/CAEN -Xlinker `root-config  --cflags  --libs` -o "spigs" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++  -o "spigs" $(OBJS) $(USER_OBJS) $(LIBS) -L/usr/local/lib/CAEN -Xlinker -L/usr/local/lib `root-config --libs --glibs --cflags --ldflags --auxlibs --auxcflags` -pthread -lm -ldl
 	@echo 'Finished building target: $@'
 	@echo ' '
 
