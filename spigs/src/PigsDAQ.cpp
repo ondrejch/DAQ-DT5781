@@ -111,7 +111,7 @@ int32_t PigsDAQ::AddBoardUSB() {
 
 void PigsDAQ::PrintBoardInfo() {
 	std::cout << "Board "<< info.ModelName << ", Serial#: " << info.SerialNumber << std::endl;
-	std::cout << "  Channels: " << info.Channels << ", License" << info.License << std::endl;
+	std::cout << "  Channels: " << info.Channels << ", License: " << info.License << std::endl;
 	std::cout << "  Firmware AMC: " << info.AMC_FirmwareRel << ", ROC" << info.ROC_FirmwareRel << std::endl;
 }
 
@@ -222,7 +222,7 @@ int32_t PigsDAQ::RefreshCurrHist() {
 	if(fCurrHist) delete fCurrHist;
 	fCurrHist = new TH1D("fCurrHist","ADC counts", h1NBins, 0, h1NBins-1);
 	if(fCurrHist) {
-		for (int i=0; i++; i<h1NBins) {
+		for (int i=0; i<h1NBins; i++) {
 			//fCurrHist->SetContent((double*)h1);
 			fCurrHist->SetBinContent(i+1,h1[i]);
 		}
