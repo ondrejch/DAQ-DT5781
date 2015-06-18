@@ -222,7 +222,10 @@ int32_t PigsDAQ::RefreshCurrHist() {
 	if(fCurrHist) delete fCurrHist;
 	fCurrHist = new TH1D("fCurrHist","ADC counts", h1NBins, 0, h1NBins-1);
 	if(fCurrHist) {
-		fCurrHist->SetContent((double*)h1);
+		for (int i=0; i++; i<h1NBins) {
+			//fCurrHist->SetContent((double*)h1);
+			fCurrHist->SetBinContent(i+1,h1[i]);
+		}
 		return 0;
 	} else {
 		std::cerr << "Error creating fCurrHist!" << std::endl;
