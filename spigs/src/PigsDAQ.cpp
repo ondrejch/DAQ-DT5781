@@ -91,7 +91,7 @@ int32_t PigsDAQ::AddBoardUSB() {
 	brd = 0;							// We only have one board
 
 	// Add board to the Library
-	fErrCode = CAENDPP_AddBoard(handle, connParam, 0);
+	fErrCode = CAENDPP_AddBoard(handle, connParam, &brd);
 	if(fErrCode != CAENDPP_RetCode_Ok) {
 		std::cerr<<"Error adding board with selected connection parameters: "<< decodeError(codeStr,fErrCode) << std::endl;
 		return fErrCode;

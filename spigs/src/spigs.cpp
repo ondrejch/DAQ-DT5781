@@ -19,9 +19,9 @@ int test1(void) {
 	int ret = 0;
 
 	PigsDAQ *daq = PigsDAQ::getInstance();
-	ret = daq->BasicInit();
 	if (!ret) ret = daq->InitDPPLib();
 	if (!ret) ret = daq->AddBoardUSB();
+	if (!ret) ret = daq->BasicInit();
 	if (!ret) ret = daq->ConfigureBoard();
 	if (!ret) ret = daq->ConfigureChannel(0);
 	if (!ret) {
