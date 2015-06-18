@@ -18,28 +18,31 @@ int test1(void) {
 	// Simple test subroutine
 	int ret = 0;
 
-	PigsDAQ *daq  = PigsDAQ::getInstance();
+	PigsDAQ *daq = PigsDAQ::getInstance();
 	ret = daq->BasicInit();
-    if(!ret) ret = daq->AddBoardUSB();
-    if(!ret) ret = daq->ConfigureBoard();
-    if(!ret) ret = daq->ConfigureChannel(0);
-    if(!ret) {
-    	daq->PrintBoardInfo();
-    	daq->PrintChannelParameters(0);
-    	ret = daq->AcquisitionLoop();
-    }
-    if(!ret) {
-    	daq->PrintAcquisotionInfo();
-    	ret = daq->RefreshCurrHist();
-    }
-    if(!ret) {
-    	TFile *f = new TFile("AFile.root","RECREATE","Example");
-    	TH1D *h = daq->getCurrHist();
-    	h->Write();
-    	f->Write();
-    	f->Close();
+	if (!ret)
+		ret = daq->AddBoardUSB();
+	if (!ret)
+		ret = daq->ConfigureBoard();
+	if (!ret)
+		ret = daq->ConfigureChannel(0);
+	if (!ret) {
+		daq->PrintBoardInfo();
+		daq->PrintChannelParameters(0);
+		ret = daq->AcquisitionLoop();
+	}
+	if (!ret) {
+		daq->PrintAcquisotionInfo();
+		ret = daq->RefreshCurrHist();
+	}
+	if (!ret) {
+		TFile *f = new TFile("AFile.root", "RECREATE", "Example");
+		TH1D *h = daq->getCurrHist();
+		h->Write();
+		f->Write();
+		f->Close();
 
-    }
+	}
 
 	ret = daq->EndLibrary();
 	return ret;
