@@ -49,13 +49,8 @@
 #define MAX_HISTOFNAME_LEN  (100)   // Maximum Length of Histograms File Name
 
 class PigsDAQ {
-protected:
-	static PigsDAQ * instance;
-	static bool instantiated;
-	PigsDAQ(){};
-	~PigsDAQ(){};
-
 public:
+	static PigsDAQ * getInstance(); // Get unique pointer to the class
 	int32_t BasicInit();	    // Does all basic initialization
 	int32_t InitDgtzParams(); 	// Initialize the digitizer parameters to their default value
 	int32_t SetDgtzParams(); 	// Set custom digitizer parameters
@@ -66,11 +61,12 @@ public:
 	int32_t ConfigureBoard();	// Configures the board with digitizer and DAQ parameters
     int32_t EndLibrary();       // Cleanup: call this before the program ends!
 
-	int32_t isChannelDisabled(int32_t ch);
-	void PrintChannelParameters(int32_t ch); //Prints Channel Parameters
-	char * decodeError(char *dest, int32_t code); // Decodes the given error code into a message
+	int32_t isChannelDisabled(int32_t ch);			// 0 if enabled, 1 if disabled
+	void PrintChannelParameters(int32_t ch); 		// Prints Channel Parameters
+	char * decodeError(char *dest, int32_t code); 	// Decodes the given error code into a message
 
-	static PigsDAQ * getInstance();
+	int32_t ConfigureChannel(int32_t ch); 			// Sets channel parameters specified in Init & Set calls
+//    int32_t AcqusiotionLoop();
 
 private:
 	int32_t ch;  		//  ch is the variable used to identify a board's channel inside DPPLibrary.
@@ -94,6 +90,12 @@ private:
 	static const int32_t fVerbose;	// verbosity level settings
 	int32_t fErrCode;	// error code from DPP calls
 	TH1I *fCurrHist;	// Current histogram
+
+protected:
+	static PigsDAQ * instance;
+	static bool instantiated;
+	PigsDAQ(){};
+	~PigsDAQ(){};
 
 };
 

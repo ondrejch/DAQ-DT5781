@@ -59,6 +59,11 @@ int32_t PigsDAQ::SetDAQParams(){
 	//acqMode = CAENDPP_AcqMode_Waveform;   // For Oscilloscope mode (waves + histogram)
 	iputLevel = CAENDPP_InputRange_1_0Vpp;  // Channel input level - could be per channel
 	usecSleepPollDAQ = 50000;				// [ns] DAQ acquisition poll
+	// Set stop criteria
+	StopCriteria = CAENDPP_StopCriteria_RealTime; 	// Elapsed real time
+	//StopCriteriaValue = 600L*1000000000L;      	// [ns] Run for 600 seconds
+	StopCriteriaValue =  10L*1000000000L;      		// [ns] Run for  10 seconds
+	//StopCriteriaValue =   1000000000;// 1000*1000*1000; // 1 sec [ns] Run for 600 seconds
 	return 0;
 }
 
@@ -144,6 +149,28 @@ void PigsDAQ::PrintChannelParameters(int32_t ch) {
 	printf("\n");
 }
 
+int32_t PigsDAQ::ConfigureChannel(int32_t ch) {
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+	if (isChannelDisabled(ch)) {
+		printf("Warning: Channel %d disabled\n",ch);
+		return 1;
+	}
+	fErrCode = CAENDPP_SetInputRange(handle, ch, iputLevel);
+	if (fErrCode == CAENDPP_RetCode_Ok)  {
+		printf("Input range for channel %d set to %d\n", ch, iputLevel);
+	} else {
+		printf("Error setting input range\n");
+		return fErrCode;
+	}
+	fErrCode = CAENDPP_SetStopCriteria(handle, ch, StopCriteria, StopCriteriaValue);
+	if (fErrCode == CAENDPP_RetCode_Ok) {
+		printf("Stop Criteria successfully set: %d, %lu\n", StopCriteria, StopCriteriaValue);
+	} else {
+		printf("Can't set Stop Criteria for channel %d: %s\n", ch, decodeError(codeStr, fErrCode));
+		return fErrCode;
+	}
+	return fErrCode;
+}
 
 int32_t PigsDAQ::isChannelDisabled(int32_t ch) {
 	/// \fn      int32_t isChannelDisabled(int32_t handle, int32_t ch);
@@ -378,3 +405,5 @@ int32_t PigsDAQ::EndLibrary() {
 	}
 	return fErrCode;
 }
+
+
