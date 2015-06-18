@@ -20,12 +20,10 @@ int test1(void) {
 
 	PigsDAQ *daq = PigsDAQ::getInstance();
 	ret = daq->BasicInit();
-	if (!ret)
-		ret = daq->AddBoardUSB();
-	if (!ret)
-		ret = daq->ConfigureBoard();
-	if (!ret)
-		ret = daq->ConfigureChannel(0);
+	if (!ret) ret = daq->InitDPPLib();
+	if (!ret) ret = daq->AddBoardUSB();
+	if (!ret) ret = daq->ConfigureBoard();
+	if (!ret) ret = daq->ConfigureChannel(0);
 	if (!ret) {
 		daq->PrintBoardInfo();
 		daq->PrintChannelParameters(0);
@@ -43,7 +41,6 @@ int test1(void) {
 		f->Close();
 
 	}
-
 	ret = daq->EndLibrary();
 	return ret;
 }
