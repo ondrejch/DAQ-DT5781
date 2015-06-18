@@ -1,5 +1,6 @@
 /*
  * Position Indicating Gamma Sensing system
+ * Currently assumes single channel operation on channel 0
  *
  * PigsDAQ.h - Main/Helper singleton class
  *
@@ -23,7 +24,7 @@
 
 // ROOT
 #include <TROOT.h>
-#include <TH1I.h>
+#include <TH1D.h>
 
 // The maximum number of board's channels.
 // NOTE: MAX_NUMCHB is defined in 'CAENDPPLibTypes.h'
@@ -57,19 +58,26 @@ public:
 	int32_t SetDAQParams();	    // Set custom DAQ parameters
 	int32_t InitDPPLib();		// Initialize the DPP library
 	int32_t AddBoardUSB();		// Adds board 0 on USB bus to the DPP library
-//	int32_t PigsDAQ::PrintBoardInfo();  // Prints board info
+	void PrintBoardInfo();  	// Prints board information
 	int32_t ConfigureBoard();	// Configures the board with digitizer and DAQ parameters
-    int32_t EndLibrary();       // Cleanup: call this before the program ends!
+	int32_t EndLibrary();       // Cleanup: call this before the program ends!
 
 	int32_t isChannelDisabled(int32_t ch);			// 0 if enabled, 1 if disabled
 	void PrintChannelParameters(int32_t ch); 		// Prints Channel Parameters
 	char * decodeError(char *dest, int32_t code); 	// Decodes the given error code into a message
 
-	int32_t ConfigureChannel(int32_t ch); 			// Sets channel parameters specified in Init & Set calls
-//    int32_t AcqusiotionLoop();
+	int32_t ConfigureChannel(int32_t ch); 	// Sets channel parameters specified in Init & Set calls
+	int32_t StopAcquisition(int32_t ch);	// Stops acquisition for channel ch
+	int32_t AcquisitionLoop();				// Runs acquisition
+	void PrintAcquisotionInfo();			// Prints real/dead time, cps, ...
+
+	int32_t RefreshCurrHist();				// Transfers h1 into currHist
+
+	TH1D *getCurrHist() const;
+    void setCurrHist(TH1D *currHist);
 
 private:
-	int32_t ch;  		//  ch is the variable used to identify a board's channel inside DPPLibrary.
+	int32_t ch;  		// ch is the variable used to identify a board's channel inside DPPLibrary.
 	int32_t handle; 	// Handler to the Library
 	int32_t brd; 		// Board Identifier - this code assumes we only have one board
 	CAENDPP_ConnectionParams_t connParam; // Connection Parameters - Used to connect to the board.
@@ -82,21 +90,23 @@ private:
 	CAENDPP_AcqStatus_t isAcquiring;      // 1 yes, 0 no
 	uint32_t usecSleepPollDAQ;            // sleep in microseconds to poll DAQ acquisition status
 	uint64_t realTime, deadTime;
-    uint32_t *h1;						  // histogram used for DPP dump
+	uint32_t goodCounts, totCounts;
+	double countsPerSecond;
+	uint32_t *h1;						  // histogram used for DPP dump
+	int32_t  h1NBins;				      // number of bins in the histogram
 
 	char codeStr[MAX_ERRMSG_LEN + 1];
 	char histoFName[MAX_HISTOFNAME_LEN];
 
 	static const int32_t fVerbose;	// verbosity level settings
 	int32_t fErrCode;	// error code from DPP calls
-	TH1I *fCurrHist;	// Current histogram
+	TH1D *fCurrHist;	// Current histogram
 
 protected:
 	static PigsDAQ * instance;
 	static bool instantiated;
 	PigsDAQ(){};
 	~PigsDAQ(){};
-
 };
 
 #endif /* PIGSDAQ_H_ */

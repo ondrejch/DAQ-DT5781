@@ -12,7 +12,7 @@ src/PigsDAQ_test.d: ../src/PigsDAQ_test.cpp ../src/PigsDAQ.h \
  /usr/include/root/TList.h /usr/include/root/TSeqCollection.h \
  /usr/include/root/TCollection.h /usr/include/root/TIterator.h \
  /usr/include/root/TDatime.h /usr/include/root/TUUID.h \
- /usr/include/root/TH1I.h /usr/include/root/TH1.h \
+ /usr/include/root/TH1D.h /usr/include/root/TH1.h \
  /usr/include/root/TAxis.h /usr/include/root/TAttAxis.h \
  /usr/include/root/TArrayD.h /usr/include/root/TArray.h \
  /usr/include/root/TAttLine.h /usr/include/root/TAttFill.h \
@@ -76,7 +76,7 @@ src/PigsDAQ_test.d: ../src/PigsDAQ_test.cpp ../src/PigsDAQ.h \
 
 /usr/include/root/TUUID.h:
 
-/usr/include/root/TH1I.h:
+/usr/include/root/TH1D.h:
 
 /usr/include/root/TH1.h:
 

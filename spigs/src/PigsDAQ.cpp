@@ -1,5 +1,7 @@
 /*
  * Position Indicating Gamma Sensing system
+ * Currently assumes single channel operation on channel 0
+ *
  *
  * PigsDAQ.cpp
  *
@@ -35,10 +37,12 @@ int32_t PigsDAQ::BasicInit() {
 	// Custom DAQ parameters
 	fErrCode += instance->SetDAQParams();
 
-	//	// Allocate the histogram to the given number of bins.
+	// No histogram yet
+	fCurrHist = 0;
+	// Allocate the histogram to the given number of bins.
 	h1 = (uint32_t *)calloc(MAX_HISTO_NBINS, sizeof(uint32_t));
 	if (h1 == 0) {
-		std::cerr<<"__PRETTY_FUNCTION__ Cannot allocate h1"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" Cannot allocate h1"<<std::endl;
 		throw std::bad_alloc(); //std::exception();
 	}
 	return fErrCode;
@@ -98,9 +102,16 @@ int32_t PigsDAQ::AddBoardUSB() {
 		std::cerr<<"Error getting board info: "<< decodeError(codeStr,fErrCode) << std::endl;
 		return fErrCode;
 	}
-	std::cout << "Board "<< info.ModelName << ", Serial#: " << info.SerialNumber << std::endl;
+	PrintBoardInfo();
 
 	return fErrCode;
+}
+
+
+void PigsDAQ::PrintBoardInfo() {
+	std::cout << "Board "<< info.ModelName << ", Serial#: " << info.SerialNumber << std::endl;
+	std::cout << "  Channels: " << info.Channels << ", License" << info.License << std::endl;
+	std::cout << "  Firmware AMC: " << info.AMC_FirmwareRel << ", ROC" << info.ROC_FirmwareRel << std::endl;
 }
 
 int32_t PigsDAQ::ConfigureBoard() {
@@ -149,7 +160,87 @@ void PigsDAQ::PrintChannelParameters(int32_t ch) {
 	printf("\n");
 }
 
+
+int32_t PigsDAQ::StopAcquisition(int32_t ch) {
+	fErrCode = CAENDPP_StartAcquisition(handle, ch);
+	// Stop Acquisition for channel 0
+	fErrCode = CAENDPP_StopAcquisition(handle, ch);
+	if (fErrCode != CAENDPP_RetCode_Ok) {
+		printf ("Error Stopping Acquisition for channel %d: %s\n", ch, decodeError(codeStr, fErrCode));
+	} else {
+		printf("Acquisition Stopped for channel %d\n", ch);
+	}
+	return fErrCode;
+}
+
+int32_t PigsDAQ::AcquisitionLoop() {
+	// Currently does only one cycle in the loop...
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+
+	// reset counters
+	totCounts = realTime = deadTime = 0;
+	countsPerSecond = 0;
+
+	// Start Acquisition for channel 0
+	ch = 0;
+	fErrCode = CAENDPP_StartAcquisition(handle, ch);
+	if (fErrCode != CAENDPP_RetCode_Ok) {
+		printf("Error Starting Acquisition for channel %d: %s\n", ch, decodeError(codeStr, fErrCode));
+		return fErrCode;
+	} else {
+		if(fVerbose) printf("Acquisition Started for channel %d\n", ch);
+	}
+
+	do {
+		usleep(usecSleepPollDAQ);		// waits to poll DT5781
+		CAENDPP_IsChannelAcquiring(handle, ch, &isAcquiring );
+		if(fVerbose>9) printf("  -- ch %d acq status %d\n", ch, isAcquiring);
+	} while (isAcquiring);
+
+	// Get The Histogram
+	fErrCode = CAENDPP_GetCurrentHistogram(handle, ch, h1, &goodCounts, &realTime, &deadTime, &isAcquiring);
+	if (fErrCode != CAENDPP_RetCode_Ok) {
+		printf("ERROR: Can't get current Histogram for ch %d: %s\n", ch, decodeError(codeStr, fErrCode));
+		return fErrCode;
+	}
+	// Get the histogram bin number
+	fErrCode = CAENDPP_GetHistogramSize(handle, ch, HISTO_IDX_CURRENT, &h1NBins);
+	if (fErrCode != CAENDPP_RetCode_Ok) {
+		printf("ERROR: Can't get current Histogram size for ch %d: %s\n", ch, decodeError(codeStr, fErrCode));
+		return fErrCode;
+	}
+	totCounts       = (uint32_t)(goodCounts * (1.0 + (double)deadTime / (double)(realTime)));
+	countsPerSecond = (realTime - deadTime) > 0 ? (double)goodCounts / (double)((realTime - deadTime) / 1000000000.0) : 0;
+	return fErrCode;
+}
+
+int32_t PigsDAQ::RefreshCurrHist() {
+	// creates TH1D from h1
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+
+	if(fCurrHist) delete fCurrHist;
+	fCurrHist = new TH1D("fCurrHist","ADC counts", h1NBins, 0, h1NBins-1);
+	if(fCurrHist) {
+		fCurrHist->SetContent((double*)h1);
+		return 0;
+	} else {
+		std::cerr << "Error creating fCurrHist!" << std::endl;
+	}
+	return 999;
+}
+
+void PigsDAQ::PrintAcquisotionInfo() {
+	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+	printf("CH%d\n", ch);
+	printf(" RT\t= %.3f s\n", realTime / 1000000000.0);
+	printf(" DT\t= %.3f ms\n", deadTime / 1000000.0);
+	printf(" Good\t= %u counts\n", goodCounts);
+	printf(" Tot.\t= %u counts\n", totCounts);
+	printf(" ICR\t= %.3f counts/s\n", countsPerSecond);
+}
+
 int32_t PigsDAQ::ConfigureChannel(int32_t ch) {
+	// Configures channel with parameters set in the class data
 	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 	if (isChannelDisabled(ch)) {
 		printf("Warning: Channel %d disabled\n",ch);
@@ -238,8 +329,6 @@ int32_t PigsDAQ::InitDgtzParams() {
 	///
 	/// \return  0 = Success; negative numbers are error codes
 	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-
-	int32_t ch;
 
 	// set listMode default parameters
 	dgtzParams.ListParams.enabled = FALSE;
@@ -405,5 +494,20 @@ int32_t PigsDAQ::EndLibrary() {
 	}
 	return fErrCode;
 }
+
+TH1D *PigsDAQ::getCurrHist() const
+{
+	return fCurrHist;
+}
+
+
+void PigsDAQ::setCurrHist(TH1D *currHist)
+{
+	fCurrHist = currHist;
+}
+
+
+
+
 
 
