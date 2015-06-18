@@ -75,7 +75,8 @@ int32_t PigsDAQ::InitDPPLib() {
 	// Initialize the DPP library
 	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 	fErrCode = CAENDPP_InitLibrary(&handle); // The handle will be used to command the library
-	if(!fErrCode) std::cerr<<"Problem initializing the library: "<< decodeError(codeStr,fErrCode) << std::endl;
+	if(fErrCode != CAENDPP_RetCode_Ok)
+		std::cerr<<"Problem initializing the library: "<< decodeError(codeStr,fErrCode) << std::endl;
 	return fErrCode;
 }
 
