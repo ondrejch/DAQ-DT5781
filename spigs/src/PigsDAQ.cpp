@@ -36,9 +36,13 @@ int32_t PigsDAQ::BasicInit() {
 	fErrCode += instance->SetDgtzParams();
 	// Custom DAQ parameters
 	fErrCode += instance->SetDAQParams();
-
+	// Time keeping
+	fDt = 0;
 	// No histogram yet
 	fCurrHist = 0;
+	// reset counters
+	totCounts = realTime = deadTime = 0;
+	countsPerSecond = 0;
 	// Allocate the histogram to the given number of bins.
 	h1 = (uint32_t *)calloc(MAX_HISTO_NBINS, sizeof(uint32_t));
 	if (h1 == 0) {
@@ -182,6 +186,10 @@ int32_t PigsDAQ::AcquisitionLoop() {
 	totCounts = realTime = deadTime = 0;
 	countsPerSecond = 0;
 
+	// Set starting date time
+	if(fDt) delete fDt;
+	fDt = new TDatime();
+
 	// Start Acquisition for channel 0
 	ch = 0;
 	fErrCode = CAENDPP_StartAcquisition(handle, ch);
@@ -219,11 +227,13 @@ int32_t PigsDAQ::RefreshCurrHist() {
 	// creates TH1D from h1
 	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
+	fAcqDate=Form("%06d %02d:%02d:%02d",fDt->GetDate(),fDt->GetHour(),fDt->GetMinute(),fDt->GetSecond());
 	if(fCurrHist) delete fCurrHist;
-	fCurrHist = new TH1D("fCurrHist","ADC counts", h1NBins, 0, h1NBins-1);
+	fCurrHist = new TH1D("fCurrHist", Form("ch0: %s",fAcqDate.Data()), h1NBins, 0, h1NBins-1);
+	fCurrHist->SetXTitle("ADC channel");
+	fCurrHist->SetYTitle("Counts");
 	if(fCurrHist) {
-		for (int i=0; i<h1NBins; i++) {
-			//fCurrHist->SetContent((double*)h1);
+		for (int32_t i=0; i < h1NBins; i++) { // copy over data from h1
 			fCurrHist->SetBinContent(i+1,h1[i]);
 		}
 		return 0;
@@ -499,16 +509,33 @@ int32_t PigsDAQ::EndLibrary() {
 	return fErrCode;
 }
 
-TH1D *PigsDAQ::getCurrHist() const
-{
-	return fCurrHist;
+// getters & setters
+TH1D   * PigsDAQ::getCurrHist() const { return fCurrHist; }
+void     PigsDAQ::setCurrHist(TH1D *currHist) { fCurrHist = currHist; }
+double   PigsDAQ::getCountsPerSecond() const { return countsPerSecond; }
+uint64_t PigsDAQ::getRealTime() const { return realTime; }
+uint64_t PigsDAQ::getDeadTime() const { return deadTime; }
+uint32_t PigsDAQ::getTotCounts() const { return totCounts; }
+uint32_t PigsDAQ::getGoodCounts() const { return goodCounts; }
+
+CAENDPP_StopCriteria_t PigsDAQ::getStopCriteria() const {
+    return StopCriteria;
+}
+
+void PigsDAQ::setStopCriteria(CAENDPP_StopCriteria_t stopCriteria) {
+    StopCriteria = stopCriteria;
+}
+
+uint64_t PigsDAQ::getStopCriteriaValue() const {
+    return StopCriteriaValue;
+}
+void PigsDAQ::setStopCriteriaValue(uint64_t stopCriteriaValue) {
+    StopCriteriaValue = stopCriteriaValue;
 }
 
 
-void PigsDAQ::setCurrHist(TH1D *currHist)
-{
-	fCurrHist = currHist;
-}
+
+
 
 
 
