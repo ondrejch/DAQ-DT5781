@@ -39,7 +39,6 @@ int test1(void) {
 		h->Write();
 		f->Write();
 		f->Close();
-
 	}
 	ret = daq->EndLibrary();
 	return ret;
