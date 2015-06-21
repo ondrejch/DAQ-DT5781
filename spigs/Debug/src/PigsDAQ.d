@@ -20,7 +20,8 @@ src/PigsDAQ.d: ../src/PigsDAQ.cpp ../src/PigsDAQ.h \
  /usr/include/root/TArrayS.h /usr/include/root/TArrayI.h \
  /usr/include/root/TArrayF.h /usr/include/root/Foption.h \
  /usr/include/root/TVectorFfwd.h /usr/include/root/TVectorDfwd.h \
- /usr/include/root/TFitResultPtr.h
+ /usr/include/root/TFitResultPtr.h /usr/include/root/TDatime.h \
+ /usr/include/root/TString.h
 
 ../src/PigsDAQ.h:
 
@@ -109,3 +110,7 @@ src/PigsDAQ.d: ../src/PigsDAQ.cpp ../src/PigsDAQ.h \
 /usr/include/root/TVectorDfwd.h:
 
 /usr/include/root/TFitResultPtr.h:
+
+/usr/include/root/TDatime.h:
+
+/usr/include/root/TString.h:

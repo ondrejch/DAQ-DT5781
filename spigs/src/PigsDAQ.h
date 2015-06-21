@@ -25,6 +25,8 @@
 // ROOT
 #include <TROOT.h>
 #include <TH1D.h>
+#include <TDatime.h>
+#include <TString.h>
 
 // The maximum number of board's channels.
 // NOTE: MAX_NUMCHB is defined in 'CAENDPPLibTypes.h'
@@ -75,6 +77,16 @@ public:
 
 	TH1D *getCurrHist() const;
     void setCurrHist(TH1D *currHist);
+    double getCountsPerSecond() const;
+    uint32_t getGoodCounts() const;
+    uint64_t getRealTime() const;
+    uint64_t getDeadTime() const;
+    uint32_t getTotCounts() const;
+    CAENDPP_StopCriteria_t getStopCriteria() const;
+    uint64_t getStopCriteriaValue() const;
+    void setStopCriteria(CAENDPP_StopCriteria_t stopCriteria);
+    void setStopCriteriaValue(uint64_t stopCriteriaValue);
+
 
 private:
 	int32_t ch;  		// ch is the variable used to identify a board's channel inside DPPLibrary.
@@ -89,8 +101,10 @@ private:
 	uint64_t StopCriteriaValue; 		  // Stop Criteria value
 	CAENDPP_AcqStatus_t isAcquiring;      // 1 yes, 0 no
 	uint32_t usecSleepPollDAQ;            // sleep in microseconds to poll DAQ acquisition status
-	uint64_t realTime, deadTime;
-	uint32_t goodCounts, totCounts;
+	uint64_t realTime;
+	uint64_t deadTime;
+	uint32_t goodCounts;
+	uint32_t totCounts;
 	double countsPerSecond;
 	uint32_t *h1;						  // histogram used for DPP dump
 	int32_t  h1NBins;				      // number of bins in the histogram
@@ -101,6 +115,8 @@ private:
 	static const int32_t fVerbose;	// verbosity level settings
 	int32_t fErrCode;	// error code from DPP calls
 	TH1D *fCurrHist;	// Current histogram
+	TDatime *fDt;		// Current date for histogram time
+	TString fAcqDate;	// Acquisition date
 
 protected:
 	static PigsDAQ * instance;
