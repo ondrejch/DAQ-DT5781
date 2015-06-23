@@ -85,8 +85,9 @@ void guitest()
    // embedded canvas
    TRootEmbeddedCanvas *fLatestHistoCanvas = new TRootEmbeddedCanvas(0,fCurHistFrame,478,280);
    Int_t wfLatestHistoCanvas = fLatestHistoCanvas->GetCanvasWindowId();
-   TCanvas *c124 = new TCanvas("c124", 10, 10, wfLatestHistoCanvas);
-   fLatestHistoCanvas->AdoptCanvas(c124);
+   TCanvas *fCurrHCanvas = new TCanvas("fCurrHCanvas", 10, 10, wfLatestHistoCanvas);
+   fCurrHCanvas->SetEditable(kFALSE); 		//	to remove editing
+   fLatestHistoCanvas->AdoptCanvas(fCurrHCanvas);
    fCurHistFrame->AddFrame(fLatestHistoCanvas, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
    TGHProgressBar *fHCurrHProgressBar = new TGHProgressBar(fCurHistFrame,472);
    fHCurrHProgressBar->SetFillType(TGProgressBar::kBlockFill);
