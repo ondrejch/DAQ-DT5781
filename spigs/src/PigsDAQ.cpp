@@ -26,6 +26,11 @@ PigsDAQ * PigsDAQ::getInstance(){
 	return instance ;
 }
 
+//PigsDAQ::PigsDAQ(){
+//ch=handle=brd=0;
+//connParam=info=dgtzParams=acqMode=iputLevel=StopCriteria=StopCriteriaValue=0;
+//}
+
 int32_t PigsDAQ::BasicInit() {
 	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 	fErrCode = 0;
