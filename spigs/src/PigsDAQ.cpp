@@ -17,7 +17,8 @@ PigsDAQ * PigsDAQ::instance  = 0;
 const int32_t PigsDAQ::fVerbose = 1;
 
 //------------------------------------------------
-PigsDAQ * PigsDAQ::getInstance(){
+PigsDAQ * PigsDAQ::getInstance() {
+	// Call this to get instance, not the constructor
 	if(!instantiated) {
 		instance = new PigsDAQ();
 		instantiated = true;
@@ -26,10 +27,14 @@ PigsDAQ * PigsDAQ::getInstance(){
 	return instance ;
 }
 
-//PigsDAQ::PigsDAQ(){
-//ch=handle=brd=0;
-//connParam=info=dgtzParams=acqMode=iputLevel=StopCriteria=StopCriteriaValue=0;
-//}
+PigsDAQ::PigsDAQ() {
+	// Constructor zeroes everything, making Eclipse happy
+	ch=handle=brd=0;
+	connParam=info=dgtzParams=acqMode=iputLevel=StopCriteria=StopCriteriaValue=0;
+	totCounts=countsPerSecond=deadTime=realTime=goodCounts=0;
+	usecSleepPollDAQ=fErrCode=fCurrHist=fDt=h1=h1NBins=0;
+	isAcquiring=0;
+}
 
 int32_t PigsDAQ::BasicInit() {
 	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;

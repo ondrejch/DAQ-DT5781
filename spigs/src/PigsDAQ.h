@@ -90,7 +90,7 @@ public:
 protected:
 	static PigsDAQ * instance;
 	static bool instantiated;
-	PigsDAQ(){};
+	PigsDAQ();
 	~PigsDAQ(){};
 
 private:

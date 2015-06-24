@@ -31,6 +31,9 @@ int PigsGUI::ExitDAQ() {
 }
 
 int PigsGUI::StartAcqisition() {
+	// TODO
+	int ret=0;
+	return ret;
 }
 
 int PigsGUI::StopAcqisition() {
