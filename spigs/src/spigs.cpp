@@ -27,7 +27,7 @@ int test1(void) {
 	if (!ret) {
 		daq->PrintBoardInfo();
 		daq->PrintChannelParameters(0);
-		ret = daq->AcquisitionLoop();
+		ret = daq->AcquisitionSingleLoop();
 	}
 	if (!ret) {
 		daq->PrintAcquisotionInfo();

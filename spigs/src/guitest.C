@@ -43,6 +43,7 @@
 #include "TRootEmbeddedCanvas.h"
 #include "TCanvas.h"
 #include "TGInputDialog.h"
+#include <TGClient.h>
 
 #include "Riostream.h"
 
@@ -51,18 +52,41 @@ int myvar = 0;
 const int fGUIsizeX = 600;
 const int fGUIsizeY = 500;
 
+TGMainFrame *fMainGUIFrame;		// Main GUI window
+TGLabel *fMainTitle;			//
+TGTab *fTabHolder;  			// tab widget
+TGCompositeFrame *fCurHistFrame;// container of "CurrentHistogram"
+TRootEmbeddedCanvas *fLatestHistoCanvas;
+TCanvas *cCurrHCanvas;
+TGHProgressBar *fHCurrHProgressBar;
+TGCompositeFrame *fTabHisto;	// container of "History"
+TRootEmbeddedCanvas *fLastNspectra;
+TCanvas *cLastNspectra;
+TGCompositeFrame *fTabConfig; 	// container of "Config"
+TGCompositeFrame *fTABDT5781; 	// container of "DT5781"
+TGCompositeFrame *fTabAbout;  	// container of "About"
+
+TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
+
+TGFont *ufont;         			// will reflect user font changes
+ULong_t fColor; 		  		// Color helper
+TGGC   *uGC;           			// will reflect user GC changes
+GCValues_t valTitle;			// graphics context changes
+
+
 void guitest()
 {
 
+
    // main frame
-   TGMainFrame *fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
+   fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
    fMainGUIFrame->SetName("fMainGUIFrame");
    fMainGUIFrame->SetLayoutBroken(kTRUE);
 
-   TGFont *ufont;         // will reflect user font changes
-   ufont = gClient->GetFont("-*-luxi_sans-bold-r-*-*-0-*-*-*-*-*-*-*");
+   //ufont = gClient->GetFont("-*-luxi_sans-bold-r-*-*-16-*-*-*-*-*-*-*");
+//   ufont = gClient->GetFont("-*-helvetica-medium-r-normal-*-14-*-*-*-*-*-iso8859-1");
+   ufont = gClient->GetFont("-urw-nimbus sans l-bold-r-normal--0-0-0-0-p-0-iso8859-1");
 
-   TGGC   *uGC;           // will reflect user GC changes
    // graphics context changes
    GCValues_t valTitle;
    valTitle.fMask = kGCForeground | kGCBackground | kGCFillStyle | kGCFont | kGCGraphicsExposures;
@@ -72,85 +96,90 @@ void guitest()
    valTitle.fFont = ufont->GetFontHandle();
    valTitle.fGraphicsExposures = kFALSE;
    uGC = gClient->GetGC(&valTitle, kTRUE);
-   TGLabel *fMainTitle = new TGLabel(fMainGUIFrame,"Single-channel Position Identifying Gamma Sensor",uGC->GetGC(),ufont->GetFontStruct());
+   fMainTitle = new TGLabel(fMainGUIFrame,"Single-channel Position Identifying Gamma Sensor",uGC->GetGC(),ufont->GetFontStruct());
    fMainTitle->SetTextJustify(36);
    fMainTitle->SetMargins(0,0,0,0);
    fMainTitle->SetWrapLength(-1);
    fMainGUIFrame->AddFrame(fMainTitle, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
    fMainTitle->MoveResize(0,0,fGUIsizeX-4,32);
 
+
    // tab widget
-   TGTab *fTabHolder = new TGTab(fMainGUIFrame,fGUIsizeX-4,fGUIsizeX-4);
+//   GCValues_t valTab;
+//   gClient->GetColorByName("#000000",valTab.fForeground);
+//   gClient->GetColorByName("#e0e0e0",valTab.fBackground);
+//   ufont = gClient->GetFont("-urw-nimbus sans l-regular-r-normal--0-0-0-0-p-0-iso8859-1");
+//   valTab.fFillStyle = kFillSolid;
+//   valTab.fFont = ufont->GetFontHandle();
+//   valTab.fGraphicsExposures = kFALSE;
+//   uGC = gClient->GetGC(&valTab, kTRUE);
+   fTabHolder = new TGTab(fMainGUIFrame,fGUIsizeX-4,fGUIsizeX-4);//,uGC->GetGC());
 
    // container of "CurrentHistogram"
-   TGCompositeFrame *fCurHistFrame;
    fCurHistFrame = fTabHolder->AddTab("CurrentHistogram");
    fCurHistFrame->SetLayoutManager(new TGVerticalLayout(fCurHistFrame));
 
    // embedded canvas
-   TRootEmbeddedCanvas *fLatestHistoCanvas = new TRootEmbeddedCanvas(0,fCurHistFrame,fGUIsizeX-10,fGUIsizeY-140);
+   fLatestHistoCanvas = new TRootEmbeddedCanvas(0,fCurHistFrame,fGUIsizeX-10,fGUIsizeY-140);
    Int_t wfLatestHistoCanvas = fLatestHistoCanvas->GetCanvasWindowId();
-   TCanvas *fCurrHCanvas = new TCanvas("fCurrHCanvas", 10, 10, wfLatestHistoCanvas);
-   fCurrHCanvas->SetEditable(kFALSE); 		//	to remove editing
-   fLatestHistoCanvas->AdoptCanvas(fCurrHCanvas);
+   cCurrHCanvas = new TCanvas("cCurrHCanvas", 10, 10, wfLatestHistoCanvas);
+   cCurrHCanvas->SetEditable(kFALSE); 		//	to remove editing
+   fLatestHistoCanvas->AdoptCanvas(cCurrHCanvas);
    fCurHistFrame->AddFrame(fLatestHistoCanvas, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-   TGHProgressBar *fHCurrHProgressBar = new TGHProgressBar(fCurHistFrame,fGUIsizeX-5);
+   fHCurrHProgressBar = new TGHProgressBar(fCurHistFrame,fGUIsizeX-5);
    fHCurrHProgressBar->SetFillType(TGProgressBar::kBlockFill);
    fHCurrHProgressBar->ChangeOptions(kSunkenFrame | kDoubleBorder | kOwnBackground);
 
-   ULong_t ucolor;        // will reflect user color changes
-   gClient->GetColorByName("#ffffff",ucolor);
-   fHCurrHProgressBar->SetBackgroundColor(ucolor);
+   gClient->GetColorByName("#ffffff",fColor);
+   fHCurrHProgressBar->SetBackgroundColor(fColor);
    fHCurrHProgressBar->SetPosition(10);
    fCurHistFrame->AddFrame(fHCurrHProgressBar, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
 
    // container of "History"
-   TGCompositeFrame *fTabHisto;
    fTabHisto = fTabHolder->AddTab("History");
    fTabHisto->SetLayoutManager(new TGVerticalLayout(fTabHisto));
 
    // embedded canvas
-   TRootEmbeddedCanvas *fLastNspectra = new TRootEmbeddedCanvas(0,fTabHisto,fGUIsizeX-10,fGUIsizeY-110);
+   fLastNspectra = new TRootEmbeddedCanvas(0,fTabHisto,fGUIsizeX-10,fGUIsizeY-110);
    Int_t wfLastNspectra = fLastNspectra->GetCanvasWindowId();
-   TCanvas *c125 = new TCanvas("c125", 10, 10, wfLastNspectra);
-   fLastNspectra->AdoptCanvas(c125);
+   cLastNspectra = new TCanvas("cLastNspectra", 10, 10, wfLastNspectra);
+   fLastNspectra->AdoptCanvas(cLastNspectra);
    fTabHisto->AddFrame(fLastNspectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
 
    // container of "Config"
-   TGCompositeFrame *fTabConfig;
    fTabConfig = fTabHolder->AddTab("Config");
    fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
 
    // container of "DT5781"
-   TGCompositeFrame *fTABDT5781;
    fTABDT5781 = fTabHolder->AddTab("DT5781");
    fTABDT5781->SetLayoutManager(new TGVerticalLayout(fTABDT5781));
 
-
    // container of "About"
-   TGCompositeFrame *fTabAbout;
    fTabAbout = fTabHolder->AddTab("About");
    fTabAbout->SetLayoutManager(new TGVerticalLayout(fTabAbout));
 
-
    // buttons
-   TGTextButton *fStartDAQ = new TGTextButton(fMainGUIFrame, "Start DAQ");
+   fStartDAQ = new TGTextButton(fMainGUIFrame, "Start DAQ");
    fStartDAQ->SetTextJustify(36);
    fStartDAQ->SetMargins(0,0,0,0);
    fStartDAQ->Resize(90,25);
    fMainGUIFrame->AddFrame(fStartDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
    fStartDAQ->MoveResize(50,fGUIsizeY-30,90,25);
+   gClient->GetColorByName("green", fColor);
+   fStartDAQ->ChangeBackground(fColor);
 
-   TGTextButton *fStopDAQ = new TGTextButton(fMainGUIFrame, "Stop DAQ");
+   fStopDAQ = new TGTextButton(fMainGUIFrame, "Stop DAQ");
    fStopDAQ->SetTextJustify(36);
    fStopDAQ->SetMargins(0,0,0,0);
    fStopDAQ->Resize(90,25);
    fMainGUIFrame->AddFrame(fStopDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
    fStopDAQ->MoveResize(fGUIsizeX-50-90,fGUIsizeY-30,90,25);
+   gClient->GetColorByName("red", fColor);
+   fStopDAQ->ChangeBackground(fColor);
 
-   TGTextButton *fExitDAQ = new TGTextButton(fMainGUIFrame, "Exit DAQ");
+   fExitDAQ = new TGTextButton(fMainGUIFrame, "Exit DAQ");
    fExitDAQ->SetTextJustify(36);
    fExitDAQ->SetMargins(0,0,0,0);
    fExitDAQ->Resize(90,25);
@@ -160,14 +189,12 @@ void guitest()
 
    //   fTabHolder->SetTab(4);
    fTabHolder->SetTab("CurrentHistogram");
-
    fTabHolder->Resize(fTabHolder->GetDefaultSize());
    fMainGUIFrame->AddFrame(fTabHolder, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
    fTabHolder->MoveResize(0,32,fGUIsizeX-2,fGUIsizeY-80);
 
    fMainGUIFrame->SetMWMHints(kMWMDecorAll, kMWMFuncAll, kMWMInputModeless);
    fMainGUIFrame->MapSubwindows();
-
    fMainGUIFrame->Resize(fMainGUIFrame->GetDefaultSize());
    fMainGUIFrame->MapWindow();
    fMainGUIFrame->Resize(fGUIsizeX,fGUIsizeY);

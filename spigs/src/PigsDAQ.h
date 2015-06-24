@@ -70,7 +70,7 @@ public:
 
 	int32_t ConfigureChannel(int32_t ch); 	// Sets channel parameters specified in Init & Set calls
 	int32_t StopAcquisition(int32_t ch);	// Stops acquisition for channel ch
-	int32_t AcquisitionLoop();				// Runs acquisition
+	int32_t AcquisitionSingleLoop();		// Runs acquisition
 	void PrintAcquisotionInfo();			// Prints real/dead time, cps, ...
 
 	int32_t RefreshCurrHist();				// Transfers h1 into currHist
@@ -87,6 +87,11 @@ public:
     void setStopCriteria(CAENDPP_StopCriteria_t stopCriteria);
     void setStopCriteriaValue(uint64_t stopCriteriaValue);
 
+protected:
+	static PigsDAQ * instance;
+	static bool instantiated;
+	PigsDAQ(){};
+	~PigsDAQ(){};
 
 private:
 	int32_t ch;  		// ch is the variable used to identify a board's channel inside DPPLibrary.
@@ -118,11 +123,7 @@ private:
 	TDatime *fDt;		// Current date for histogram time
 	TString fAcqDate;	// Acquisition date
 
-protected:
-	static PigsDAQ * instance;
-	static bool instantiated;
-	PigsDAQ(){};
-	~PigsDAQ(){};
+	ClassDef(PigsDAQ, 0)
 };
 
 #endif /* PIGSDAQ_H_ */

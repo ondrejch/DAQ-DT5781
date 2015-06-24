@@ -183,7 +183,7 @@ int32_t PigsDAQ::StopAcquisition(int32_t ch) {
 	return fErrCode;
 }
 
-int32_t PigsDAQ::AcquisitionLoop() {
+int32_t PigsDAQ::AcquisitionSingleLoop() {
 	// Currently does only one cycle in the loop...
 	if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
