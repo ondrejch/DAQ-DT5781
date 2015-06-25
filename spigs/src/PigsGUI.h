@@ -38,6 +38,7 @@ public:
 private:
 	TGMainFrame *fMainGUIFrame;		// Main GUI window
 	TGLabel *fMainTitle;			//
+	TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
 	TGTab *fTabHolder;  			// tab widget
 	TGCompositeFrame *fCurHistFrame;// container of "CurrentHistogram"
 	TRootEmbeddedCanvas *fLatestHistoCanvas;
@@ -49,8 +50,8 @@ private:
 	TGCompositeFrame *fTabConfig; 	// container of "Config"
 	TGCompositeFrame *fTabDT5781; 	// container of "DT5781"
 	TGLabel *fDTinfo;
+	TGTextButton *fInitDAQ;			// buttons
 	TGCompositeFrame *fTabAbout;  	// container of "About"
-	TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
 
 	TGFont *ufont;         			// will reflect user font changes
 	ULong_t fColor; 		  		// Color helper
