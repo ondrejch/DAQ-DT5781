@@ -9,6 +9,8 @@
 #ifndef PIGSGUI_H_
 #define PIGSGUI_H_
 
+
+// ROOT
 #include "Riostream.h"
 #include "TGTab.h"
 #include "TGLabel.h"
@@ -18,7 +20,10 @@
 #include "TCanvas.h"
 #include "TGClient.h"
 
+// PIGS
 #include "PigsDAQ.h"
+
+class PigsDAQ;
 
 class PigsGUI : public TGMainFrame  {
 public:
@@ -44,7 +49,6 @@ private:
 	TGCompositeFrame *fTabConfig; 	// container of "Config"
 	TGCompositeFrame *fTABDT5781; 	// container of "DT5781"
 	TGCompositeFrame *fTabAbout;  	// container of "About"
-
 	TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
 
 	TGFont *ufont;         			// will reflect user font changes
@@ -52,12 +56,12 @@ private:
 	TGGC   *uGC;           			// will reflect user GC changes
 	GCValues_t valTitle;			// graphics context changes
 
-	const int fGUIsizeX = 600;
-	const int fGUIsizeY = 500;
-
 	PigsDAQ *daq;
 
-	ClassDef(PigsGUI, 0)
+	static const int fGUIsizeX = 600;
+	static const int fGUIsizeY = 500;
+
+	//ClassDef(PigsGUI, 0);
 };
 
 #endif /* PIGSGUI_H_ */

@@ -29,11 +29,18 @@ PigsDAQ * PigsDAQ::getInstance() {
 
 PigsDAQ::PigsDAQ() {
 	// Constructor zeroes everything, making Eclipse happy
-	ch=handle=brd=0;
-	connParam=info=dgtzParams=acqMode=iputLevel=StopCriteria=StopCriteriaValue=0;
-	totCounts=countsPerSecond=deadTime=realTime=goodCounts=0;
-	usecSleepPollDAQ=fErrCode=fCurrHist=fDt=h1=h1NBins=0;
-	isAcquiring=0;
+	h1NBins=ch=handle=brd=0;
+	totCounts=0;
+	countsPerSecond=deadTime=realTime=goodCounts=0;
+	StopCriteriaValue=0;
+	usecSleepPollDAQ=0;
+	fErrCode=0;
+	fCurrHist=0;
+	fDt=0;
+	h1=0;
+	gui=0;
+//	isAcquiring=0;connParam=0;info=0;dgtzParams=0;acqMode=0;
+//	iputLevel=0;StopCriteria=0;
 }
 
 int32_t PigsDAQ::BasicInit() {
@@ -195,6 +202,7 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
 	// reset counters
 	totCounts = realTime = deadTime = 0;
 	countsPerSecond = 0;
+	Float_t pctProgress = 0;		// measures progress in acquisition
 
 	// Set starting date time
 	if(fDt) delete fDt;
@@ -211,9 +219,11 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
 	}
 
 	do {
+		if(gui) gui->SetProgressBarPosition(pctProgress);	// If GUI is set, update the progress bar
 		usleep(usecSleepPollDAQ);		// waits to poll DT5781
 		CAENDPP_IsChannelAcquiring(handle, ch, &isAcquiring );
 		if(fVerbose>9) printf("  -- ch %d acq status %d\n", ch, isAcquiring);
+		if(gui) pctProgress += float(usecSleepPollDAQ)/(float)StopCriteriaValue;
 	} while (isAcquiring);
 
 	// Get The Histogram
@@ -230,6 +240,7 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
 	}
 	totCounts       = (uint32_t)(goodCounts * (1.0 + (double)deadTime / (double)(realTime)));
 	countsPerSecond = (realTime - deadTime) > 0 ? (double)goodCounts / (double)((realTime - deadTime) / 1000000000.0) : 0;
+	if(gui) gui->SetProgressBarPosition(pctProgress);	// If GUI is set, update the progress bar
 	return fErrCode;
 }
 
@@ -527,6 +538,8 @@ uint64_t PigsDAQ::getRealTime() const { return realTime; }
 uint64_t PigsDAQ::getDeadTime() const { return deadTime; }
 uint32_t PigsDAQ::getTotCounts() const { return totCounts; }
 uint32_t PigsDAQ::getGoodCounts() const { return goodCounts; }
+PigsGUI *PigsDAQ::getGUI() const { return gui; }
+void     PigsDAQ::setGUI(PigsGUI *gui) { this->gui = gui;}
 
 CAENDPP_StopCriteria_t PigsDAQ::getStopCriteria() const {
     return StopCriteria;

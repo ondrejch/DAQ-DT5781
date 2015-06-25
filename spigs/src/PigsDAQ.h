@@ -28,6 +28,9 @@
 #include <TDatime.h>
 #include <TString.h>
 
+// PIGS
+#include <PigsGUI.h>
+
 // The maximum number of board's channels.
 // NOTE: MAX_NUMCHB is defined in 'CAENDPPLibTypes.h'
 #define MAX_BOARD_CHNUM MAX_NUMCHB
@@ -50,6 +53,8 @@
 #define MAX_HVNAME_LEN      (29)    // Maximum Length of Active HV Channel Name
 #define MAX_TRACENAME_LEN   (50)    // Maximum Length of Traces Name
 #define MAX_HISTOFNAME_LEN  (100)   // Maximum Length of Histograms File Name
+
+class PigsGUI;
 
 class PigsDAQ {
 public:
@@ -86,6 +91,8 @@ public:
     uint64_t getStopCriteriaValue() const;
     void setStopCriteria(CAENDPP_StopCriteria_t stopCriteria);
     void setStopCriteriaValue(uint64_t stopCriteriaValue);
+    PigsGUI *getGUI() const;
+    void setGUI(PigsGUI *gui);
 
 protected:
 	static PigsDAQ * instance;
@@ -122,8 +129,8 @@ private:
 	TH1D *fCurrHist;	// Current histogram
 	TDatime *fDt;		// Current date for histogram time
 	TString fAcqDate;	// Acquisition date
+	PigsGUI *gui;		// Associated GUI
 
-	ClassDef(PigsDAQ, 0)
 };
 
 #endif /* PIGSDAQ_H_ */

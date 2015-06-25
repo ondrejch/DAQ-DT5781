@@ -21,6 +21,7 @@ int PigsGUI::InitDAQ() {
 		daq->PrintChannelParameters(0);
 		fStartDAQ->SetState(kButtonUp);
 	}
+	daq->setGUI(this);			// set GUI pointer
 	return ret;
 }
 
@@ -32,6 +33,8 @@ int PigsGUI::ExitDAQ() {
 
 int PigsGUI::StartAcqisition() {
 	// TODO
+	fStartDAQ->SetState(kButtonDown);
+
 	int ret=0;
 	return ret;
 }
