@@ -63,10 +63,12 @@ TGCompositeFrame *fTabHisto;	// container of "History"
 TRootEmbeddedCanvas *fLastNspectra;
 TCanvas *cLastNspectra;
 TGCompositeFrame *fTabConfig; 	// container of "Config"
-TGCompositeFrame *fTABDT5781; 	// container of "DT5781"
+TGCompositeFrame *fTabDT5781; 	// container of "DT5781"
+TGLabel *fDTinfo;
 TGCompositeFrame *fTabAbout;  	// container of "About"
 
-TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
+TGTextButton *fInitDAQ, *fDisableDAQ;			// buttons
+TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ;  // buttons
 
 TGFont *ufont;         			// will reflect user font changes
 ULong_t fColor; 		  		// Color helper
@@ -153,8 +155,24 @@ void guitest()
    fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
 
    // container of "DT5781"
-   fTABDT5781 = fTabHolder->AddTab("DT5781");
-   fTABDT5781->SetLayoutManager(new TGVerticalLayout(fTABDT5781));
+   fTabDT5781 = fTabHolder->AddTab("DT5781");
+   fTabDT5781->SetLayoutManager(new TGVerticalLayout(fTabDT5781));
+   gClient->GetColorByName("#ffffff",fColor);
+   fDTinfo = new TGLabel(fTabDT5781,"fDTinfo",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kSunkenFrame,fColor);
+   fDTinfo->SetTextJustify(36);
+   fDTinfo->SetMargins(0,0,0,0);
+   fDTinfo->SetWrapLength(-1);
+   fDTinfo->SetText("DAQ not initialized.");
+   fTabDT5781->AddFrame(fDTinfo, new TGLayoutHints(kLHintsNormal));
+
+   fInitDAQ = new TGTextButton(fTabDT5781, "Init DAQ");
+   fInitDAQ->SetTextJustify(36);
+   fInitDAQ->SetMargins(0,0,0,0);
+   fInitDAQ->Resize(90,25);
+   fMainGUIFrame->AddFrame(fInitDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+   fInitDAQ->MoveResize(fGUIsizeX-50-90,50,90,25);
+   gClient->GetColorByName("light blue", fColor);
+   fInitDAQ->ChangeBackground(fColor);
 
    // container of "About"
    fTabAbout = fTabHolder->AddTab("About");
@@ -188,7 +206,8 @@ void guitest()
 
 
    //   fTabHolder->SetTab(4);
-   fTabHolder->SetTab("CurrentHistogram");
+   //fTabHolder->SetTab("CurrentHistogram");
+   fTabHolder->SetTab("DT5781");
    fTabHolder->Resize(fTabHolder->GetDefaultSize());
    fMainGUIFrame->AddFrame(fTabHolder, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
    fTabHolder->MoveResize(0,32,fGUIsizeX-2,fGUIsizeY-80);
@@ -198,6 +217,9 @@ void guitest()
    fMainGUIFrame->Resize(fMainGUIFrame->GetDefaultSize());
    fMainGUIFrame->MapWindow();
    fMainGUIFrame->Resize(fGUIsizeX,fGUIsizeY);
+
+
+   fDTinfo->MoveResize(10,50,400,150);
 
 }
 

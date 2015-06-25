@@ -31,7 +31,7 @@ public:
 	~PigsGUI();						// Ends DAQ, DPP, GUI
 	int InitDAQ();					// Initialization of the PigsDAQ object, DPP library, DAQ config
 	int ExitDAQ();					// Ends connection to the DPP library
-	int StartAcqisition();
+	int RunSingleAcqisition();		// Runs one acquisition loop
 	int StopAcqisition();			// Stops acquisition on channel 0
     void SetProgressBarPosition(Float_t fposition);	// Set the position of the progress bar
 
@@ -47,7 +47,8 @@ private:
 	TRootEmbeddedCanvas *fLastNspectra;
 	TCanvas *cLastNspectra;
 	TGCompositeFrame *fTabConfig; 	// container of "Config"
-	TGCompositeFrame *fTABDT5781; 	// container of "DT5781"
+	TGCompositeFrame *fTabDT5781; 	// container of "DT5781"
+	TGLabel *fDTinfo;
 	TGCompositeFrame *fTabAbout;  	// container of "About"
 	TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
 

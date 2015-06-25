@@ -31,11 +31,17 @@ int PigsGUI::ExitDAQ() {
 	return ret;
 }
 
-int PigsGUI::StartAcqisition() {
-	// TODO
-	fStartDAQ->SetState(kButtonDown);
-
+int PigsGUI::RunSingleAcqisition() {
+	// Runs one acquisition loop
 	int ret=0;
+	fStartDAQ->SetState(kButtonDown);
+	ret = daq->AcquisitionSingleLoop();	// should run in a separate thread
+    if(!ret) {
+    	daq->RefreshCurrHist();
+    	cCurrHCanvas->cd();
+    	daq->getCurrHist()->Draw();
+    }
+	fStartDAQ->SetState(kButtonUp);
 	return ret;
 }
 
@@ -73,6 +79,35 @@ PigsGUI::PigsGUI() {
 	fMainTitle->SetWrapLength(-1);
 	fMainGUIFrame->AddFrame(fMainTitle, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 	fMainTitle->MoveResize(0,0,fGUIsizeX-4,32);
+
+	// Buttons for main GUI
+	fStartDAQ = new TGTextButton(fMainGUIFrame, "Start DAQ"); 	// start DAQ
+	fStartDAQ->SetTextJustify(36);
+	fStartDAQ->SetMargins(0,0,0,0);
+	fStartDAQ->Resize(90,25);
+	fMainGUIFrame->AddFrame(fStartDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+	fStartDAQ->MoveResize(50,fGUIsizeY-30,90,25);
+	gClient->GetColorByName("green", fColor);
+	fStartDAQ->ChangeBackground(fColor);
+	fStartDAQ->SetState(kButtonDisabled);
+	fStartDAQ->Connect("Clicked()","PigsGUI",this,"RunSingleAcqisition()");
+
+	fStopDAQ = new TGTextButton(fMainGUIFrame, "Stop DAQ");		// stop DAQ
+	fStopDAQ->SetTextJustify(36);
+	fStopDAQ->SetMargins(0,0,0,0);
+	fStopDAQ->Resize(90,25);
+	fMainGUIFrame->AddFrame(fStopDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+	fStopDAQ->MoveResize(fGUIsizeX-50-90,fGUIsizeY-30,90,25);
+	gClient->GetColorByName("red", fColor);
+	fStopDAQ->ChangeBackground(fColor);
+	fStopDAQ->SetState(kButtonDisabled);
+
+	fExitDAQ = new TGTextButton(fMainGUIFrame, "Exit DAQ");		// exit DAQ
+	fExitDAQ->SetTextJustify(36);
+	fExitDAQ->SetMargins(0,0,0,0);
+	fExitDAQ->Resize(90,25);
+	fMainGUIFrame->AddFrame(fExitDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+	fExitDAQ->MoveResize(fGUIsizeX/2-45,fGUIsizeY-30,90,25);
 
 	// tab widget
 	// GCValues_t valTab;
@@ -121,40 +156,18 @@ PigsGUI::PigsGUI() {
 	fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
 
 	// container of "DT5781"
-	fTABDT5781 = fTabHolder->AddTab("DT5781");
-	fTABDT5781->SetLayoutManager(new TGVerticalLayout(fTABDT5781));
+	fTabDT5781 = fTabHolder->AddTab("DT5781");
+	fTabDT5781->SetLayoutManager(new TGVerticalLayout(fTabDT5781));
+	gClient->GetColorByName("#ffffff",fColor);
+	fDTinfo = new TGLabel(fTabDT5781,"fDTinfo",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kSunkenFrame,fColor);
+	fDTinfo->SetTextJustify(36);
+	fDTinfo->SetMargins(0,0,0,0);
+	fDTinfo->SetWrapLength(-1);
+	fTabDT5781->AddFrame(fDTinfo, new TGLayoutHints(kLHintsNormal));
 
 	// container of "About"
 	fTabAbout = fTabHolder->AddTab("About");
 	fTabAbout->SetLayoutManager(new TGVerticalLayout(fTabAbout));
-
-	// Buttons
-	fStartDAQ = new TGTextButton(fMainGUIFrame, "Start DAQ"); 	// start DAQ
-	fStartDAQ->SetTextJustify(36);
-	fStartDAQ->SetMargins(0,0,0,0);
-	fStartDAQ->Resize(90,25);
-	fMainGUIFrame->AddFrame(fStartDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-	fStartDAQ->MoveResize(50,fGUIsizeY-30,90,25);
-	gClient->GetColorByName("green", fColor);
-	fStartDAQ->ChangeBackground(fColor);
-	fStartDAQ->SetState(kButtonDisabled);
-
-	fStopDAQ = new TGTextButton(fMainGUIFrame, "Stop DAQ");		// stop DAQ
-	fStopDAQ->SetTextJustify(36);
-	fStopDAQ->SetMargins(0,0,0,0);
-	fStopDAQ->Resize(90,25);
-	fMainGUIFrame->AddFrame(fStopDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-	fStopDAQ->MoveResize(fGUIsizeX-50-90,fGUIsizeY-30,90,25);
-	gClient->GetColorByName("red", fColor);
-	fStopDAQ->ChangeBackground(fColor);
-	fStopDAQ->SetState(kButtonDisabled);
-
-	fExitDAQ = new TGTextButton(fMainGUIFrame, "Exit DAQ");		// exit DAQ
-	fExitDAQ->SetTextJustify(36);
-	fExitDAQ->SetMargins(0,0,0,0);
-	fExitDAQ->Resize(90,25);
-	fMainGUIFrame->AddFrame(fExitDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-	fExitDAQ->MoveResize(fGUIsizeX/2-45,fGUIsizeY-30,90,25);
 
 	// display GUI
 	fTabHolder->SetTab("CurrentHistogram");
