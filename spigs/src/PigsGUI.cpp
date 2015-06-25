@@ -164,13 +164,24 @@ PigsGUI::PigsGUI() {
 	fDTinfo->SetMargins(0,0,0,0);
 	fDTinfo->SetWrapLength(-1);
 	fTabDT5781->AddFrame(fDTinfo, new TGLayoutHints(kLHintsNormal));
+	fInitDAQ = new TGTextButton(fTabDT5781, "Init DAQ");			// buttons
+	fInitDAQ->SetTextJustify(36);
+	fInitDAQ->SetMargins(0,0,0,0);
+	fInitDAQ->Resize(90,25);
+	fMainGUIFrame->AddFrame(fInitDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+	fInitDAQ->MoveResize(fGUIsizeX-50-90,50,90,25);
+	gClient->GetColorByName("light blue", fColor);
+	fInitDAQ->ChangeBackground(fColor);
 
 	// container of "About"
 	fTabAbout = fTabHolder->AddTab("About");
 	fTabAbout->SetLayoutManager(new TGVerticalLayout(fTabAbout));
 
+	// change to the starting tab
+	//fTabHolder->SetTab("CurrentHistogram");
+	fTabHolder->SetTab("DT5781");
+
 	// display GUI
-	fTabHolder->SetTab("CurrentHistogram");
 	fTabHolder->Resize(fTabHolder->GetDefaultSize());
 	fMainGUIFrame->AddFrame(fTabHolder, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 	fTabHolder->MoveResize(0,32,fGUIsizeX-2,fGUIsizeY-80);
