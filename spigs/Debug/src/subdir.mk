@@ -11,8 +11,7 @@ CPP_SRCS += \
 ../src/spigs.cpp 
 
 C_UPPER_SRCS += \
-../src/guitest.C \
-../src/guitest2.C 
+../src/guitest.C 
 
 OBJS += \
 ./src/PigsDAQ.o \
@@ -20,7 +19,6 @@ OBJS += \
 ./src/PigsGUI.o \
 ./src/PigsGUI_test.o \
 ./src/guitest.o \
-./src/guitest2.o \
 ./src/spigs.o 
 
 CPP_DEPS += \
@@ -31,22 +29,21 @@ CPP_DEPS += \
 ./src/spigs.d 
 
 C_UPPER_DEPS += \
-./src/guitest.d \
-./src/guitest2.d 
+./src/guitest.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
 src/%.o: ../src/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -I/usr/include/root -I"/home/o/workspace/git/DAQ-DT5781/spigs/src" -I/usr/local/include/CAEN -O3 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -I/usr/include/root -I"/home/rc/git/DAQ-DT5781/spigs/src" -I/usr/local/include/CAEN -O3 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
 src/%.o: ../src/%.C
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -I/usr/include/root -I"/home/o/workspace/git/DAQ-DT5781/spigs/src" -I/usr/local/include/CAEN -O3 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -I/usr/include/root -I"/home/rc/git/DAQ-DT5781/spigs/src" -I/usr/local/include/CAEN -O3 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

@@ -12,12 +12,12 @@
 #ifndef PIGSDAQ_H_
 #define PIGSDAQ_H_
 
-#include <stdio.h>      	// printf, scanf, NULL */
-#include <stdlib.h>     	// calloc, exit, free
-#include <iostream>       	// std::cerr
-#include <typeinfo>       	// operator typeid
-#include <exception>      	// std::exception
-#include <string.h>			// strcpy
+#include <stdio.h>          // printf, scanf, NULL */
+#include <stdlib.h>         // calloc, exit, free
+#include <iostream>           // std::cerr
+#include <typeinfo>           // operator typeid
+#include <exception>          // std::exception
+#include <string.h>            // strcpy
 
 // CAEN
 #include <CAENDPPLib.h>
@@ -58,29 +58,29 @@ class PigsGUI;
 
 class PigsDAQ {
 public:
-	static PigsDAQ * getInstance(); // Get unique pointer to the class
-	int32_t BasicInit();	    // Does all basic initialization
-	int32_t InitDgtzParams(); 	// Initialize the digitizer parameters to their default value
-	int32_t SetDgtzParams(); 	// Set custom digitizer parameters
-	int32_t SetDAQParams();	    // Set custom DAQ parameters
-	int32_t InitDPPLib();		// Initialize the DPP library
-	int32_t AddBoardUSB();		// Adds board 0 on USB bus to the DPP library
-	void PrintBoardInfo();  	// Prints board information
-	int32_t ConfigureBoard();	// Configures the board with digitizer and DAQ parameters
-	int32_t EndLibrary();       // Cleanup: call this before the program ends!
+    static PigsDAQ * getInstance(); // Get unique pointer to the class
+    int32_t BasicInit();        // Does all basic initialization
+    int32_t InitDgtzParams();     // Initialize the digitizer parameters to their default value
+    int32_t SetDgtzParams();     // Set custom digitizer parameters
+    int32_t SetDAQParams();        // Set custom DAQ parameters
+    int32_t InitDPPLib();        // Initialize the DPP library
+    int32_t AddBoardUSB();        // Adds board 0 on USB bus to the DPP library
+    void PrintBoardInfo();      // Prints board information
+    int32_t ConfigureBoard();    // Configures the board with digitizer and DAQ parameters
+    int32_t EndLibrary();       // Cleanup: call this before the program ends!
 
-	int32_t isChannelDisabled(int32_t ch);			// 0 if enabled, 1 if disabled
-	void PrintChannelParameters(int32_t ch); 		// Prints Channel Parameters
-	char * decodeError(char *dest, int32_t code); 	// Decodes the given error code into a message
+    int32_t isChannelDisabled(int32_t ch);            // 0 if enabled, 1 if disabled
+    void PrintChannelParameters(int32_t ch);         // Prints Channel Parameters
+    char * decodeError(char *dest, int32_t code);     // Decodes the given error code into a message
 
-	int32_t ConfigureChannel(int32_t ch); 	// Sets channel parameters specified in Init & Set calls
-	int32_t StopAcquisition(int32_t ch);	// Stops acquisition for channel ch
-	int32_t AcquisitionSingleLoop();		// Runs acquisition
-	void PrintAcquisotionInfo();			// Prints real/dead time, cps, ...
+    int32_t ConfigureChannel(int32_t ch);     // Sets channel parameters specified in Init & Set calls
+    int32_t StopAcquisition(int32_t ch);    // Stops acquisition for channel ch
+    int32_t AcquisitionSingleLoop();        // Runs acquisition
+    void PrintAcquisotionInfo();            // Prints real/dead time, cps, ...
 
-	int32_t RefreshCurrHist();				// Transfers h1 into currHist
+    int32_t RefreshCurrHist();                // Transfers h1 into currHist
 
-	TH1D *getCurrHist() const;
+    TH1D *getCurrHist() const;
     void setCurrHist(TH1D *currHist);
     double getCountsPerSecond() const;
     uint32_t getGoodCounts() const;
@@ -95,41 +95,41 @@ public:
     void setGUI(PigsGUI *gui);
 
 protected:
-	static PigsDAQ * instance;
-	static bool instantiated;
-	PigsDAQ();
-	~PigsDAQ(){};
+    static PigsDAQ * instance;
+    static bool instantiated;
+    PigsDAQ();
+    ~PigsDAQ(){};
 
 private:
-	int32_t ch;  		// ch is the variable used to identify a board's channel inside DPPLibrary.
-	int32_t handle; 	// Handler to the Library
-	int32_t brd; 		// Board Identifier - this code assumes we only have one board
-	CAENDPP_ConnectionParams_t connParam; // Connection Parameters - Used to connect to the board.
-	CAENDPP_Info_t info; 				  // Board Infos Structure
-	CAENDPP_DgtzParams_t dgtzParams;      // Acquisition Parameters - Used to set the acquisition properties.
-	CAENDPP_AcqMode_t acqMode; 			  // Acquisition Mode (Histogram or Waveforms)
-	CAENDPP_InputRange_t iputLevel; 	  // Channel input range
-	CAENDPP_StopCriteria_t StopCriteria;  // Stop Criteria definition
-	uint64_t StopCriteriaValue; 		  // Stop Criteria value
-	CAENDPP_AcqStatus_t isAcquiring;      // 1 yes, 0 no
-	uint32_t usecSleepPollDAQ;            // sleep in microseconds to poll DAQ acquisition status
-	uint64_t realTime;
-	uint64_t deadTime;
-	uint32_t goodCounts;
-	uint32_t totCounts;
-	double countsPerSecond;
-	uint32_t *h1;						  // histogram used for DPP dump
-	int32_t  h1NBins;				      // number of bins in the histogram
+    int32_t ch;         // ch is the variable used to identify a board's channel inside DPPLibrary.
+    int32_t handle;     // Handler to the Library
+    int32_t brd;        // Board Identifier - this code assumes we only have one board
+    CAENDPP_ConnectionParams_t connParam;   // Connection Parameters - Used to connect to the board.
+    CAENDPP_Info_t info;                    // Board Infos Structure
+    CAENDPP_DgtzParams_t dgtzParams;        // Acquisition Parameters - Used to set the acquisition properties.
+    CAENDPP_AcqMode_t acqMode;              // Acquisition Mode (Histogram or Waveforms)
+    CAENDPP_InputRange_t iputLevel;         // Channel input range
+    CAENDPP_StopCriteria_t StopCriteria;    // Stop Criteria definition
+    uint64_t StopCriteriaValue;             // Stop Criteria value
+    CAENDPP_AcqStatus_t isAcquiring;        // 1 yes, 0 no
+    uint32_t usecSleepPollDAQ;              // sleep in microseconds to poll DAQ acquisition status
+    uint64_t realTime;
+    uint64_t deadTime;
+    uint32_t goodCounts;
+    uint32_t totCounts;
+    double countsPerSecond;
+    uint32_t *h1;                           // histogram used for DPP dump
+    int32_t  h1NBins;                       // number of bins in the histogram
 
-	char codeStr[MAX_ERRMSG_LEN + 1];
-	char histoFName[MAX_HISTOFNAME_LEN];
+    char codeStr[MAX_ERRMSG_LEN + 1];
+    char histoFName[MAX_HISTOFNAME_LEN];
 
-	static const int32_t fVerbose;	// verbosity level settings
-	int32_t fErrCode;	// error code from DPP calls
-	TH1D *fCurrHist;	// Current histogram
-	TDatime *fDt;		// Current date for histogram time
-	TString fAcqDate;	// Acquisition date
-	PigsGUI *gui;		// Associated GUI
+    static const int32_t fVerbose;          // verbosity level settings
+    int32_t fErrCode;       // error code from DPP calls
+    TH1D *fCurrHist;        // Current histogram
+    TDatime *fDt;           // Current date for histogram time
+    TString fAcqDate;       // Acquisition date
+    PigsGUI *gui;           // Associated GUI
 
 };
 

@@ -52,28 +52,28 @@ int myvar = 0;
 const int fGUIsizeX = 600;
 const int fGUIsizeY = 500;
 
-TGMainFrame *fMainGUIFrame;		// Main GUI window
-TGLabel *fMainTitle;			//
-TGTab *fTabHolder;  			// tab widget
+TGMainFrame *fMainGUIFrame;        // Main GUI window
+TGLabel *fMainTitle;            //
+TGTab *fTabHolder;              // tab widget
 TGCompositeFrame *fCurHistFrame;// container of "CurrentHistogram"
 TRootEmbeddedCanvas *fLatestHistoCanvas;
 TCanvas *cCurrHCanvas;
 TGHProgressBar *fHCurrHProgressBar;
-TGCompositeFrame *fTabHisto;	// container of "History"
+TGCompositeFrame *fTabHisto;    // container of "History"
 TRootEmbeddedCanvas *fLastNspectra;
 TCanvas *cLastNspectra;
-TGCompositeFrame *fTabConfig; 	// container of "Config"
-TGCompositeFrame *fTabDT5781; 	// container of "DT5781"
+TGCompositeFrame *fTabConfig;     // container of "Config"
+TGCompositeFrame *fTabDT5781;     // container of "DT5781"
 TGLabel *fDTinfo;
-TGCompositeFrame *fTabAbout;  	// container of "About"
+TGCompositeFrame *fTabAbout;      // container of "About"
 
-TGTextButton *fInitDAQ, *fDisableDAQ;			// buttons
+TGTextButton *fInitDAQ, *fDisableDAQ;            // buttons
 TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ;  // buttons
 
-TGFont *ufont;         			// will reflect user font changes
-ULong_t fColor; 		  		// Color helper
-TGGC   *uGC;           			// will reflect user GC changes
-GCValues_t valTitle;			// graphics context changes
+TGFont *ufont;                     // will reflect user font changes
+ULong_t fColor;                   // Color helper
+TGGC   *uGC;                       // will reflect user GC changes
+GCValues_t valTitle;            // graphics context changes
 
 
 void guitest()
@@ -125,7 +125,7 @@ void guitest()
    fLatestHistoCanvas = new TRootEmbeddedCanvas(0,fCurHistFrame,fGUIsizeX-10,fGUIsizeY-140);
    Int_t wfLatestHistoCanvas = fLatestHistoCanvas->GetCanvasWindowId();
    cCurrHCanvas = new TCanvas("cCurrHCanvas", 10, 10, wfLatestHistoCanvas);
-   cCurrHCanvas->SetEditable(kFALSE); 		//	to remove editing
+   cCurrHCanvas->SetEditable(kFALSE);         //    to remove editing
    fLatestHistoCanvas->AdoptCanvas(cCurrHCanvas);
    fCurHistFrame->AddFrame(fLatestHistoCanvas, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
    fHCurrHProgressBar = new TGHProgressBar(fCurHistFrame,fGUIsizeX-5);

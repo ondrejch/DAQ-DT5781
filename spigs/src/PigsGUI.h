@@ -11,7 +11,7 @@
 
 
 // ROOT
-#include "Riostream.h"
+#include "TObject.h"
 #include "TGTab.h"
 #include "TGLabel.h"
 #include "TRootEmbeddedCanvas.h"
@@ -19,6 +19,7 @@
 #include "TGButton.h"
 #include "TCanvas.h"
 #include "TGClient.h"
+#include "Riostream.h"
 
 // PIGS
 #include "PigsDAQ.h"
@@ -27,43 +28,43 @@ class PigsDAQ;
 
 class PigsGUI : public TGMainFrame  {
 public:
-	PigsGUI();						// Creates the GUI
-	~PigsGUI();						// Ends DAQ, DPP, GUI
-	int InitDAQ();					// Initialization of the PigsDAQ object, DPP library, DAQ config
-	int ExitDAQ();					// Ends connection to the DPP library
-	int RunSingleAcqisition();		// Runs one acquisition loop
-	int StopAcqisition();			// Stops acquisition on channel 0
-    void SetProgressBarPosition(Float_t fposition);	// Set the position of the progress bar
+    PigsGUI(const TGWindow *p); // Creates the GUI
+    ~PigsGUI();                         // Ends DAQ, DPP, GUI
+    int InitDAQ();                      // Initialization of the PigsDAQ object, DPP library, DAQ config
+    int ExitDAQ();                      // Ends connection to the DPP library
+    int RunSingleAcqisition();          // Runs one acquisition loop
+    int StopAcqisition();               // Stops acquisition on channel 0
+    void SetProgressBarPosition(Float_t fposition);    // Set the position of the progress bar
 
 private:
-	TGMainFrame *fMainGUIFrame;		// Main GUI window
-	TGLabel *fMainTitle;			//
-	TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
-	TGTab *fTabHolder;  			// tab widget
-	TGCompositeFrame *fCurHistFrame;// container of "CurrentHistogram"
-	TRootEmbeddedCanvas *fLatestHistoCanvas;
-	TCanvas *cCurrHCanvas;
-	TGHProgressBar *fHCurrHProgressBar;
-	TGCompositeFrame *fTabHisto;	// container of "History"
-	TRootEmbeddedCanvas *fLastNspectra;
-	TCanvas *cLastNspectra;
-	TGCompositeFrame *fTabConfig; 	// container of "Config"
-	TGCompositeFrame *fTabDT5781; 	// container of "DT5781"
-	TGLabel *fDTinfo;
-	TGTextButton *fInitDAQ;			// buttons
-	TGCompositeFrame *fTabAbout;  	// container of "About"
+    TGMainFrame *fMainGUIFrame;         // Main GUI window
+    TGLabel *fMainTitle;                //
+    TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
+    TGTab *fTabHolder;                  // tab widget
+    TGCompositeFrame *fCurHistFrame;    // container of "CurrentHistogram"
+    TRootEmbeddedCanvas *fLatestHistoCanvas;
+    TCanvas *cCurrHCanvas;
+    TGHProgressBar *fHCurrHProgressBar;
+    TGCompositeFrame *fTabHisto;        // container of "History"
+    TRootEmbeddedCanvas *fLastNspectra;
+    TCanvas *cLastNspectra;
+    TGCompositeFrame *fTabConfig;       // container of "Config"
+    TGCompositeFrame *fTabDT5781;       // container of "DT5781"
+    TGLabel *fDTinfo;
+    TGTextButton *fInitDAQ;             // buttons
+    TGCompositeFrame *fTabAbout;        // container of "About"
 
-	TGFont *ufont;         			// will reflect user font changes
-	ULong_t fColor; 		  		// Color helper
-	TGGC   *uGC;           			// will reflect user GC changes
-	GCValues_t valTitle;			// graphics context changes
+    TGFont *ufont;                      // will reflect user font changes
+    ULong_t fColor;                     // Color helper
+    TGGC   *uGC;                        // will reflect user GC changes
+    GCValues_t valTitle;                // graphics context changes
 
-	PigsDAQ *daq;
+    PigsDAQ *daq;
 
-	static const int fGUIsizeX = 600;
-	static const int fGUIsizeY = 500;
+    static const int fGUIsizeX = 600;
+    static const int fGUIsizeY = 500;
 
-	//ClassDef(PigsGUI, 0);
+    //ClassDef(PigsGUI, 0);
 };
 
 #endif /* PIGSGUI_H_ */
