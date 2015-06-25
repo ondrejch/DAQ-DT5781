@@ -20,6 +20,7 @@
 #include "TCanvas.h"
 #include "TGClient.h"
 #include "Riostream.h"
+#include "TApplication.h"
 
 // PIGS
 #include "PigsDAQ.h"
@@ -31,9 +32,9 @@ public:
     PigsGUI(const TGWindow *p); // Creates the GUI
     ~PigsGUI();                         // Ends DAQ, DPP, GUI
     int InitDAQ();                      // Initialization of the PigsDAQ object, DPP library, DAQ config
-    int ExitDAQ();                      // Ends connection to the DPP library
-    int RunSingleAcqisition();          // Runs one acquisition loop
-    int StopAcqisition();               // Stops acquisition on channel 0
+    int DisconnectDAQ();                      // Ends connection to the DPP library
+    int RunSingleAcquisition();        // Runs one acquisition loop
+    int StopAcquisition();               // Stops acquisition on channel 0
     void SetProgressBarPosition(Float_t fposition);    // Set the position of the progress bar
 
 private:
@@ -51,7 +52,7 @@ private:
     TGCompositeFrame *fTabConfig;       // container of "Config"
     TGCompositeFrame *fTabDT5781;       // container of "DT5781"
     TGLabel *fDTinfo;
-    TGTextButton *fInitDAQ;             // buttons
+    TGTextButton *fInitDAQ, *fDisconnectDAQ;  // buttons
     TGCompositeFrame *fTabAbout;        // container of "About"
 
     TGFont *ufont;                      // will reflect user font changes
@@ -63,8 +64,9 @@ private:
 
     static const int fGUIsizeX = 600;
     static const int fGUIsizeY = 500;
+    static const int32_t fVerbose = 1;  // verbosity level settings
 
-    //ClassDef(PigsGUI, 0);
+    ClassDef(PigsGUI, 0);
 };
 
 #endif /* PIGSGUI_H_ */

@@ -6,6 +6,7 @@
 CPP_SRCS += \
 ../src/PigsDAQ.cpp \
 ../src/PigsDAQ_test.cpp \
+../src/PigsDict.cpp \
 ../src/PigsGUI.cpp \
 ../src/PigsGUI_test.cpp \
 ../src/spigs.cpp 
@@ -16,6 +17,7 @@ C_UPPER_SRCS += \
 OBJS += \
 ./src/PigsDAQ.o \
 ./src/PigsDAQ_test.o \
+./src/PigsDict.o \
 ./src/PigsGUI.o \
 ./src/PigsGUI_test.o \
 ./src/guitest.o \
@@ -24,6 +26,7 @@ OBJS += \
 CPP_DEPS += \
 ./src/PigsDAQ.d \
 ./src/PigsDAQ_test.d \
+./src/PigsDict.d \
 ./src/PigsGUI.d \
 ./src/PigsGUI_test.d \
 ./src/spigs.d 

@@ -12,6 +12,7 @@
 
 #include <TFile.h>
 #include <TH1D.h>
+#include <TApplication.h>
 
 using namespace std;
 
@@ -45,11 +46,17 @@ int test1(void) {
     return ret;
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
     int ret = 0;
     cout << "Welcome to SPIGS DAQ!" << endl;
 //    ret = test1();
-    PigsGUI *gui = new PigsGUI(gClient->GetRoot());
+
+    TApplication theApp("App", &argc, argv);
+    // Popup the GUI...
+  //  new MyMainFrame(gClient->GetRoot(),200,200);
+//    PigsGUI *gui = new PigsGUI(gClient->GetRoot());
+    new PigsGUI(gClient->GetRoot());
+    theApp.Run();
 
     return ret;
 }

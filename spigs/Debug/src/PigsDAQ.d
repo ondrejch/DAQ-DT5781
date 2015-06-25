@@ -38,6 +38,7 @@ src/PigsDAQ.d: ../src/PigsDAQ.cpp ../src/PigsDAQ.h \
  /usr/include/root/Buttons.h /usr/include/root/TAttBBox2D.h \
  /usr/include/root/TAttCanvas.h /usr/include/root/TCanvasImp.h \
  /usr/include/root/TGClient.h /usr/include/root/Riostream.h \
+ /usr/include/root/TApplication.h /usr/include/root/TApplicationImp.h \
  /home/rc/git/DAQ-DT5781/spigs/src/PigsDAQ.h
 
 ../src/PigsDAQ.h:
@@ -197,5 +198,9 @@ src/PigsDAQ.d: ../src/PigsDAQ.cpp ../src/PigsDAQ.h \
 /usr/include/root/TGClient.h:
 
 /usr/include/root/Riostream.h:
+
+/usr/include/root/TApplication.h:
+
+/usr/include/root/TApplicationImp.h:
 
 /home/rc/git/DAQ-DT5781/spigs/src/PigsDAQ.h:

@@ -14,7 +14,6 @@
 
 bool PigsDAQ::instantiated   = false;
 PigsDAQ * PigsDAQ::instance  = 0;
-const int32_t PigsDAQ::fVerbose = 1;
 
 //------------------------------------------------
 PigsDAQ * PigsDAQ::getInstance() {

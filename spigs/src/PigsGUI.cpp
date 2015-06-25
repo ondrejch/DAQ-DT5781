@@ -25,13 +25,14 @@ int PigsGUI::InitDAQ() {
     return ret;
 }
 
-int PigsGUI::ExitDAQ() {
+int PigsGUI::DisconnectDAQ() {
     // Ends connection to the DPP library
-    int ret = daq->EndLibrary();
+    int ret = 0;
+    if (daq) ret = daq->EndLibrary();
     return ret;
 }
 
-int PigsGUI::RunSingleAcqisition() {
+int PigsGUI::RunSingleAcquisition() {
     // Runs one acquisition loop
     int ret=0;
     fStartDAQ->SetState(kButtonDown);
@@ -45,9 +46,10 @@ int PigsGUI::RunSingleAcqisition() {
     return ret;
 }
 
-int PigsGUI::StopAcqisition() {
+int PigsGUI::StopAcquisition() {
     // Stops acquisition on channel 0
-    int ret = daq->StopAcquisition(0);
+    int ret = 0;
+    if (daq) ret = daq->StopAcquisition(0);
     return ret;
 }
 
@@ -79,6 +81,8 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fMainTitle->SetWrapLength(-1);
     fMainGUIFrame->AddFrame(fMainTitle, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
     fMainTitle->MoveResize(0,0,fGUIsizeX-4,32);
+    fMainGUIFrame->Connect("CloseWindow()", "PigsGUI", this, "~PigsGUI()"); // call class destructor on alt+f4
+    fMainGUIFrame->DontCallClose();
 
     // Buttons for main GUI
     fStartDAQ = new TGTextButton(fMainGUIFrame, "Start DAQ");     // start DAQ
@@ -90,7 +94,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     gClient->GetColorByName("green", fColor);
     fStartDAQ->ChangeBackground(fColor);
     fStartDAQ->SetState(kButtonDisabled);
-    fStartDAQ->Connect("Clicked()","PigsGUI",this,"RunSingleAcqisition()");
+    fStartDAQ->Connect("Clicked()","PigsGUI",this,"RunSingleAcquisition()");
 
     fStopDAQ = new TGTextButton(fMainGUIFrame, "Stop DAQ");        // stop DAQ
     fStopDAQ->SetTextJustify(36);
@@ -108,6 +112,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fExitDAQ->Resize(90,25);
     fMainGUIFrame->AddFrame(fExitDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
     fExitDAQ->MoveResize(fGUIsizeX/2-45,fGUIsizeY-30,90,25);
+    fExitDAQ->Connect("Clicked()","PigsGUI",this,"~PigsGUI()");
 
     // tab widget
     // GCValues_t valTab;
@@ -164,14 +169,24 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fDTinfo->SetMargins(0,0,0,0);
     fDTinfo->SetWrapLength(-1);
     fTabDT5781->AddFrame(fDTinfo, new TGLayoutHints(kLHintsNormal));
-    fInitDAQ = new TGTextButton(fTabDT5781, "Init DAQ");            // buttons
+    fInitDAQ = new TGTextButton(fTabDT5781, "Init DAQ");            // button InitDAQ
     fInitDAQ->SetTextJustify(36);
     fInitDAQ->SetMargins(0,0,0,0);
     fInitDAQ->Resize(90,25);
     fMainGUIFrame->AddFrame(fInitDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-    fInitDAQ->MoveResize(fGUIsizeX-50-90,50,90,25);
     gClient->GetColorByName("light blue", fColor);
     fInitDAQ->ChangeBackground(fColor);
+    fInitDAQ->MoveResize(fGUIsizeX-50-90,50,90,25);
+    fInitDAQ->Connect("Clicked()","PigsGUI",this,"InitDAQ()");
+    fDisconnectDAQ = new TGTextButton(fTabDT5781, "Disconnect DAQ");  // buttons DisconnectDAQ
+    fDisconnectDAQ->SetTextJustify(36);
+    fDisconnectDAQ->SetMargins(0,0,0,0);
+    fDisconnectDAQ->Resize(90,25);
+    fMainGUIFrame->AddFrame(fDisconnectDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+    gClient->GetColorByName("light blue", fColor);
+    fDisconnectDAQ->MoveResize(fGUIsizeX-50-90,150,90,25);
+    fDisconnectDAQ->ChangeBackground(fColor);
+    fDisconnectDAQ->Connect("Clicked()","PigsGUI",this,"DisconnectDAQ()");
 
     // container of "About"
     fTabAbout = fTabHolder->AddTab("About");
@@ -196,9 +211,10 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 }
 
 PigsGUI::~PigsGUI() {
-    // TODO KILL DAQ first!
-    StopAcqisition();
-    ExitDAQ();
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+    StopAcquisition();
+    DisconnectDAQ();
     // Clean up all widgets, frames and layout hints that were used
     Cleanup();
+    gApplication->Terminate(0);
 }
