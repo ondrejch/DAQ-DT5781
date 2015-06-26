@@ -6,3 +6,4 @@
  */
 
 #pragma link C++ class PigsGUI+;
+#pragma link C++ class PigsStorage+;
