@@ -21,24 +21,31 @@ src/PigsDAQ_test.d: ../src/PigsDAQ_test.cpp ../src/PigsDAQ.h \
  /usr/include/root/Foption.h /usr/include/root/TVectorFfwd.h \
  /usr/include/root/TVectorDfwd.h /usr/include/root/TFitResultPtr.h \
  /usr/include/root/TDatime.h /usr/include/root/TString.h \
+ /usr/include/root/TThread.h /usr/include/root/TMutex.h \
+ /usr/include/root/TVirtualMutex.h /usr/include/root/TMutexImp.h \
+ /usr/include/root/TCondition.h /usr/include/root/TConditionImp.h \
+ /usr/include/root/TSystem.h /usr/include/root/TInetAddress.h \
+ /usr/include/root/TTimer.h /usr/include/root/TSysEvtHandler.h \
+ /usr/include/root/TQObject.h /usr/include/root/TTime.h \
+ /usr/include/root/Varargs.h /usr/include/root/TThreadSlots.h \
  /home/rc/git/DAQ-DT5781/spigs/src/PigsGUI.h /usr/include/root/TObject.h \
  /usr/include/root/TGTab.h /usr/include/root/TGFrame.h \
  /usr/include/root/TGWindow.h /usr/include/root/TGObject.h \
  /usr/include/root/GuiTypes.h /usr/include/root/TGClient.h \
- /usr/include/root/TQObject.h /usr/include/root/TVirtualX.h \
- /usr/include/root/TAttText.h /usr/include/root/TGDimension.h \
- /usr/include/root/TGGC.h /usr/include/root/TRefCnt.h \
- /usr/include/root/TGFont.h /usr/include/root/TGLayout.h \
- /usr/include/root/TGString.h /usr/include/root/TGWidget.h \
- /usr/include/root/WidgetMessageTypes.h /usr/include/root/TGLabel.h \
- /usr/include/root/TRootEmbeddedCanvas.h /usr/include/root/TGCanvas.h \
- /usr/include/root/TGProgressBar.h /usr/include/root/TGButton.h \
- /usr/include/root/TCanvas.h /usr/include/root/TPad.h \
- /usr/include/root/TVirtualPad.h /usr/include/root/TAttPad.h \
- /usr/include/root/Buttons.h /usr/include/root/TAttBBox2D.h \
- /usr/include/root/TAttCanvas.h /usr/include/root/TCanvasImp.h \
- /usr/include/root/TGClient.h /usr/include/root/Riostream.h \
- /usr/include/root/TApplication.h /usr/include/root/TApplicationImp.h \
+ /usr/include/root/TVirtualX.h /usr/include/root/TAttText.h \
+ /usr/include/root/TGDimension.h /usr/include/root/TGGC.h \
+ /usr/include/root/TRefCnt.h /usr/include/root/TGFont.h \
+ /usr/include/root/TGLayout.h /usr/include/root/TGString.h \
+ /usr/include/root/TGWidget.h /usr/include/root/WidgetMessageTypes.h \
+ /usr/include/root/TGLabel.h /usr/include/root/TRootEmbeddedCanvas.h \
+ /usr/include/root/TGCanvas.h /usr/include/root/TGProgressBar.h \
+ /usr/include/root/TGButton.h /usr/include/root/TCanvas.h \
+ /usr/include/root/TPad.h /usr/include/root/TVirtualPad.h \
+ /usr/include/root/TAttPad.h /usr/include/root/Buttons.h \
+ /usr/include/root/TAttBBox2D.h /usr/include/root/TAttCanvas.h \
+ /usr/include/root/TCanvasImp.h /usr/include/root/TGClient.h \
+ /usr/include/root/Riostream.h /usr/include/root/TApplication.h \
+ /usr/include/root/TApplicationImp.h \
  /home/rc/git/DAQ-DT5781/spigs/src/PigsDAQ.h
 
 ../src/PigsDAQ.h:
@@ -131,6 +138,34 @@ src/PigsDAQ_test.d: ../src/PigsDAQ_test.cpp ../src/PigsDAQ.h \
 
 /usr/include/root/TString.h:
 
+/usr/include/root/TThread.h:
+
+/usr/include/root/TMutex.h:
+
+/usr/include/root/TVirtualMutex.h:
+
+/usr/include/root/TMutexImp.h:
+
+/usr/include/root/TCondition.h:
+
+/usr/include/root/TConditionImp.h:
+
+/usr/include/root/TSystem.h:
+
+/usr/include/root/TInetAddress.h:
+
+/usr/include/root/TTimer.h:
+
+/usr/include/root/TSysEvtHandler.h:
+
+/usr/include/root/TQObject.h:
+
+/usr/include/root/TTime.h:
+
+/usr/include/root/Varargs.h:
+
+/usr/include/root/TThreadSlots.h:
+
 /home/rc/git/DAQ-DT5781/spigs/src/PigsGUI.h:
 
 /usr/include/root/TObject.h:
@@ -146,8 +181,6 @@ src/PigsDAQ_test.d: ../src/PigsDAQ_test.cpp ../src/PigsDAQ.h \
 /usr/include/root/GuiTypes.h:
 
 /usr/include/root/TGClient.h:
-
-/usr/include/root/TQObject.h:
 
 /usr/include/root/TVirtualX.h:
 
