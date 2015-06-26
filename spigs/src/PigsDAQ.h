@@ -14,10 +14,10 @@
 
 #include <stdio.h>          // printf, scanf, NULL */
 #include <stdlib.h>         // calloc, exit, free
-#include <iostream>           // std::cerr
-#include <typeinfo>           // operator typeid
-#include <exception>          // std::exception
-#include <string.h>            // strcpy
+#include <iostream>         // std::cerr
+#include <typeinfo>         // operator typeid
+#include <exception>        // std::exception
+#include <string.h>         // strcpy
 
 // CAEN
 #include <CAENDPPLib.h>
@@ -27,6 +27,7 @@
 #include <TH1D.h>
 #include <TDatime.h>
 #include <TString.h>
+#include <TThread.h>
 
 // PIGS
 #include <PigsGUI.h>
@@ -76,6 +77,7 @@ public:
     int32_t ConfigureChannel(int32_t ch);     // Sets channel parameters specified in Init & Set calls
     int32_t StopAcquisition(int32_t ch);    // Stops acquisition for channel ch
     int32_t AcquisitionSingleLoop();        // Runs acquisition
+    int32_t ThreadAcqSingleLoop();           // Runs acquisition in a separate thread
     void PrintAcquisotionInfo();            // Prints real/dead time, cps, ...
 
     int32_t RefreshCurrHist();                // Transfers h1 into currHist
@@ -129,6 +131,7 @@ private:
     TH1D *fCurrHist;        // Current histogram
     TDatime *fDt;           // Current date for histogram time
     TString fAcqDate;       // Acquisition date
+//    void *CleanAcqThread(void* arg);
     PigsGUI *gui;           // Associated GUI
 
 };

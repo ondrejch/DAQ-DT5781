@@ -11,19 +11,20 @@
 
 
 // ROOT
-#include "TObject.h"
-#include "TGTab.h"
-#include "TGLabel.h"
-#include "TRootEmbeddedCanvas.h"
-#include "TGProgressBar.h"
-#include "TGButton.h"
-#include "TCanvas.h"
-#include "TGClient.h"
-#include "Riostream.h"
-#include "TApplication.h"
+#include <TObject.h>
+#include <TGTab.h>
+#include <TGLabel.h>
+#include <TRootEmbeddedCanvas.h>
+#include <TGProgressBar.h>
+#include <TGButton.h>
+#include <TCanvas.h>
+#include <TGClient.h>
+#include <TThread.h>
+#include <Riostream.h>
+#include <TApplication.h>
 
 // PIGS
-#include "PigsDAQ.h"
+#include <PigsDAQ.h>
 
 class PigsDAQ;
 
@@ -59,7 +60,7 @@ private:
     ULong_t fColor;                     // Color helper
     TGGC   *uGC;                        // will reflect user GC changes
     GCValues_t valTitle;                // graphics context changes
-
+    TThread *fAcqThread;                // Acquisition thread
     PigsDAQ *daq;
 
     static const int fGUIsizeX = 600;

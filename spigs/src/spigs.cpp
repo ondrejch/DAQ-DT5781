@@ -12,6 +12,7 @@
 
 #include <TFile.h>
 #include <TH1D.h>
+#include <TThread.h>
 #include <TApplication.h>
 
 using namespace std;
@@ -19,6 +20,7 @@ using namespace std;
 int test1(void) {
     // Simple test subroutine
     int ret = 0;
+    TThread *t;
 
     PigsDAQ *daq = PigsDAQ::getInstance();
     if (!ret) ret = daq->InitDPPLib();
@@ -29,8 +31,12 @@ int test1(void) {
     if (!ret) {
         daq->PrintBoardInfo();
         daq->PrintChannelParameters(0);
-        ret = daq->AcquisitionSingleLoop();
+        //ret = daq->AcquisitionSingleLoop();
+        //ret = daq->ThreadAcqSingleLoop();
+        t = new TThread("AcqThread",(void(*)(void *))daq->AcquisitionSingleLoop(), (void*) 0);
+        t->Run();
     }
+    t->Join();
     if (!ret) {
         daq->PrintAcquisotionInfo();
         ret = daq->RefreshCurrHist();
@@ -49,13 +55,10 @@ int test1(void) {
 int main(int argc, char *argv[]) {
     int ret = 0;
     cout << "Welcome to SPIGS DAQ!" << endl;
-//    ret = test1();
+    // ret = test1(); // run simple non-GUI tests
 
     TApplication theApp("App", &argc, argv);
-    // Popup the GUI...
-  //  new MyMainFrame(gClient->GetRoot(),200,200);
-//    PigsGUI *gui = new PigsGUI(gClient->GetRoot());
-    new PigsGUI(gClient->GetRoot());
+    new PigsGUI(gClient->GetRoot());     // Popup the GUI...
     theApp.Run();
 
     return ret;

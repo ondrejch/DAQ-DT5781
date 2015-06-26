@@ -36,11 +36,16 @@ int PigsGUI::RunSingleAcquisition() {
     // Runs one acquisition loop
     int ret=0;
     fStartDAQ->SetState(kButtonDown);
-    ret = daq->AcquisitionSingleLoop();    // should run in a separate thread
+    ret = daq->AcquisitionSingleLoop();
+//    fAcqThread = new TThread("AcqThread",(void(*)(void *))daq->AcquisitionSingleLoop(), (void*) 0);
+//    fAcqThread->Run();
+
     if(!ret) {
         daq->RefreshCurrHist();
         cCurrHCanvas->cd();
         daq->getCurrHist()->Draw();
+        cCurrHCanvas->Modified();
+        cCurrHCanvas->Update();
     }
     fStartDAQ->SetState(kButtonUp);
     return ret;
@@ -60,6 +65,7 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
 
 PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     daq = 0;
+    fAcqThread=0;
 
     // Main GUI window
     fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
@@ -133,7 +139,6 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fLatestHistoCanvas = new TRootEmbeddedCanvas(0,fCurHistFrame,fGUIsizeX-10,fGUIsizeY-140);
     Int_t wfLatestHistoCanvas = fLatestHistoCanvas->GetCanvasWindowId();
     cCurrHCanvas = new TCanvas("cCurrHCanvas", 10, 10, wfLatestHistoCanvas);
-    cCurrHCanvas->SetEditable(kFALSE);         //    to remove editing
     fLatestHistoCanvas->AdoptCanvas(cCurrHCanvas);
     fCurHistFrame->AddFrame(fLatestHistoCanvas, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
     fHCurrHProgressBar = new TGHProgressBar(fCurHistFrame,fGUIsizeX-5);

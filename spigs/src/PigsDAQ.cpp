@@ -12,6 +12,8 @@
 
 #include "PigsDAQ.h"
 
+//ClassImp(PigsDAQ)
+
 bool PigsDAQ::instantiated   = false;
 PigsDAQ * PigsDAQ::instance  = 0;
 
@@ -31,7 +33,7 @@ PigsDAQ::PigsDAQ() {
     h1NBins=ch=handle=brd=0; totCounts=0;
     countsPerSecond=deadTime=realTime=goodCounts=0;
     StopCriteriaValue=0;usecSleepPollDAQ=0;
-    fErrCode=0; fCurrHist=0; fDt=0; h1=0; gui=0;
+    fErrCode=0; fCurrHist=0; fDt=0; h1=0; gui=0; //fAcqThread=0;
     isAcquiring=CAENDPP_AcqStatus_Unknown;
     acqMode=CAENDPP_AcqMode_Histogram;
     iputLevel=CAENDPP_InputRange_10_0Vpp;
@@ -76,14 +78,14 @@ int32_t PigsDAQ::SetDAQParams(){
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
     // Set the Acquisition Mode
-    acqMode = CAENDPP_AcqMode_Histogram;    // For Histogram mode (no waveforms)
-    //acqMode = CAENDPP_AcqMode_Waveform;   // For Oscilloscope mode (waves + histogram)
-    iputLevel = CAENDPP_InputRange_1_0Vpp;  // Channel input level - could be per channel
-    usecSleepPollDAQ = 50000;                // [ns] DAQ acquisition poll
+    acqMode = CAENDPP_AcqMode_Histogram;        // For Histogram mode (no waveforms)
+    //acqMode = CAENDPP_AcqMode_Waveform;       // For Oscilloscope mode (waves + histogram)
+    iputLevel = CAENDPP_InputRange_1_0Vpp;      // Channel input level - could be per channel
+    usecSleepPollDAQ = 50000;                   // [ns] DAQ acquisition poll
     // Set stop criteria
-    StopCriteria = CAENDPP_StopCriteria_RealTime;     // Elapsed real time
-    //StopCriteriaValue = 600L*1000000000L;          // [ns] Run for 600 seconds
-    StopCriteriaValue =  10L*1000000000L;              // [ns] Run for  10 seconds
+    StopCriteria = CAENDPP_StopCriteria_RealTime;       // Elapsed real time
+    //StopCriteriaValue = 600L*1000000000L;             // [ns] Run for 600 seconds
+    StopCriteriaValue =  10L*1000000000L;               // [ns] Run for  10 seconds
     //StopCriteriaValue =   1000000000;// 1000*1000*1000; // 1 sec [ns] Run for 600 seconds
     return 0;
 }
@@ -191,6 +193,36 @@ int32_t PigsDAQ::StopAcquisition(int32_t ch) {
     return fErrCode;
 }
 
+/*void *PigsDAQ::CleanAcqThread(void *arg ) {
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+    if(fAcqThread) {
+        TThread::Delete(fAcqThread);
+        delete fAcqThread;
+        if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " Thread deleted " << std::endl;
+        fAcqThread = 0;
+        if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " Thread zeroed " << std::endl;
+    }
+    return arg;
+};*/
+
+/*int32_t PigsDAQ::ThreadAcqSingleLoop() {
+    // Runs AcquisitionSingleLoop() in a separate thread
+    void *arg;
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+    if(!fAcqThread) {
+        fAcqThread = new TThread("AcqThread0",
+                (void(*)(void *))AcquisitionSingleLoop(),(void*) this);
+        fAcqThread->CleanUpPush(CleanAcqThread(arg), arg);
+        fAcqThread->Run();
+        if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " Thread runs!"<< std::endl;
+        return 0;
+    } else {
+        std::cerr << "Thread already exists!" << std::endl;
+    }
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " Thread exit"<< std::endl;
+    return 1;
+}*/
+
 int32_t PigsDAQ::AcquisitionSingleLoop() {
     // Currently does only one cycle in the loop...
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
@@ -199,7 +231,7 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
     totCounts = realTime = deadTime = 0;
     countsPerSecond = 0;
     Float_t pctProgress = 0;        // measures progress in acquisition
-
+    Float_t pctIncrement = 100.*1000.*usecSleepPollDAQ/StopCriteriaValue;
     // Set starting date time
     if(fDt) delete fDt;
     fDt = new TDatime();
@@ -215,11 +247,15 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
     }
 
     do {
-        if(gui) gui->SetProgressBarPosition(pctProgress);    // If GUI is set, update the progress bar
+        if(gui) {  // If GUI is set, update the progress bar
+            gui->SetProgressBarPosition(pctProgress);
+            //if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " progress: " << pctProgress << std::endl;
+        }
         usleep(usecSleepPollDAQ);        // waits to poll DT5781
+        gSystem->ProcessEvents();
         CAENDPP_IsChannelAcquiring(handle, ch, &isAcquiring );
         if(fVerbose>9) printf("  -- ch %d acq status %d\n", ch, isAcquiring);
-        if(gui) pctProgress += float(usecSleepPollDAQ)/(float)StopCriteriaValue;
+        if(gui) pctProgress += pctIncrement;
     } while (isAcquiring);
 
     // Get The Histogram
