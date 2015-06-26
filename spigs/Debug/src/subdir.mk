@@ -7,6 +7,7 @@ CPP_SRCS += \
 ../src/PigsDAQ.cpp \
 ../src/PigsDAQ_test.cpp \
 ../src/PigsDict.cpp \
+../src/PigsEvent.cpp \
 ../src/PigsGUI.cpp \
 ../src/PigsGUI_test.cpp \
 ../src/PigsStorage.cpp \
@@ -19,6 +20,7 @@ OBJS += \
 ./src/PigsDAQ.o \
 ./src/PigsDAQ_test.o \
 ./src/PigsDict.o \
+./src/PigsEvent.o \
 ./src/PigsGUI.o \
 ./src/PigsGUI_test.o \
 ./src/PigsStorage.o \
@@ -29,6 +31,7 @@ CPP_DEPS += \
 ./src/PigsDAQ.d \
 ./src/PigsDAQ_test.d \
 ./src/PigsDict.d \
+./src/PigsEvent.d \
 ./src/PigsGUI.d \
 ./src/PigsGUI_test.d \
 ./src/PigsStorage.d \

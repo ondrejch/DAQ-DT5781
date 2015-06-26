@@ -33,6 +33,7 @@ extern void G__set_cpp_environmentPigsDict();
 #include "TMemberInspector.h"
 #include "PigsGUI.h"
 #include "PigsStorage.h"
+#include "PigsEvent.h"
 #include <algorithm>
 namespace std { }
 using namespace std;
@@ -75,8 +76,10 @@ extern G__linked_taginfo G__PigsDictLN_reverse_iteratorlEvectorlETStringcOalloca
 extern G__linked_taginfo G__PigsDictLN_TFile;
 extern G__linked_taginfo G__PigsDictLN_TVectorTlEfloatgR;
 extern G__linked_taginfo G__PigsDictLN_TVectorTlEdoublegR;
+extern G__linked_taginfo G__PigsDictLN_TH1D;
 extern G__linked_taginfo G__PigsDictLN_PigsGUI;
 extern G__linked_taginfo G__PigsDictLN_PigsDAQ;
+extern G__linked_taginfo G__PigsDictLN_PigsEvent;
 extern G__linked_taginfo G__PigsDictLN_TTree;
 extern G__linked_taginfo G__PigsDictLN_maplEstringcOTObjArraymUcOlesslEstringgRcOallocatorlEpairlEconstsPstringcOTObjArraymUgRsPgRsPgR;
 extern G__linked_taginfo G__PigsDictLN_PigsStorage;
