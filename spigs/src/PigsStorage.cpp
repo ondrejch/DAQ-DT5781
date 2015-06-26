@@ -9,8 +9,15 @@
 #include <PigsStorage.h>
 
 PigsStorage::PigsStorage() {
-    t=0; outf=0;
+    t=0; outf=0; e=0;
     fFileName = "outfile.root";
+}
+
+PigsStorage::PigsStorage(TString foutname) {
+    outf = new TFile(foutname.Data(),"RECREATE");
+    e = new PigsEvent();
+    t = new TTree("t",Form("PigsDAQ measurements - %s",foutname.Data()));
+    t->Branch("e","PigsEvent",&e);
 }
 
 PigsStorage::~PigsStorage() {
