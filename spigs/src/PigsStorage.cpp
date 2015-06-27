@@ -9,11 +9,16 @@
 #include <PigsStorage.h>
 
 PigsStorage::PigsStorage() {
-    t=0; outf=0; e=0;
-    fFileName = "outfile.root";
+    // Constructor with a default file name
+    fFileName = "pigs_outfile.root";
+    outf = new TFile(fFileName.Data(),"RECREATE");
+    e = new PigsEvent();
+    t = new TTree("t",Form("PigsDAQ measurements - %s",fFileName.Data()));
+    t->Branch("e","PigsEvent",&e);
 }
 
 PigsStorage::PigsStorage(TString foutname) {
+    // Constructor using file name as an argument
     outf = new TFile(foutname.Data(),"RECREATE");
     e = new PigsEvent();
     t = new TTree("t",Form("PigsDAQ measurements - %s",foutname.Data()));
@@ -21,11 +26,11 @@ PigsStorage::PigsStorage(TString foutname) {
 }
 
 PigsStorage::~PigsStorage() {
+    if(e) delete e;
     if(outf) {
         outf->Write();
         outf->Close();
         delete outf;
     }
-    if(t) delete t;
 }
 

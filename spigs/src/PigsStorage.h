@@ -24,10 +24,10 @@ public:
     PigsStorage();
     virtual ~PigsStorage();
 
-    const PigsEvent * getE()    const { return e;   }
-    const TFile * getOutFile()  const { return outf;}
-    const TTree * getT()        const { return t;   }
-
+    const PigsEvent * getE()     const { return e;   }
+    const TFile * getOutFile()   const { return outf;}
+    const TTree * getT()         const { return t;   }
+    const char *getOutFileName() const { return outf->GetName(); }
 
 private:
     TFile *outf;                // Filename to write the tree

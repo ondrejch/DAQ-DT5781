@@ -66,7 +66,8 @@ private:
     TGGC   *uGC;                        // will reflect user GC changes
     GCValues_t valTitle;                // graphics context changes
     TThread *fAcqThread;                // Acquisition thread
-    PigsDAQ *daq;
+    PigsDAQ *daq;                       // DAQ pointer
+    PigsStorage *storage;               // This is where we store data
 
     static const int fGUIsizeX = 600;
     static const int fGUIsizeY = 500;

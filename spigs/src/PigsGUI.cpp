@@ -8,8 +8,13 @@
 #include "PigsGUI.h"
 
 int PigsGUI::InitDAQ() {
-    // Initialization of the PigsDAQ object, DPP library, DAQ config
+    // Initialization of the PigsDAQ object, DPP library, DAQ config, storage
     int ret = 0;
+
+    if (storage) delete storage;    // Storage initialization
+    storage = new PigsStorage("myout.root"); // TODO make the file name unique by using current date time
+    fDTinfo->AddLine(Form("Output file: %s",storage->getOutFileName()));
+
     fDTinfo->AddLine("*** Initializing the DAQ ***");
     daq = PigsDAQ::getInstance();
     if (!ret) { ret = daq->InitDPPLib();  fDTinfo->AddLineFast("DPP firmware instantiated"); }
@@ -25,7 +30,6 @@ int PigsGUI::InitDAQ() {
         TGText tbuff; tbuff.LoadBuffer(daq->getBoardInfo());
         fDTinfo->AddText(&tbuff);
         fDTinfo->Update();
-        cout<<&tbuff<<endl;
     }
     daq->setGUI(this);            // set GUI pointer
     return ret;
@@ -71,12 +75,13 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
 }
 
 PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
-    daq = 0;
+    daq = 0; storage=0;
     fAcqThread=0;
 
     // *** Main GUI window ***
     fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
     fMainGUIFrame->SetName("fMainGUIFrame");
+    fMainGUIFrame->SetWindowName("SPIGS");      // GUI window name
     fMainGUIFrame->SetLayoutBroken(kTRUE);
     // ufont = gClient->GetFont("-*-luxi_sans-bold-r-*-*-16-*-*-*-*-*-*-*");
     // ufont = gClient->GetFont("-*-helvetica-medium-r-normal-*-14-*-*-*-*-*-iso8859-1");

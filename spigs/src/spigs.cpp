@@ -57,9 +57,9 @@ int main(int argc, char *argv[]) {
     cout << "Welcome to SPIGS DAQ!" << endl;
     // ret = test1(); // run simple non-GUI tests
 
-    TApplication theApp("App", &argc, argv);
+    TApplication spigsApp("SPIGS", &argc, argv);
     new PigsGUI(gClient->GetRoot());     // Popup the GUI...
-    theApp.Run();
+    spigsApp.Run();
 
     return ret;
 }
