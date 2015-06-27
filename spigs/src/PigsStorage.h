@@ -29,7 +29,7 @@ public:
     const TTree * getT()        const { return t;   }
 
 
-private:                     // Making members
+private:
     TFile *outf;                // Filename to write the tree
     TString fFileName;          // Name of the output file
     TTree *t;                   // Tree with measurements

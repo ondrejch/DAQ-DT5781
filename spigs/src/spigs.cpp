@@ -23,6 +23,7 @@ int test1(void) {
     TThread *t;
 
     PigsDAQ *daq = PigsDAQ::getInstance();
+    t = new TThread("AcqThread",(void(*)(void *))daq->AcquisitionSingleLoop(), (void*) 0);
     if (!ret) ret = daq->InitDPPLib();
     if (!ret) ret = daq->AddBoardUSB();
     if (!ret) ret = daq->BasicInit();
@@ -33,7 +34,6 @@ int test1(void) {
         daq->PrintChannelParameters(0);
         //ret = daq->AcquisitionSingleLoop();
         //ret = daq->ThreadAcqSingleLoop();
-        t = new TThread("AcqThread",(void(*)(void *))daq->AcquisitionSingleLoop(), (void*) 0);
         t->Run();
     }
     t->Join();

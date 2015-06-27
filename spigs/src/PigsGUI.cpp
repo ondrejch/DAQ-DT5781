@@ -10,16 +10,22 @@
 int PigsGUI::InitDAQ() {
     // Initialization of the PigsDAQ object, DPP library, DAQ config
     int ret = 0;
+    fDTinfo->AddLine("*** Initializing the DAQ ***");
     daq = PigsDAQ::getInstance();
-    if (!ret) ret = daq->InitDPPLib();
-    if (!ret) ret = daq->AddBoardUSB();
+    if (!ret) { ret = daq->InitDPPLib();  fDTinfo->AddLineFast("DPP firmware instantiated"); }
+    if (!ret) { ret = daq->AddBoardUSB(); fDTinfo->AddLineFast("Board added"); }
     if (!ret) ret = daq->BasicInit();
     if (!ret) ret = daq->ConfigureBoard();
     if (!ret) ret = daq->ConfigureChannel(0);
     if (!ret) {
         daq->PrintBoardInfo();
         daq->PrintChannelParameters(0);
+        fDTinfo->AddLineFast("Board configured");
         fStartDAQ->SetState(kButtonUp);
+        TGText tbuff; tbuff.LoadBuffer(daq->getBoardInfo());
+        fDTinfo->AddText(&tbuff);
+        fDTinfo->Update();
+        cout<<&tbuff<<endl;
     }
     daq->setGUI(this);            // set GUI pointer
     return ret;
@@ -28,6 +34,7 @@ int PigsGUI::InitDAQ() {
 int PigsGUI::DisconnectDAQ() {
     // Ends connection to the DPP library
     int ret = 0;
+    fDTinfo->AddLine("*** Disconnecting the DAQ ***");
     if (daq) ret = daq->EndLibrary();
     return ret;
 }
@@ -43,7 +50,7 @@ int PigsGUI::RunSingleAcquisition() {
     if(!ret) {
         daq->RefreshCurrHist();
         cCurrHCanvas->cd();
-        daq->getCurrHist()->Draw();
+        daq->getCurrHist()->DrawClone();
         cCurrHCanvas->Modified();
         cCurrHCanvas->Update();
     }
@@ -67,7 +74,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     daq = 0;
     fAcqThread=0;
 
-    // Main GUI window
+    // *** Main GUI window ***
     fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
     fMainGUIFrame->SetName("fMainGUIFrame");
     fMainGUIFrame->SetLayoutBroken(kTRUE);
@@ -120,21 +127,12 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fExitDAQ->MoveResize(fGUIsizeX/2-45,fGUIsizeY-30,90,25);
     fExitDAQ->Connect("Clicked()","PigsGUI",this,"~PigsGUI()");
 
-    // tab widget
-    // GCValues_t valTab;
-    // gClient->GetColorByName("#000000",valTab.fForeground);
-    // gClient->GetColorByName("#e0e0e0",valTab.fBackground);
-    // ufont = gClient->GetFont("-urw-nimbus sans l-regular-r-normal--0-0-0-0-p-0-iso8859-1");
-    // valTab.fFillStyle = kFillSolid;
-    // valTab.fFont = ufont->GetFontHandle();
-    // valTab.fGraphicsExposures = kFALSE;
-    // uGC = gClient->GetGC(&valTab, kTRUE);
+    // *** Tab widget ****
     fTabHolder = new TGTab(fMainGUIFrame,fGUIsizeX-4,fGUIsizeX-4);//,uGC->GetGC());
 
-    // container of "CurrentHistogram"
+    // *** container of "CurrentHistogram" ***
     fCurHistFrame = fTabHolder->AddTab("CurrentHistogram");
     fCurHistFrame->SetLayoutManager(new TGVerticalLayout(fCurHistFrame));
-
     // embedded canvas
     fLatestHistoCanvas = new TRootEmbeddedCanvas(0,fCurHistFrame,fGUIsizeX-10,fGUIsizeY-140);
     Int_t wfLatestHistoCanvas = fLatestHistoCanvas->GetCanvasWindowId();
@@ -151,7 +149,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fHCurrHProgressBar->SetPosition(10);
     fCurHistFrame->AddFrame(fHCurrHProgressBar, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
-    // container of "History"
+    // *** container of "History" ***
     fTabHisto = fTabHolder->AddTab("History");
     fTabHisto->SetLayoutManager(new TGVerticalLayout(fTabHisto));
     // embedded canvas
@@ -161,19 +159,18 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fLastNspectra->AdoptCanvas(cLastNspectra);
     fTabHisto->AddFrame(fLastNspectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
-    // container of "Config"
+    // *** container of "Config" ***
     fTabConfig = fTabHolder->AddTab("Config");
     fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
 
-    // container of "DT5781"
+    // *** container of "DT5781" ***
     fTabDT5781 = fTabHolder->AddTab("DT5781");
     fTabDT5781->SetLayoutManager(new TGVerticalLayout(fTabDT5781));
-    gClient->GetColorByName("#ffffff",fColor);
-    fDTinfo = new TGLabel(fTabDT5781,"fDTinfo",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kSunkenFrame,fColor);
-    fDTinfo->SetTextJustify(36);
-    fDTinfo->SetMargins(0,0,0,0);
-    fDTinfo->SetWrapLength(-1);
+    gClient->GetColorByName("white", fColor);
+    fDTinfo = new TGTextView(fTabDT5781,fGUIsizeX-120,fGUIsizeY-150,"DAQ not initialized.",kSunkenFrame,fColor);
     fTabDT5781->AddFrame(fDTinfo, new TGLayoutHints(kLHintsNormal));
+    fDTinfo->MoveResize(10,50,fGUIsizeX-120,fGUIsizeY-150);
+
     fInitDAQ = new TGTextButton(fTabDT5781, "Init DAQ");            // button InitDAQ
     fInitDAQ->SetTextJustify(36);
     fInitDAQ->SetMargins(0,0,0,0);
@@ -181,7 +178,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fMainGUIFrame->AddFrame(fInitDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
     gClient->GetColorByName("light blue", fColor);
     fInitDAQ->ChangeBackground(fColor);
-    fInitDAQ->MoveResize(fGUIsizeX-50-90,50,90,25);
+    fInitDAQ->MoveResize(fGUIsizeX-50-60,50,90,25);
     fInitDAQ->Connect("Clicked()","PigsGUI",this,"InitDAQ()");
     fDisconnectDAQ = new TGTextButton(fTabDT5781, "Disconnect DAQ");  // buttons DisconnectDAQ
     fDisconnectDAQ->SetTextJustify(36);
@@ -189,13 +186,15 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fDisconnectDAQ->Resize(90,25);
     fMainGUIFrame->AddFrame(fDisconnectDAQ, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
     gClient->GetColorByName("light blue", fColor);
-    fDisconnectDAQ->MoveResize(fGUIsizeX-50-90,150,90,25);
+    fDisconnectDAQ->MoveResize(fGUIsizeX-50-60,150,90,25);
     fDisconnectDAQ->ChangeBackground(fColor);
     fDisconnectDAQ->Connect("Clicked()","PigsGUI",this,"DisconnectDAQ()");
 
-    // container of "About"
+    // *** container of "About" ***
     fTabAbout = fTabHolder->AddTab("About");
     fTabAbout->SetLayoutManager(new TGVerticalLayout(fTabAbout));
+
+    //-------------------------------------------------------------------------
 
     // change to the starting tab
     //fTabHolder->SetTab("CurrentHistogram");
@@ -212,6 +211,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fMainGUIFrame->Resize(fMainGUIFrame->GetDefaultSize());
     fMainGUIFrame->MapWindow();
     fMainGUIFrame->Resize(fGUIsizeX,fGUIsizeY);
+//    fDTinfo->DataChanged();
 
 }
 

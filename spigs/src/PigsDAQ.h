@@ -60,27 +60,27 @@ class PigsGUI;
 class PigsDAQ {
 public:
     static PigsDAQ * getInstance(); // Get unique pointer to the class
-    int32_t BasicInit();        // Does all basic initialization
-    int32_t InitDgtzParams();     // Initialize the digitizer parameters to their default value
-    int32_t SetDgtzParams();     // Set custom digitizer parameters
-    int32_t SetDAQParams();        // Set custom DAQ parameters
-    int32_t InitDPPLib();        // Initialize the DPP library
-    int32_t AddBoardUSB();        // Adds board 0 on USB bus to the DPP library
-    void PrintBoardInfo();      // Prints board information
-    int32_t ConfigureBoard();    // Configures the board with digitizer and DAQ parameters
-    int32_t EndLibrary();       // Cleanup: call this before the program ends!
+    int32_t BasicInit();            // Does all basic initialization
+    int32_t InitDgtzParams();       // Initialize the digitizer parameters to their default value
+    int32_t SetDgtzParams();        // Set custom digitizer parameters
+    int32_t SetDAQParams();         // Set custom DAQ parameters
+    int32_t InitDPPLib();           // Initialize the DPP library
+    int32_t AddBoardUSB();          // Adds board 0 on USB bus to the DPP library
+    void PrintBoardInfo();          // Prints board information
+    int32_t ConfigureBoard();       // Configures the board with digitizer and DAQ parameters
+    int32_t EndLibrary();           // Cleanup: call this before the program ends!
 
-    int32_t isChannelDisabled(int32_t ch);            // 0 if enabled, 1 if disabled
-    void PrintChannelParameters(int32_t ch);         // Prints Channel Parameters
-    char * decodeError(char *dest, int32_t code);     // Decodes the given error code into a message
+    int32_t isChannelDisabled(int32_t ch);          // 0 if enabled, 1 if disabled
+    void PrintChannelParameters(int32_t ch);        // Prints Channel Parameters
+    char * decodeError(char *dest, int32_t code);   // Decodes the given error code into a message
 
-    int32_t ConfigureChannel(int32_t ch);     // Sets channel parameters specified in Init & Set calls
+    int32_t ConfigureChannel(int32_t ch);   // Sets channel parameters specified in Init & Set calls
     int32_t StopAcquisition(int32_t ch);    // Stops acquisition for channel ch
     int32_t AcquisitionSingleLoop();        // Runs acquisition
-    int32_t ThreadAcqSingleLoop();           // Runs acquisition in a separate thread
+    int32_t ThreadAcqSingleLoop();          // Runs acquisition in a separate thread
     void PrintAcquisotionInfo();            // Prints real/dead time, cps, ...
 
-    int32_t RefreshCurrHist();                // Transfers h1 into currHist
+    int32_t RefreshCurrHist();              // Transfers h1 into currHist
 
     TH1D *getCurrHist() const;
     void setCurrHist(TH1D *currHist);
@@ -95,6 +95,7 @@ public:
     void setStopCriteriaValue(uint64_t stopCriteriaValue);
     PigsGUI *getGUI() const;
     void setGUI(PigsGUI *gui);
+    const char *getBoardInfo() const;
 
 protected:
     static PigsDAQ * instance;
@@ -108,6 +109,7 @@ private:
     int32_t brd;        // Board Identifier - this code assumes we only have one board
     CAENDPP_ConnectionParams_t connParam;   // Connection Parameters - Used to connect to the board.
     CAENDPP_Info_t info;                    // Board Infos Structure
+    TString fBoardInfo;
     CAENDPP_DgtzParams_t dgtzParams;        // Acquisition Parameters - Used to set the acquisition properties.
     CAENDPP_AcqMode_t acqMode;              // Acquisition Mode (Histogram or Waveforms)
     CAENDPP_InputRange_t iputLevel;         // Channel input range

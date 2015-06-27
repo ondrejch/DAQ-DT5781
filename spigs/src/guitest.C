@@ -43,6 +43,7 @@
 #include "TRootEmbeddedCanvas.h"
 #include "TCanvas.h"
 #include "TGInputDialog.h"
+#include "TGTextView.h"
 #include <TGClient.h>
 
 #include "Riostream.h"
@@ -52,35 +53,32 @@ int myvar = 0;
 const int fGUIsizeX = 600;
 const int fGUIsizeY = 500;
 
-TGMainFrame *fMainGUIFrame;        // Main GUI window
-TGLabel *fMainTitle;            //
-TGTab *fTabHolder;              // tab widget
-TGCompositeFrame *fCurHistFrame;// container of "CurrentHistogram"
+TGMainFrame *fMainGUIFrame;         // Main GUI window
+TGLabel *fMainTitle;                //
+TGTab *fTabHolder;                  // tab widget
+TGCompositeFrame *fCurHistFrame;    // container of "CurrentHistogram"
 TRootEmbeddedCanvas *fLatestHistoCanvas;
 TCanvas *cCurrHCanvas;
 TGHProgressBar *fHCurrHProgressBar;
-TGCompositeFrame *fTabHisto;    // container of "History"
+TGCompositeFrame *fTabHisto;        // container of "History"
 TRootEmbeddedCanvas *fLastNspectra;
 TCanvas *cLastNspectra;
-TGCompositeFrame *fTabConfig;     // container of "Config"
-TGCompositeFrame *fTabDT5781;     // container of "DT5781"
-TGLabel *fDTinfo;
-TGCompositeFrame *fTabAbout;      // container of "About"
+TGCompositeFrame *fTabConfig;       // container of "Config"
+TGCompositeFrame *fTabDT5781;       // container of "DT5781"
+TGTextView *fDTinfo;
+TGCompositeFrame *fTabAbout;        // container of "About"
 
-TGTextButton *fInitDAQ, *fDisableDAQ;            // buttons
-TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ;  // buttons
+TGTextButton *fInitDAQ, *fDisableDAQ;               // buttons
+TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ;      // buttons
 
-TGFont *ufont;                     // will reflect user font changes
-ULong_t fColor;                   // Color helper
-TGGC   *uGC;                       // will reflect user GC changes
-GCValues_t valTitle;            // graphics context changes
-
-
-void guitest()
-{
+TGFont *ufont;                      // will reflect user font changes
+ULong_t fColor;                     // Color helper
+TGGC   *uGC;                        // will reflect user GC changes
+GCValues_t valTitle;                // graphics context changes
 
 
-   // main frame
+void guitest() {
+    // main frame
    fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
    fMainGUIFrame->SetName("fMainGUIFrame");
    fMainGUIFrame->SetLayoutBroken(kTRUE);
@@ -105,16 +103,7 @@ void guitest()
    fMainGUIFrame->AddFrame(fMainTitle, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
    fMainTitle->MoveResize(0,0,fGUIsizeX-4,32);
 
-
    // tab widget
-//   GCValues_t valTab;
-//   gClient->GetColorByName("#000000",valTab.fForeground);
-//   gClient->GetColorByName("#e0e0e0",valTab.fBackground);
-//   ufont = gClient->GetFont("-urw-nimbus sans l-regular-r-normal--0-0-0-0-p-0-iso8859-1");
-//   valTab.fFillStyle = kFillSolid;
-//   valTab.fFont = ufont->GetFontHandle();
-//   valTab.fGraphicsExposures = kFALSE;
-//   uGC = gClient->GetGC(&valTab, kTRUE);
    fTabHolder = new TGTab(fMainGUIFrame,fGUIsizeX-4,fGUIsizeX-4);//,uGC->GetGC());
 
    // container of "CurrentHistogram"
@@ -157,13 +146,11 @@ void guitest()
    // container of "DT5781"
    fTabDT5781 = fTabHolder->AddTab("DT5781");
    fTabDT5781->SetLayoutManager(new TGVerticalLayout(fTabDT5781));
-   gClient->GetColorByName("#ffffff",fColor);
-   fDTinfo = new TGLabel(fTabDT5781,"fDTinfo",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kSunkenFrame,fColor);
-   fDTinfo->SetTextJustify(36);
-   fDTinfo->SetMargins(0,0,0,0);
-   fDTinfo->SetWrapLength(-1);
-   fDTinfo->SetText("DAQ not initialized.");
+   gClient->GetColorByName("white", fColor);
+   fDTinfo = new TGTextView(fTabDT5781,TGLabel::GetDefaultGC()(),100,50,kSunkenFrame,fColor);
+   fDTinfo->AddLine("DAQ not initialized.");
    fTabDT5781->AddFrame(fDTinfo, new TGLayoutHints(kLHintsNormal));
+   fDTinfo->MoveResize(10,50,400,150);
 
    fInitDAQ = new TGTextButton(fTabDT5781, "Init DAQ");
    fInitDAQ->SetTextJustify(36);
@@ -219,7 +206,7 @@ void guitest()
    fMainGUIFrame->Resize(fGUIsizeX,fGUIsizeY);
 
 
-   fDTinfo->MoveResize(10,50,400,150);
+  // fDTinfo->MoveResize(10,50,400,150);
 
 }
 

@@ -12,21 +12,26 @@
 
 // ROOT
 #include <TObject.h>
+#include <TRootEmbeddedCanvas.h>
 #include <TGTab.h>
 #include <TGLabel.h>
-#include <TRootEmbeddedCanvas.h>
 #include <TGProgressBar.h>
 #include <TGButton.h>
 #include <TCanvas.h>
 #include <TGClient.h>
+#include <TGTextView.h>
 #include <TThread.h>
 #include <Riostream.h>
 #include <TApplication.h>
 
 // PIGS
 #include <PigsDAQ.h>
+#include <PigsStorage.h>
+#include <PigsEvent.h>
 
 class PigsDAQ;
+class PigsStorage;
+class PigsEvent;
 
 class PigsGUI : public TGMainFrame  {
 public:
@@ -52,7 +57,7 @@ private:
     TCanvas *cLastNspectra;
     TGCompositeFrame *fTabConfig;       // container of "Config"
     TGCompositeFrame *fTabDT5781;       // container of "DT5781"
-    TGLabel *fDTinfo;
+    TGTextView *fDTinfo;
     TGTextButton *fInitDAQ, *fDisconnectDAQ;  // buttons
     TGCompositeFrame *fTabAbout;        // container of "About"
 

@@ -29,24 +29,35 @@ src/PigsDAQ.d: ../src/PigsDAQ.cpp ../src/PigsDAQ.h \
  /usr/include/root/TQObject.h /usr/include/root/TTime.h \
  /usr/include/root/Varargs.h /usr/include/root/TThreadSlots.h \
  /home/rc/git/DAQ-DT5781/spigs/src/PigsGUI.h /usr/include/root/TObject.h \
- /usr/include/root/TGTab.h /usr/include/root/TGFrame.h \
- /usr/include/root/TGWindow.h /usr/include/root/TGObject.h \
- /usr/include/root/GuiTypes.h /usr/include/root/TGClient.h \
- /usr/include/root/TVirtualX.h /usr/include/root/TAttText.h \
- /usr/include/root/TGDimension.h /usr/include/root/TGGC.h \
- /usr/include/root/TRefCnt.h /usr/include/root/TGFont.h \
- /usr/include/root/TGLayout.h /usr/include/root/TGString.h \
+ /usr/include/root/TRootEmbeddedCanvas.h /usr/include/root/TGCanvas.h \
+ /usr/include/root/TGFrame.h /usr/include/root/TGWindow.h \
+ /usr/include/root/TGObject.h /usr/include/root/GuiTypes.h \
+ /usr/include/root/TGClient.h /usr/include/root/TVirtualX.h \
+ /usr/include/root/TAttText.h /usr/include/root/TGDimension.h \
+ /usr/include/root/TGGC.h /usr/include/root/TRefCnt.h \
+ /usr/include/root/TGFont.h /usr/include/root/TGLayout.h \
+ /usr/include/root/TGString.h /usr/include/root/TGTab.h \
  /usr/include/root/TGWidget.h /usr/include/root/WidgetMessageTypes.h \
- /usr/include/root/TGLabel.h /usr/include/root/TRootEmbeddedCanvas.h \
- /usr/include/root/TGCanvas.h /usr/include/root/TGProgressBar.h \
+ /usr/include/root/TGLabel.h /usr/include/root/TGProgressBar.h \
  /usr/include/root/TGButton.h /usr/include/root/TCanvas.h \
  /usr/include/root/TPad.h /usr/include/root/TVirtualPad.h \
  /usr/include/root/TAttPad.h /usr/include/root/Buttons.h \
  /usr/include/root/TAttBBox2D.h /usr/include/root/TAttCanvas.h \
  /usr/include/root/TCanvasImp.h /usr/include/root/TGClient.h \
- /usr/include/root/Riostream.h /usr/include/root/TApplication.h \
- /usr/include/root/TApplicationImp.h \
- /home/rc/git/DAQ-DT5781/spigs/src/PigsDAQ.h
+ /usr/include/root/TGTextView.h /usr/include/root/TGView.h \
+ /usr/include/root/TGText.h /usr/include/root/Riostream.h \
+ /usr/include/root/TApplication.h /usr/include/root/TApplicationImp.h \
+ /home/rc/git/DAQ-DT5781/spigs/src/PigsDAQ.h \
+ /home/rc/git/DAQ-DT5781/spigs/src/PigsStorage.h \
+ /usr/include/root/TFile.h /usr/include/root/TDirectoryFile.h \
+ /usr/include/root/TMap.h /usr/include/root/THashTable.h \
+ /usr/include/root/TUrl.h /usr/include/root/TTree.h \
+ /usr/include/root/TBranch.h /usr/include/root/TObjArray.h \
+ /usr/include/root/TDataType.h /usr/include/root/TDictionary.h \
+ /usr/include/root/Property.h /usr/include/root/ESTLType.h \
+ /usr/include/root/TClass.h /usr/include/root/TObjString.h \
+ /usr/include/root/TVirtualTreePlayer.h \
+ /home/rc/git/DAQ-DT5781/spigs/src/PigsEvent.h
 
 ../src/PigsDAQ.h:
 
@@ -170,7 +181,9 @@ src/PigsDAQ.d: ../src/PigsDAQ.cpp ../src/PigsDAQ.h \
 
 /usr/include/root/TObject.h:
 
-/usr/include/root/TGTab.h:
+/usr/include/root/TRootEmbeddedCanvas.h:
+
+/usr/include/root/TGCanvas.h:
 
 /usr/include/root/TGFrame.h:
 
@@ -198,15 +211,13 @@ src/PigsDAQ.d: ../src/PigsDAQ.cpp ../src/PigsDAQ.h \
 
 /usr/include/root/TGString.h:
 
+/usr/include/root/TGTab.h:
+
 /usr/include/root/TGWidget.h:
 
 /usr/include/root/WidgetMessageTypes.h:
 
 /usr/include/root/TGLabel.h:
-
-/usr/include/root/TRootEmbeddedCanvas.h:
-
-/usr/include/root/TGCanvas.h:
 
 /usr/include/root/TGProgressBar.h:
 
@@ -230,6 +241,12 @@ src/PigsDAQ.d: ../src/PigsDAQ.cpp ../src/PigsDAQ.h \
 
 /usr/include/root/TGClient.h:
 
+/usr/include/root/TGTextView.h:
+
+/usr/include/root/TGView.h:
+
+/usr/include/root/TGText.h:
+
 /usr/include/root/Riostream.h:
 
 /usr/include/root/TApplication.h:
@@ -237,3 +254,37 @@ src/PigsDAQ.d: ../src/PigsDAQ.cpp ../src/PigsDAQ.h \
 /usr/include/root/TApplicationImp.h:
 
 /home/rc/git/DAQ-DT5781/spigs/src/PigsDAQ.h:
+
+/home/rc/git/DAQ-DT5781/spigs/src/PigsStorage.h:
+
+/usr/include/root/TFile.h:
+
+/usr/include/root/TDirectoryFile.h:
+
+/usr/include/root/TMap.h:
+
+/usr/include/root/THashTable.h:
+
+/usr/include/root/TUrl.h:
+
+/usr/include/root/TTree.h:
+
+/usr/include/root/TBranch.h:
+
+/usr/include/root/TObjArray.h:
+
+/usr/include/root/TDataType.h:
+
+/usr/include/root/TDictionary.h:
+
+/usr/include/root/Property.h:
+
+/usr/include/root/ESTLType.h:
+
+/usr/include/root/TClass.h:
+
+/usr/include/root/TObjString.h:
+
+/usr/include/root/TVirtualTreePlayer.h:
+
+/home/rc/git/DAQ-DT5781/spigs/src/PigsEvent.h:

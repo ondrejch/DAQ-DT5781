@@ -34,6 +34,7 @@ PigsDAQ::PigsDAQ() {
     countsPerSecond=deadTime=realTime=goodCounts=0;
     StopCriteriaValue=0;usecSleepPollDAQ=0;
     fErrCode=0; fCurrHist=0; fDt=0; h1=0; gui=0; //fAcqThread=0;
+//    fBoardInfo=0;
     isAcquiring=CAENDPP_AcqStatus_Unknown;
     acqMode=CAENDPP_AcqMode_Histogram;
     iputLevel=CAENDPP_InputRange_10_0Vpp;
@@ -117,18 +118,25 @@ int32_t PigsDAQ::AddBoardUSB() {
     }
 
     // Get Board Info
-    fErrCode  = CAENDPP_GetDPPInfo(handle,    brd, &info);
+    fErrCode  = CAENDPP_GetDPPInfo(handle, brd, &info);
     if(fErrCode != CAENDPP_RetCode_Ok) {
         std::cerr<<"Error getting board info: "<< decodeError(codeStr,fErrCode) << std::endl;
         return fErrCode;
     }
-    PrintBoardInfo();
+    if(fVerbose) PrintBoardInfo();
+
+    // Prints board info into fBoardInfo
+    fBoardInfo.Clear();
+    fBoardInfo += Form("Board %s, Serial#: %d\n",info.ModelName, info.SerialNumber);
+    fBoardInfo += Form("  Channels: %d, License: %s\n", info.Channels, info.License);
+    fBoardInfo += Form("  Firmware AMC: %s, ROC %s\n", info.AMC_FirmwareRel,info.ROC_FirmwareRel);
 
     return fErrCode;
 }
 
 
 void PigsDAQ::PrintBoardInfo() {
+    // Prints board info into stdout
     std::cout << "Board "<< info.ModelName << ", Serial#: " << info.SerialNumber << std::endl;
     std::cout << "  Channels: " << info.Channels << ", License: " << info.License << std::endl;
     std::cout << "  Firmware AMC: " << info.AMC_FirmwareRel << ", ROC" << info.ROC_FirmwareRel << std::endl;
@@ -563,15 +571,17 @@ int32_t PigsDAQ::EndLibrary() {
 }
 
 // getters & setters
-TH1D   * PigsDAQ::getCurrHist() const { return fCurrHist; }
-void     PigsDAQ::setCurrHist(TH1D *currHist) { fCurrHist = currHist; }
-double   PigsDAQ::getCountsPerSecond() const { return countsPerSecond; }
-uint64_t PigsDAQ::getRealTime() const { return realTime; }
-uint64_t PigsDAQ::getDeadTime() const { return deadTime; }
-uint32_t PigsDAQ::getTotCounts() const { return totCounts; }
-uint32_t PigsDAQ::getGoodCounts() const { return goodCounts; }
-PigsGUI *PigsDAQ::getGUI() const { return gui; }
-void     PigsDAQ::setGUI(PigsGUI *gui) { this->gui = gui;}
+void     PigsDAQ::setGUI(PigsGUI *gui)          { this->gui = gui;}
+void     PigsDAQ::setCurrHist(TH1D *currHist)   { fCurrHist = currHist; }
+TH1D   * PigsDAQ::getCurrHist() const           { return fCurrHist; }
+double   PigsDAQ::getCountsPerSecond() const    { return countsPerSecond; }
+uint64_t PigsDAQ::getRealTime() const           { return realTime; }
+uint64_t PigsDAQ::getDeadTime() const           { return deadTime; }
+uint32_t PigsDAQ::getTotCounts() const          { return totCounts; }
+uint32_t PigsDAQ::getGoodCounts() const         { return goodCounts; }
+PigsGUI *PigsDAQ::getGUI() const                { return gui; }
+const char *PigsDAQ::getBoardInfo() const       { return fBoardInfo.Data();  }
+
 
 CAENDPP_StopCriteria_t PigsDAQ::getStopCriteria() const {
     return StopCriteria;
