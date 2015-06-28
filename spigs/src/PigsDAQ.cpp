@@ -269,7 +269,7 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
     do {
         if(gui) {  // If GUI is set, update the progress bar
             gui->SetProgressBarPosition(pctProgress);
-            if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " progress: " << pctProgress << std::endl;
+//            if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " progress: " << pctProgress << std::endl;
         }
         usleep(usecSleepPollDAQ);        // waits to poll DT5781
         gSystem->ProcessEvents();

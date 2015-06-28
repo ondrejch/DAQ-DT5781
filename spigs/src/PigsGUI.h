@@ -20,6 +20,7 @@
 #include <TCanvas.h>
 #include <TGClient.h>
 #include <TGTextView.h>
+#include <TH1D.h>
 #include <TThread.h>
 #include <Riostream.h>
 #include <TApplication.h>
@@ -56,6 +57,9 @@ private:
     TGCompositeFrame *fTabHisto;        // container of "History"
     TRootEmbeddedCanvas *fLastNspectra;
     TCanvas *cLastNspectra;
+    TGCompositeFrame *fTabSum;          // container of "Sum"
+    TRootEmbeddedCanvas *fSumSpectra;
+    TCanvas *cSumSpectra;
     TGCompositeFrame *fTabConfig;       // container of "Config"
     TGCompositeFrame *fTabDT5781;       // container of "DT5781"
     TGTextView *fDTinfo;
@@ -70,6 +74,7 @@ private:
     PigsDAQ *daq;                       // DAQ pointer
     PigsStorage *storage;               // Data storage
     PigsEvent *ev;                      // Event buffer used to fill the storage
+    TH1D *fNormAvgH;                    // Normalized average of last 9 measurements
 
 
     static const int fGUIsizeX = 600;

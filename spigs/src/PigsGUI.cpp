@@ -68,24 +68,37 @@ int PigsGUI::RunSingleAcquisition() {
         ev->totCounts = daq->getTotCounts();
         ev->countsPerSecond = daq->getCountsPerSecond();
         storage->getTree()->Fill();
-        //UpdateHistory();                     // Updates the history tab
+        UpdateHistory();                     // Updates the history & average tabs
     }
+    fHCurrHProgressBar->SetPosition(1);
     fStartDAQ->SetState(kButtonUp);
     return ret;
 }
 
 void PigsGUI::UpdateHistory() {
-    // Updates the history tab
+    // Updates the history and average tabs
     Long64_t totalEntries = storage->getTree()->GetEntries();
     Long64_t currentEntry = -1;
+    if(fNormAvgH) fNormAvgH->Delete();
+    fNormAvgH = (TH1D*) daq->getCurrHist()->Clone();
+//    cout << __PRETTY_FUNCTION__ << "totalEntries: " << totalEntries << endl;
     for (int i=0; i<9; i++) {       // loop over subcanvases
         currentEntry = totalEntries - i;
         if(currentEntry>0) {
-            cLastNspectra->GetPad(i)->cd();
+//            cout << __PRETTY_FUNCTION__ << "i: " << i << " entry: " << currentEntry << endl;
+            cLastNspectra->GetPad(i+1)->cd();
             storage->getTree()->GetEntry(currentEntry);
             storage->getE()->spectrum->Draw();
+            cLastNspectra->Modified();
+            cLastNspectra->Update();
+            if(i>0) fNormAvgH->Add(storage->getE()->spectrum);
         }
     }
+    fNormAvgH->Scale(1.0/fNormAvgH->Integral()); // Histogram normalization
+    cSumSpectra->cd();
+    fNormAvgH->Draw();
+    cSumSpectra->Modified();
+    cSumSpectra->Update();
 }
 
 int PigsGUI::StopAcquisition() {
@@ -101,8 +114,9 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
 }
 
 PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
-    daq = 0; storage=0; ev = 0;
-    fAcqThread=0;
+    daq = 0; storage = 0; ev = 0;
+    fAcqThread = 0;
+    fNormAvgH = 0;
 
     // *** Main GUI window ***
     fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
@@ -191,6 +205,18 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     cLastNspectra->Divide(3,3);
     fTabHisto->AddFrame(fLastNspectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
+    // *** container of "Sum" ***
+    fTabSum = fTabHolder->AddTab("Sum");
+    fTabSum->SetLayoutManager(new TGVerticalLayout(fTabSum));
+    // embedded canvas
+    fSumSpectra = new TRootEmbeddedCanvas("SumHEC",fTabSum,fGUIsizeX-10,fGUIsizeY-110);
+    Int_t wfSumSpectra = fSumSpectra->GetCanvasWindowId();
+    cSumSpectra = new TCanvas("cSumSpectra", 10, 10, wfSumSpectra);
+    cSumSpectra->SetLogx();
+    cSumSpectra->SetLogy();
+    fSumSpectra->AdoptCanvas(cSumSpectra);
+    fTabSum->AddFrame(fSumSpectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+
     // *** container of "Config" ***
     fTabConfig = fTabHolder->AddTab("Config");
     fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
@@ -251,6 +277,7 @@ PigsGUI::~PigsGUI() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     StopAcquisition();
     DisconnectDAQ();
+    if(storage) delete storage;
     // Clean up all widgets, frames and layout hints that were used
     Cleanup();
     gApplication->Terminate(0);
