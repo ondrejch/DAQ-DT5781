@@ -277,6 +277,11 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fTabConfig = fTabHolder->AddTab("Config");
     fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
 
+    fAcqTimeEntry = new TGNumberEntry(fTabConfig, (Double_t) 1.0 ,5,-1,(TGNumberFormat::EStyle) 1,
+            (TGNumberFormat::EAttribute) 2,(TGNumberFormat::ELimit) 2, 0.1, 600);
+    fTabConfig->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal));
+
+
     // *** container of "DT5781" ***
     fTabDT5781 = fTabHolder->AddTab("DT5781");
     fTabDT5781->SetLayoutManager(new TGVerticalLayout(fTabDT5781));

@@ -45,8 +45,10 @@ src/PigsDAQ_test.d: ../src/PigsDAQ_test.cpp ../src/PigsDAQ.h \
  /usr/include/root/TAttBBox2D.h /usr/include/root/TAttCanvas.h \
  /usr/include/root/TCanvasImp.h /usr/include/root/TGClient.h \
  /usr/include/root/TGTextView.h /usr/include/root/TGView.h \
- /usr/include/root/TGText.h /usr/include/root/Riostream.h \
- /usr/include/root/TApplication.h /usr/include/root/TApplicationImp.h \
+ /usr/include/root/TGText.h /usr/include/root/TGNumberEntry.h \
+ /usr/include/root/TGTextEntry.h /usr/include/root/TGTextBuffer.h \
+ /usr/include/root/Riostream.h /usr/include/root/TApplication.h \
+ /usr/include/root/TApplicationImp.h \
  /home/rc/git/DAQ-DT5781/spigs/src/PigsDAQ.h \
  /home/rc/git/DAQ-DT5781/spigs/src/PigsStorage.h \
  /usr/include/root/TFile.h /usr/include/root/TDirectoryFile.h \
@@ -246,6 +248,12 @@ src/PigsDAQ_test.d: ../src/PigsDAQ_test.cpp ../src/PigsDAQ.h \
 /usr/include/root/TGView.h:
 
 /usr/include/root/TGText.h:
+
+/usr/include/root/TGNumberEntry.h:
+
+/usr/include/root/TGTextEntry.h:
+
+/usr/include/root/TGTextBuffer.h:
 
 /usr/include/root/Riostream.h:
 
