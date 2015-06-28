@@ -20,7 +20,7 @@ src/PigsDAQ_test.d: ../src/PigsDAQ_test.cpp ../src/PigsDAQ.h \
  /usr/include/root/TArrayI.h /usr/include/root/TArrayF.h \
  /usr/include/root/Foption.h /usr/include/root/TVectorFfwd.h \
  /usr/include/root/TVectorDfwd.h /usr/include/root/TFitResultPtr.h \
- /usr/include/root/TDatime.h /usr/include/root/TString.h \
+ /usr/include/root/TTimeStamp.h /usr/include/root/TString.h \
  /usr/include/root/TThread.h /usr/include/root/TMutex.h \
  /usr/include/root/TVirtualMutex.h /usr/include/root/TMutexImp.h \
  /usr/include/root/TCondition.h /usr/include/root/TConditionImp.h \
@@ -145,7 +145,7 @@ src/PigsDAQ_test.d: ../src/PigsDAQ_test.cpp ../src/PigsDAQ.h \
 
 /usr/include/root/TFitResultPtr.h:
 
-/usr/include/root/TDatime.h:
+/usr/include/root/TTimeStamp.h:
 
 /usr/include/root/TString.h:
 

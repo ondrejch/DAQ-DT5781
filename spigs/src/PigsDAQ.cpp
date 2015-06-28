@@ -34,7 +34,7 @@ PigsDAQ::PigsDAQ() {
     countsPerSecond=deadTime=realTime=goodCounts=0;
     StopCriteriaValue=0;usecSleepPollDAQ=0;
     fErrCode=0; fCurrHist=0; fDt=0; h1=0; gui=0; //fAcqThread=0;
-//    fBoardInfo=0;
+    year= month= day= hour= min= sec=0;
     isAcquiring=CAENDPP_AcqStatus_Unknown;
     acqMode=CAENDPP_AcqMode_Histogram;
     iputLevel=CAENDPP_InputRange_10_0Vpp;
@@ -82,7 +82,7 @@ int32_t PigsDAQ::SetDAQParams(){
     acqMode = CAENDPP_AcqMode_Histogram;        // For Histogram mode (no waveforms)
     //acqMode = CAENDPP_AcqMode_Waveform;       // For Oscilloscope mode (waves + histogram)
     iputLevel = CAENDPP_InputRange_1_0Vpp;      // Channel input level - could be per channel
-    usecSleepPollDAQ = 50000;                   // [ns] DAQ acquisition poll
+    usecSleepPollDAQ = 100000;                   // [ns] DAQ acquisition poll
     // Set stop criteria
     StopCriteria = CAENDPP_StopCriteria_RealTime;       // Elapsed real time
     //StopCriteriaValue = 600L*1000000000L;             // [ns] Run for 600 seconds
@@ -123,7 +123,7 @@ int32_t PigsDAQ::AddBoardUSB() {
         std::cerr<<"Error getting board info: "<< decodeError(codeStr,fErrCode) << std::endl;
         return fErrCode;
     }
-    if(fVerbose) PrintBoardInfo();
+    if(fVerbose>9) PrintBoardInfo();
 
     // Prints board info into fBoardInfo
     fBoardInfo.Clear();
@@ -233,19 +233,31 @@ int32_t PigsDAQ::StopAcquisition(int32_t ch) {
 
 int32_t PigsDAQ::AcquisitionSingleLoop() {
     // Currently does only one cycle in the loop...
-    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " begin " << std::endl;
 
     // reset counters
     totCounts = realTime = deadTime = 0;
     countsPerSecond = 0;
-    Float_t pctProgress = 0;        // measures progress in acquisition
-    Float_t pctIncrement = 100.*1000.*usecSleepPollDAQ/StopCriteriaValue;
+    Float_t pctProgress = 0.0;        // measures progress in acquisition
+    Float_t pctIncrement = 100.*1000.*(float)usecSleepPollDAQ/(float)StopCriteriaValue;
+
+    // Clear histogram on channel 0
+    ch = 0;
+    fErrCode = CAENDPP_ClearHistogram(handle, ch, 0);
+    if (fErrCode != CAENDPP_RetCode_Ok) {
+        std::cerr << "Error clearing histogram" << std::endl;
+        return fErrCode;
+    } else {
+        if(fVerbose) std::cout << "Histogram on channel " << ch << " cleared." << std::endl;
+    }
+
+    if(gui) gui->SetProgressBarPosition(pctProgress);    // If GUI is set, update the progress bar
+
     // Set starting date time
-    if(fDt) delete fDt;
-    fDt = new TDatime();
+    fDt.Set();
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " timestamp set " << std::endl;
 
     // Start Acquisition for channel 0
-    ch = 0;
     fErrCode = CAENDPP_StartAcquisition(handle, ch);
     if (fErrCode != CAENDPP_RetCode_Ok) {
         printf("Error Starting Acquisition for channel %d: %s\n", ch, decodeError(codeStr, fErrCode));
@@ -257,7 +269,7 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
     do {
         if(gui) {  // If GUI is set, update the progress bar
             gui->SetProgressBarPosition(pctProgress);
-            //if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " progress: " << pctProgress << std::endl;
+            if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " progress: " << pctProgress << std::endl;
         }
         usleep(usecSleepPollDAQ);        // waits to poll DT5781
         gSystem->ProcessEvents();
@@ -265,6 +277,8 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
         if(fVerbose>9) printf("  -- ch %d acq status %d\n", ch, isAcquiring);
         if(gui) pctProgress += pctIncrement;
     } while (isAcquiring);
+
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " acquisition stopped " << std::endl;
 
     // Get The Histogram
     fErrCode = CAENDPP_GetCurrentHistogram(handle, ch, h1, &goodCounts, &realTime, &deadTime, &isAcquiring);
@@ -280,7 +294,8 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
     }
     totCounts       = (uint32_t)(goodCounts * (1.0 + (double)deadTime / (double)(realTime)));
     countsPerSecond = (realTime - deadTime) > 0 ? (double)goodCounts / (double)((realTime - deadTime) / 1000000000.0) : 0;
-    if(gui) gui->SetProgressBarPosition(pctProgress);    // If GUI is set, update the progress bar
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " done " <<  h1NBins << std::endl;
+    if(fVerbose) PrintAcquisotionInfo();
     return fErrCode;
 }
 
@@ -288,8 +303,10 @@ int32_t PigsDAQ::RefreshCurrHist() {
     // creates TH1D from h1
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
-    fAcqDate=Form("%06d %02d:%02d:%02d",fDt->GetDate(),fDt->GetHour(),fDt->GetMinute(),fDt->GetSecond());
-    if(fCurrHist) delete fCurrHist;
+    fDt.GetDate(0, 0, &year, &month, &day);
+    fDt.GetTime(0, 0, &hour, &min,   &sec);
+    fAcqDate=Form("%04d%02d%02d %02d:%02d:%02d",year,month,day,hour,min,sec);
+    if(fCurrHist) fCurrHist->Delete();//delete fCurrHist;
     fCurrHist = new TH1D("fCurrHist", Form("ch0: %s",fAcqDate.Data()), h1NBins, 0, h1NBins-1);
     fCurrHist->SetXTitle("ADC channel");
     fCurrHist->SetYTitle("Counts");

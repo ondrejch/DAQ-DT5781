@@ -11,11 +11,12 @@ int PigsGUI::InitDAQ() {
     // Initialization of the PigsDAQ object, DPP library, DAQ config, storage
     int ret = 0;
 
-    if (storage) delete storage;    // Storage initialization
-    storage = new PigsStorage("myout.root"); // TODO make the file name unique by using current date time
+    if (storage) delete storage;                        // Storage initialization
+    storage = new PigsStorage("myout.root");            // TODO make the file name unique by using current date time
+    ev      = storage->getE();
     fDTinfo->AddLine(Form("Output file: %s",storage->getOutFileName()));
 
-    fDTinfo->AddLine("*** Initializing the DAQ ***");
+    fDTinfo->AddLine("*** Initializing the DAQ ***");   // DAQ initialization
     daq = PigsDAQ::getInstance();
     if (!ret) { ret = daq->InitDPPLib();  fDTinfo->AddLineFast("DPP firmware instantiated"); }
     if (!ret) { ret = daq->AddBoardUSB(); fDTinfo->AddLineFast("Board added"); }
@@ -46,20 +47,45 @@ int PigsGUI::DisconnectDAQ() {
 int PigsGUI::RunSingleAcquisition() {
     // Runs one acquisition loop
     int ret=0;
+    ret = daq->ConfigureChannel(0);
     fStartDAQ->SetState(kButtonDown);
     ret = daq->AcquisitionSingleLoop();
 //    fAcqThread = new TThread("AcqThread",(void(*)(void *))daq->AcquisitionSingleLoop(), (void*) 0);
 //    fAcqThread->Run();
 
     if(!ret) {
-        daq->RefreshCurrHist();
+        daq->RefreshCurrHist();             // transfer data to TH1D
         cCurrHCanvas->cd();
-        daq->getCurrHist()->DrawClone();
+        daq->getCurrHist()->Draw();         // plot latest TH1D
         cCurrHCanvas->Modified();
         cCurrHCanvas->Update();
+        gSystem->ProcessEvents();
+
+        ev->spectrum  = daq->getCurrHist();   // save current measurement
+        ev->realTime  = daq->getRealTime();
+        ev->deadTime  = daq->getDeadTime();
+        ev->goodCounts= daq->getGoodCounts();
+        ev->totCounts = daq->getTotCounts();
+        ev->countsPerSecond = daq->getCountsPerSecond();
+        storage->getTree()->Fill();
+        //UpdateHistory();                     // Updates the history tab
     }
     fStartDAQ->SetState(kButtonUp);
     return ret;
+}
+
+void PigsGUI::UpdateHistory() {
+    // Updates the history tab
+    Long64_t totalEntries = storage->getTree()->GetEntries();
+    Long64_t currentEntry = -1;
+    for (int i=0; i<9; i++) {       // loop over subcanvases
+        currentEntry = totalEntries - i;
+        if(currentEntry>0) {
+            cLastNspectra->GetPad(i)->cd();
+            storage->getTree()->GetEntry(currentEntry);
+            storage->getE()->spectrum->Draw();
+        }
+    }
 }
 
 int PigsGUI::StopAcquisition() {
@@ -75,7 +101,7 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
 }
 
 PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
-    daq = 0; storage=0;
+    daq = 0; storage=0; ev = 0;
     fAcqThread=0;
 
     // *** Main GUI window ***
@@ -139,7 +165,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fCurHistFrame = fTabHolder->AddTab("CurrentHistogram");
     fCurHistFrame->SetLayoutManager(new TGVerticalLayout(fCurHistFrame));
     // embedded canvas
-    fLatestHistoCanvas = new TRootEmbeddedCanvas(0,fCurHistFrame,fGUIsizeX-10,fGUIsizeY-140);
+    fLatestHistoCanvas = new TRootEmbeddedCanvas("CurrentHEC",fCurHistFrame,fGUIsizeX-10,fGUIsizeY-140);
     Int_t wfLatestHistoCanvas = fLatestHistoCanvas->GetCanvasWindowId();
     cCurrHCanvas = new TCanvas("cCurrHCanvas", 10, 10, wfLatestHistoCanvas);
     fLatestHistoCanvas->AdoptCanvas(cCurrHCanvas);
@@ -151,17 +177,18 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // will reflect user color changes
     gClient->GetColorByName("#ffffff",fColor);
     fHCurrHProgressBar->SetBackgroundColor(fColor);
-    fHCurrHProgressBar->SetPosition(10);
+    fHCurrHProgressBar->SetPosition(1);
     fCurHistFrame->AddFrame(fHCurrHProgressBar, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
     // *** container of "History" ***
     fTabHisto = fTabHolder->AddTab("History");
     fTabHisto->SetLayoutManager(new TGVerticalLayout(fTabHisto));
     // embedded canvas
-    fLastNspectra = new TRootEmbeddedCanvas(0,fTabHisto,fGUIsizeX-10,fGUIsizeY-110);
+    fLastNspectra = new TRootEmbeddedCanvas("HistoryHEC",fTabHisto,fGUIsizeX-10,fGUIsizeY-110);
     Int_t wfLastNspectra = fLastNspectra->GetCanvasWindowId();
     cLastNspectra = new TCanvas("cLastNspectra", 10, 10, wfLastNspectra);
     fLastNspectra->AdoptCanvas(cLastNspectra);
+    cLastNspectra->Divide(3,3);
     fTabHisto->AddFrame(fLastNspectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
     // *** container of "Config" ***

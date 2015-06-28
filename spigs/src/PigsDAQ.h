@@ -25,7 +25,7 @@
 // ROOT
 #include <TROOT.h>
 #include <TH1D.h>
-#include <TDatime.h>
+#include <TTimeStamp.h>
 #include <TString.h>
 #include <TThread.h>
 
@@ -131,8 +131,9 @@ private:
     static const int32_t fVerbose = 1;      // verbosity level settings
     int32_t fErrCode;       // error code from DPP calls
     TH1D *fCurrHist;        // Current histogram
-    TDatime *fDt;           // Current date for histogram time
+    TTimeStamp fDt;         // Current date for histogram time
     TString fAcqDate;       // Acquisition date
+    UInt_t year, month, day, hour, min, sec;
 //    void *CleanAcqThread(void* arg);
     PigsGUI *gui;           // Associated GUI
 

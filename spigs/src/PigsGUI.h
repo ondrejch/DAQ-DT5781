@@ -44,6 +44,7 @@ public:
     void SetProgressBarPosition(Float_t fposition);    // Set the position of the progress bar
 
 private:
+    void UpdateHistory();
     TGMainFrame *fMainGUIFrame;         // Main GUI window
     TGLabel *fMainTitle;                //
     TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
@@ -67,7 +68,9 @@ private:
     GCValues_t valTitle;                // graphics context changes
     TThread *fAcqThread;                // Acquisition thread
     PigsDAQ *daq;                       // DAQ pointer
-    PigsStorage *storage;               // This is where we store data
+    PigsStorage *storage;               // Data storage
+    PigsEvent *ev;                      // Event buffer used to fill the storage
+
 
     static const int fGUIsizeX = 600;
     static const int fGUIsizeY = 500;
