@@ -9,7 +9,6 @@
 #ifndef PIGSGUI_H_
 #define PIGSGUI_H_
 
-
 // ROOT
 #include <TObject.h>
 #include <TRootEmbeddedCanvas.h>
@@ -22,6 +21,7 @@
 #include <TGTextView.h>
 #include <TH1D.h>
 #include <TThread.h>
+#include <TString.h>
 #include <Riostream.h>
 #include <TApplication.h>
 
@@ -65,6 +65,7 @@ private:
     TGTextView *fDTinfo;
     TGTextButton *fInitDAQ, *fDisconnectDAQ;  // buttons
     TGCompositeFrame *fTabAbout;        // container of "About"
+    TGTextView *fAboutText;
 
     TGFont *ufont;                      // will reflect user font changes
     ULong_t fColor;                     // Color helper
@@ -76,10 +77,10 @@ private:
     PigsEvent *ev;                      // Event buffer used to fill the storage
     TH1D *fNormAvgH;                    // Normalized average of last 9 measurements
 
-
-    static const int fGUIsizeX = 600;
-    static const int fGUIsizeY = 500;
+    static const int fGUIsizeX    = 600;
+    static const int fGUIsizeY    = 500;
     static const int32_t fVerbose = 1;  // verbosity level settings
+    const char *fAboutMsg;
 
     ClassDef(PigsGUI, 0);
 };

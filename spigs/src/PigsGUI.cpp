@@ -117,6 +117,20 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     daq = 0; storage = 0; ev = 0;
     fAcqThread = 0;
     fNormAvgH = 0;
+    fAboutMsg = (char*)
+"       _____  _____  ______ _______\n"
+"      |_____]   |   |  ____ |______\n"
+"      |       __|__ |_____| ______|\n"
+"\n"
+"\n"
+"*** Position Indicating Gamma Sensor   ***\n"
+" * CAEN DT-5781 Data Acquisition System *\n"
+"        Single Channel Version\n"
+"\n"
+"  by Ondrej Chvala <ochvala@utk.edu>\n"
+"       version 0.01, June 2015\n"
+"  https://github.com/ondrejch/DAQ-DT5781\n"
+"                GNU/GPL";
 
     // *** Main GUI window ***
     fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
@@ -228,7 +242,6 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fDTinfo = new TGTextView(fTabDT5781,fGUIsizeX-120,fGUIsizeY-150,"DAQ not initialized.",kSunkenFrame,fColor);
     fTabDT5781->AddFrame(fDTinfo, new TGLayoutHints(kLHintsNormal));
     fDTinfo->MoveResize(10,50,fGUIsizeX-120,fGUIsizeY-150);
-
     fInitDAQ = new TGTextButton(fTabDT5781, "Init DAQ");            // button InitDAQ
     fInitDAQ->SetTextJustify(36);
     fInitDAQ->SetMargins(0,0,0,0);
@@ -250,7 +263,10 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 
     // *** container of "About" ***
     fTabAbout = fTabHolder->AddTab("About");
-    fTabAbout->SetLayoutManager(new TGVerticalLayout(fTabAbout));
+    //fTabAbout->SetLayoutManager(new TGVerticalLayout(fTabAbout));
+    fAboutText= new TGTextView(fTabAbout,1,1,"SPIGS",kSunkenFrame);
+    fTabAbout->AddFrame(fAboutText, new TGLayoutHints(kLHintsNormal));
+    fAboutText->LoadBuffer(fAboutMsg);
 
     //-------------------------------------------------------------------------
 
@@ -269,8 +285,8 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fMainGUIFrame->Resize(fMainGUIFrame->GetDefaultSize());
     fMainGUIFrame->MapWindow();
     fMainGUIFrame->Resize(fGUIsizeX,fGUIsizeY);
-//    fDTinfo->DataChanged();
 
+    fAboutText->MoveResize(80,30,320,220);
 }
 
 PigsGUI::~PigsGUI() {
