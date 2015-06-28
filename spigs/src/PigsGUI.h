@@ -39,9 +39,11 @@ public:
     PigsGUI(const TGWindow *p); // Creates the GUI
     ~PigsGUI();                         // Ends DAQ, DPP, GUI
     int InitDAQ();                      // Initialization of the PigsDAQ object, DPP library, DAQ config
-    int DisconnectDAQ();                      // Ends connection to the DPP library
-    int RunSingleAcquisition();        // Runs one acquisition loop
-    int StopAcquisition();               // Stops acquisition on channel 0
+    int DisconnectDAQ();                // Ends connection to the DPP library
+    int RunSingleAcquisition();         // Runs one acquisition loop
+    int RunAcquisition();               // Loop acquisition
+    int StopAcquisition();              // Stops acquisition loop
+    int HardStopAcquisition();          // Stops acquisition on channel 0
     void SetProgressBarPosition(Float_t fposition);    // Set the position of the progress bar
 
 private:
@@ -76,6 +78,7 @@ private:
     PigsStorage *storage;               // Data storage
     PigsEvent *ev;                      // Event buffer used to fill the storage
     TH1D *fNormAvgH;                    // Normalized average of last 9 measurements
+    Bool_t keepAcquiring;               // Flag if we should continue loop
 
     static const int fGUIsizeX    = 600;
     static const int fGUIsizeY    = 500;

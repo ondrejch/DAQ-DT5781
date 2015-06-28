@@ -44,6 +44,37 @@ int PigsGUI::DisconnectDAQ() {
     return ret;
 }
 
+int PigsGUI::RunAcquisition() {
+    // Runs acquisition as a loop
+    int ret=0;
+    fStartDAQ->SetState(kButtonDown);
+    keepAcquiring = kTRUE;
+    while(keepAcquiring) {                      // Acquisition loop
+        ret = daq->ConfigureChannel(0);
+        ret = daq->AcquisitionSingleLoop();
+        if(!ret) {
+            daq->RefreshCurrHist();             // transfer data to TH1D
+            cCurrHCanvas->cd();
+            daq->getCurrHist()->Draw();         // plot latest TH1D
+            cCurrHCanvas->Modified();
+            cCurrHCanvas->Update();
+            gSystem->ProcessEvents();
+            ev->spectrum  = daq->getCurrHist();   // save current measurement
+            ev->realTime  = daq->getRealTime();
+            ev->deadTime  = daq->getDeadTime();
+            ev->goodCounts= daq->getGoodCounts();
+            ev->totCounts = daq->getTotCounts();
+            ev->countsPerSecond = daq->getCountsPerSecond();
+            storage->getTree()->Fill();
+            UpdateHistory();                     // Updates the history & average tabs
+        }
+        fHCurrHProgressBar->SetPosition(1);
+    }
+    fStartDAQ->SetState(kButtonUp);
+    return ret;
+}
+
+
 int PigsGUI::RunSingleAcquisition() {
     // Runs one acquisition loop
     int ret=0;
@@ -81,11 +112,11 @@ void PigsGUI::UpdateHistory() {
     Long64_t currentEntry = -1;
     if(fNormAvgH) fNormAvgH->Delete();
     fNormAvgH = (TH1D*) daq->getCurrHist()->Clone();
-//    cout << __PRETTY_FUNCTION__ << "totalEntries: " << totalEntries << endl;
+    if(fVerbose>1) cout << __PRETTY_FUNCTION__ << "totalEntries: " << totalEntries << endl;
     for (int i=0; i<9; i++) {       // loop over subcanvases
         currentEntry = totalEntries - i;
         if(currentEntry>0) {
-//            cout << __PRETTY_FUNCTION__ << "i: " << i << " entry: " << currentEntry << endl;
+            if(fVerbose>2) cout << __PRETTY_FUNCTION__ << "i: " << i << " entry: " << currentEntry << endl;
             cLastNspectra->GetPad(i+1)->cd();
             storage->getTree()->GetEntry(currentEntry);
             storage->getE()->spectrum->Draw();
@@ -101,12 +132,20 @@ void PigsGUI::UpdateHistory() {
     cSumSpectra->Update();
 }
 
-int PigsGUI::StopAcquisition() {
+int PigsGUI::HardStopAcquisition() {
     // Stops acquisition on channel 0
     int ret = 0;
     if (daq) ret = daq->StopAcquisition(0);
     return ret;
 }
+
+int PigsGUI::StopAcquisition() {
+    // Stops the acquisition loop
+    int ret = 0;
+    if (daq && keepAcquiring) keepAcquiring = kFALSE;
+    return ret;
+}
+
 
 void PigsGUI::SetProgressBarPosition(Float_t fposition) {
     // set position of the progress bar
@@ -117,6 +156,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     daq = 0; storage = 0; ev = 0;
     fAcqThread = 0;
     fNormAvgH = 0;
+    keepAcquiring = kFALSE;
     fAboutMsg = (char*)
 "       _____  _____  ______ _______\n"
 "      |_____]   |   |  ____ |______\n"
@@ -166,7 +206,8 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     gClient->GetColorByName("green", fColor);
     fStartDAQ->ChangeBackground(fColor);
     fStartDAQ->SetState(kButtonDisabled);
-    fStartDAQ->Connect("Clicked()","PigsGUI",this,"RunSingleAcquisition()");
+//    fStartDAQ->Connect("Clicked()","PigsGUI",this,"RunSingleAcquisition()");
+    fStartDAQ->Connect("Clicked()","PigsGUI",this,"RunAcquisition()");
 
     fStopDAQ = new TGTextButton(fMainGUIFrame, "Stop DAQ");        // stop DAQ
     fStopDAQ->SetTextJustify(36);
@@ -176,7 +217,8 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fStopDAQ->MoveResize(fGUIsizeX-50-90,fGUIsizeY-30,90,25);
     gClient->GetColorByName("red", fColor);
     fStopDAQ->ChangeBackground(fColor);
-    fStopDAQ->SetState(kButtonDisabled);
+//    fStopDAQ->SetState(kButtonDisabled);
+    fStopDAQ->Connect("Clicked()","PigsGUI",this,"StopAcquisition()");
 
     fExitDAQ = new TGTextButton(fMainGUIFrame, "Exit DAQ");        // exit DAQ
     fExitDAQ->SetTextJustify(36);
@@ -291,7 +333,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 
 PigsGUI::~PigsGUI() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    StopAcquisition();
+    HardStopAcquisition();
     DisconnectDAQ();
     if(storage) delete storage;
     // Clean up all widgets, frames and layout hints that were used
