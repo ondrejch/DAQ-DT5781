@@ -5,7 +5,7 @@ OBJDIR = obj
 EXEDIR = bin
 LIBDIR = lib
 
-COPTS = -fPIC -DLINUX -Wall $(shell root-config --cflags)  -I/usr/local/include/CAEN 
+COPTS = -fPIC -DLINUX -Wall $(shell root-config --cflags) -I/usr/local/include/CAEN 
 
 LIBS = $(shell root-config --glibs) -lCAENDigitizer
 
@@ -25,7 +25,7 @@ DICTSRC = $(DICT).$(DICTSUF)
 EXEC1NAME = spigs
 EXEC1 = $(EXEDIR)/$(EXEC1NAME).exe
 
-#############################################################
+##########################################################################
 
 all: $(OBJS) $(DICTSRC) $(EXEC1) 
 
