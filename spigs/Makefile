@@ -40,17 +40,17 @@ $(OBJDIR)/%.o: %.cpp $(DEPS)
 $(DICTSRC): $(DEPS) $(OBJS)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	@echo [ROOTCINT] Generating dictionary $(DICTSRC)
-	cd $(SRCDIR) && rootcint -f ../$(OBJDIR)/$(DICTSRC) -c -p *.h ../PigsLinkDef.h
+	@cd $(SRCDIR) && rootcint -f ../$(OBJDIR)/$(DICTSRC) -c -p *.h ../PigsLinkDef.h
 	@echo [${CC}] Compiling dictionary $(DICTSRC)
-	$(CC) $(CFLAGS) $(COPTS) -c $(OBJDIR)/$(DICTSRC) -o $(OBJDIR)/$(DICT).o
+	@$(CC) $(CFLAGS) $(COPTS) -c $(OBJDIR)/$(DICTSRC) -o $(OBJDIR)/$(DICT).o
 	@echo [${CC}] Generating shared library $(LIBDIR)/$(DICT).so
-	$(CC) -shared  -o $(LIBDIR)/$(DICT).so  $(OBJS) $(OBJDIR)/$(DICT).o $(LIBS)
+	@$(CC) -shared  -o $(LIBDIR)/$(DICT).so  $(OBJS) $(OBJDIR)/$(DICT).o $(LIBS)
 
 
 # compile executable
 $(EXEC1) : $(EXEC1NAME).cpp
 	@echo [${CC}] Compiling $(EXEC1NAME).cpp
-	if [ ! -d $(EXEDIR) ]; then mkdir -p $(EXEDIR); fi
+	@if [ ! -d $(EXEDIR) ]; then mkdir -p $(EXEDIR); fi
 	@$(CC) $(CFLAGS) $(COPTS) $< -o $@
 
 .PHONY: clean
