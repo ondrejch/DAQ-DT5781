@@ -178,7 +178,7 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
 PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // Creates the GUI
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-
+    year = month = day = hour = min = sec = 0;
     daq = 0; storage = 0; ev = 0;
     fAcqThread = 0;
     fNormAvgH = 0;
@@ -194,7 +194,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "        Single Channel Version\n"
 "\n"
 "  by Ondrej Chvala <ochvala@utk.edu>\n"
-"       version 0.03, June 2015\n"
+"       version 0.04, June 2015\n"
 "  https://github.com/ondrejch/DAQ-DT5781\n"
 "                GNU/GPL";
 
@@ -203,9 +203,9 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fMainGUIFrame->SetName("fMainGUIFrame");
     fMainGUIFrame->SetWindowName("SPIGS");      // GUI window name
     fMainGUIFrame->SetLayoutBroken(kTRUE);
-    // ufont = gClient->GetFont("-*-luxi_sans-bold-r-*-*-16-*-*-*-*-*-*-*");
+    ufont = gClient->GetFont("-*-*-bold-r-*-*-16-*-*-*-*-*-*-*");
     // ufont = gClient->GetFont("-*-helvetica-medium-r-normal-*-14-*-*-*-*-*-iso8859-1");
-    ufont = gClient->GetFont("-urw-nimbus sans l-bold-r-normal--0-0-0-0-p-0-iso8859-1");
+    // ufont = gClient->GetFont("-urw-nimbus sans l-bold-r-normal--0-0-0-0-p-0-iso8859-1");
     valTitle.fMask = kGCForeground | kGCBackground | kGCFillStyle | kGCFont | kGCGraphicsExposures;
     gClient->GetColorByName("#0000FF",valTitle.fForeground);
     gClient->GetColorByName("#e0e0e0",valTitle.fBackground);
@@ -348,7 +348,9 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // *** container of "About" ***
     fTabAbout = fTabHolder->AddTab("About");
     fTabAbout->SetLayoutManager(new TGVerticalLayout(fTabAbout));
-    fAboutText= new TGTextView(fTabAbout,1,1,"SPIGS",kSunkenFrame);
+    ufont = gClient->GetFont("-*-fixed-medium-r-*-*-12-*-*-*-*-*-*-*");
+    fAboutText = new TGTextView(fTabAbout,1,1,"SPIGS",kSunkenFrame);
+    fAboutText->SetFont(ufont->GetFontStruct());
     fTabAbout->AddFrame(fAboutText, new TGLayoutHints(kLHintsNormal));
     fAboutText->LoadBuffer(fAboutMsg);
 
