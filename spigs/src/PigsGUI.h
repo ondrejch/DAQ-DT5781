@@ -24,8 +24,8 @@
 #include <TThread.h>
 #include <TString.h>
 #include <TTimeStamp.h>
-#include <Riostream.h>
 #include <TApplication.h>
+#include <Riostream.h>
 
 // PIGS
 #include <PigsDAQ.h>
