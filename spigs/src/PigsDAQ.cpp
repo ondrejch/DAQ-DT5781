@@ -52,8 +52,7 @@ int32_t PigsDAQ::BasicInit() {
     fErrCode += instance->SetDgtzParams();
     // Custom DAQ parameters
     fErrCode += instance->SetDAQParams();
-    // Time keeping
-    fDt = 0;
+    // Time keeping //    fDt = 0;
     // No histogram yet
     fCurrHist = 0;
     // reset counters
