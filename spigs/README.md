@@ -6,7 +6,7 @@ Ondrej Chvala <ochvala@utk.edu>
 ABOUT:
 
 "spigs" is a single channel data acquisition system GUI for DT5781.
-It is written in C++ and uses ROOT/C++ framework. 
+It is written in C++ and uses the ROOT/C++ framework. 
 The channel parameters are optimized for an NaI scintillator. 
 
 
@@ -24,7 +24,7 @@ window is equivalent to pressing the "Exit DAQ" button.
 
 INSTALLATION:
 
-Build by typing "make". 
+Compile the project by typing "make". 
 All sources are in src/.
 Object files and ROOT class dictionary are created in obj/.
 Library for output file reading: lib/PigsDict.so.  
