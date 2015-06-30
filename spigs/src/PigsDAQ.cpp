@@ -231,6 +231,15 @@ int32_t PigsDAQ::StopAcquisition(int32_t ch) {
     return 1;
 }*/
 
+
+void PigsDAQ::SetAcquisitionLoopTime(float sec) {
+    // Sets how long the DAQ runs, float seconds to uint ns.
+    StopCriteriaValue =  (uint64_t)1000000000L*sec;               // [ns] Run for  10 seconds
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ <<
+            " StopCriteriaValue = " << StopCriteriaValue << std::endl;
+}
+
+
 int32_t PigsDAQ::AcquisitionSingleLoop() {
     // Currently does only one cycle in the loop...
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " begin " << std::endl;

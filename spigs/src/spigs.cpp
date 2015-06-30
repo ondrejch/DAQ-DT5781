@@ -17,7 +17,7 @@
 
 using namespace std;
 
-int test1(void) {
+/*int test1(void) {
     // Simple test subroutine
     int ret = 0;
     TThread *t;
@@ -50,7 +50,7 @@ int test1(void) {
     }
     ret = daq->EndLibrary();
     return ret;
-}
+}*/
 
 int main(int argc, char *argv[]) {
     int ret = 0;

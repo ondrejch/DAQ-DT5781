@@ -9,6 +9,7 @@
 
 int PigsGUI::InitDAQ() {
     // Initialization of the PigsDAQ object, DPP library, DAQ config, storage
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int ret = 0;
 
     if (storage) delete storage;                        // Storage initialization
@@ -27,7 +28,8 @@ int PigsGUI::InitDAQ() {
         daq->PrintBoardInfo();
         daq->PrintChannelParameters(0);
         fDTinfo->AddLineFast("Board configured");
-        fStartDAQ->SetState(kButtonUp);
+        fStartDAQ->SetState(kButtonUp);             // Enable acquisition
+        fAcqTimeEntry->SetState(1);                 // Enable changing of the acquisition time
         TGText tbuff; tbuff.LoadBuffer(daq->getBoardInfo());
         fDTinfo->AddText(&tbuff);
         fDTinfo->Update();
@@ -38,6 +40,7 @@ int PigsGUI::InitDAQ() {
 
 int PigsGUI::DisconnectDAQ() {
     // Ends connection to the DPP library
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int ret = 0;
     fDTinfo->AddLine("*** Disconnecting the DAQ ***");
     if (daq) ret = daq->EndLibrary();
@@ -46,6 +49,7 @@ int PigsGUI::DisconnectDAQ() {
 
 int PigsGUI::RunAcquisition() {
     // Runs acquisition as a loop
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int ret=0;
     fStartDAQ->SetState(kButtonDown);
     keepAcquiring = kTRUE;
@@ -77,6 +81,7 @@ int PigsGUI::RunAcquisition() {
 
 int PigsGUI::RunSingleAcquisition() {
     // Runs one acquisition loop
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int ret=0;
     ret = daq->ConfigureChannel(0);
     fStartDAQ->SetState(kButtonDown);
@@ -106,8 +111,18 @@ int PigsGUI::RunSingleAcquisition() {
     return ret;
 }
 
+void PigsGUI::SetAcquisitionLoopTime() {
+    // Changes the acquisition time
+    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- val: " <<
+            fAcqTimeEntry->GetNumberEntry()->GetNumber() << std::endl;
+    if(daq) {
+        daq->SetAcquisitionLoopTime(fAcqTimeEntry->GetNumberEntry()->GetNumber());
+    }
+}
+
 void PigsGUI::UpdateHistory() {
     // Updates the history and average tabs
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     Long64_t totalEntries = storage->getTree()->GetEntries();
     Long64_t currentEntry = -1;
     if(fNormAvgH) fNormAvgH->Delete();
@@ -134,6 +149,7 @@ void PigsGUI::UpdateHistory() {
 
 int PigsGUI::HardStopAcquisition() {
     // Stops acquisition on channel 0
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int ret = 0;
     if (daq) ret = daq->StopAcquisition(0);
     return ret;
@@ -141,18 +157,22 @@ int PigsGUI::HardStopAcquisition() {
 
 int PigsGUI::StopAcquisition() {
     // Stops the acquisition loop
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int ret = 0;
     if (daq && keepAcquiring) keepAcquiring = kFALSE;
     return ret;
 }
 
-
 void PigsGUI::SetProgressBarPosition(Float_t fposition) {
     // set position of the progress bar
     fHCurrHProgressBar->SetPosition(fposition);
+    gClient->NeedRedraw(fHCurrHProgressBar);
 }
 
 PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
+    // Creates the GUI
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+
     daq = 0; storage = 0; ev = 0;
     fAcqThread = 0;
     fNormAvgH = 0;
@@ -168,7 +188,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "        Single Channel Version\n"
 "\n"
 "  by Ondrej Chvala <ochvala@utk.edu>\n"
-"       version 0.01, June 2015\n"
+"       version 0.03, June 2015\n"
 "  https://github.com/ondrejch/DAQ-DT5781\n"
 "                GNU/GPL";
 
@@ -276,6 +296,18 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // *** container of "Config" ***
     fTabConfig = fTabHolder->AddTab("Config");
     fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
+    fControlFrame = new TGGroupFrame(fTabConfig, "Acquisition time [sec]");
+    fControlFrame->SetTitlePos(TGGroupFrame::kCenter);
+    fAcqTimeEntry = new TGNumberEntry(fControlFrame, (Double_t) 1.0 ,5,-1,(TGNumberFormat::EStyle) 1,
+            (TGNumberFormat::EAttribute) 2,(TGNumberFormat::ELimit) 2, 0.1, 600);
+    (fAcqTimeEntry->GetNumberEntry())->Connect("TextChanged(char*)", "PigsGUI", this,
+            "SetAcquisitionLoopTime()");
+    (fAcqTimeEntry->GetNumberEntry())->Connect("ReturnPressed()", "PigsGUI", this,
+            "SetAcquisitionLoopTime()");
+    fControlFrame->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
+    fTabConfig->AddFrame(fControlFrame, new TGLayoutHints(kLHintsNormal, 20, 20, 20, 20));
+    fAcqTimeEntry->SetState(0);
+
 
     fAcqTimeEntry = new TGNumberEntry(fTabConfig, (Double_t) 1.0 ,5,-1,(TGNumberFormat::EStyle) 1,
             (TGNumberFormat::EAttribute) 2,(TGNumberFormat::ELimit) 2, 0.1, 600);

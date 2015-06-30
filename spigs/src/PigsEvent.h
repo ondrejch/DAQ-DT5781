@@ -1,6 +1,6 @@
 /*
  * PigsEvent.h
- * Class to held the measurement information
+ * Class to hold the measurement information
  *
  *  Created on: Jun 26, 2015
  *      Author: Ondrej Chvala <ochvala@utk.edu>

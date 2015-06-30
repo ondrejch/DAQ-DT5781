@@ -26,6 +26,7 @@ PigsStorage::PigsStorage(TString foutname) {
 }
 
 PigsStorage::~PigsStorage() {
+    // Destructor writes out the data and closes the output file
     if(e) delete e;
     if(outf) {
         outf->Write();

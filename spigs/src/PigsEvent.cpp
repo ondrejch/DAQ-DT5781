@@ -1,5 +1,6 @@
 /*
  * PigsEvent.cpp
+ * Class to hold the measurement information
  *
  *  Created on: Jun 26, 2015
  *      Author: Ondrej Chvala <ochvala@utk.edu>
@@ -8,6 +9,7 @@
 #include <PigsEvent.h>
 
 PigsEvent::PigsEvent() {
+    // constructor
     spectrum = 0;
     realTime = 0;
     deadTime = 0;
@@ -17,7 +19,7 @@ PigsEvent::PigsEvent() {
 }
 
 PigsEvent::~PigsEvent() {
-    // TODO Auto-generated destructor stub
+    // destructor
     if(spectrum) delete spectrum;
 }
 
