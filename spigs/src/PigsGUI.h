@@ -45,6 +45,7 @@ public:
     int RunAcquisition();               // Loop acquisition
     int StopAcquisition();              // Stops acquisition loop
     int HardStopAcquisition();          // Stops acquisition on channel 0
+    void SetAcquisitionLoopTime();           // Changes acquisition time using GUI
     void SetProgressBarPosition(Float_t fposition);    // Set the position of the progress bar
 
 private:
@@ -64,6 +65,7 @@ private:
     TRootEmbeddedCanvas *fSumSpectra;
     TCanvas *cSumSpectra;
     TGCompositeFrame *fTabConfig;       // container of "Config"
+    TGGroupFrame *fControlFrame;
     TGNumberEntry *fAcqTimeEntry;
     TGCompositeFrame *fTabDT5781;       // container of "DT5781"
     TGTextView *fDTinfo;

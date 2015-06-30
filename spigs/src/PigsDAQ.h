@@ -79,6 +79,7 @@ public:
     int32_t AcquisitionSingleLoop();        // Runs acquisition
     int32_t ThreadAcqSingleLoop();          // Runs acquisition in a separate thread
     void PrintAcquisotionInfo();            // Prints real/dead time, cps, ...
+    void SetAcquisitionLoopTime(float sec); // Set acquisition loop time in seconds
 
     int32_t RefreshCurrHist();              // Transfers h1 into currHist
 

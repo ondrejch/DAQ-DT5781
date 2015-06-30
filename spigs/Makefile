@@ -30,7 +30,7 @@ DICTSRC = $(DICT).$(DICTSUF)
 EXEC1NAME = spigs
 EXEC1 = $(EXEDIR)/$(EXEC1NAME).exe
 
-.PHONY: clean
+.PHONY: clean $(EXEC1)
 .NOTPARALLEL: $(EXEC1)
 
 ##########################################################################
