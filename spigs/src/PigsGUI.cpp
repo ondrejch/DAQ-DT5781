@@ -168,7 +168,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "        Single Channel Version\n"
 "\n"
 "  by Ondrej Chvala <ochvala@utk.edu>\n"
-"       version 0.01, June 2015\n"
+"       version 0.03, June 2015\n"
 "  https://github.com/ondrejch/DAQ-DT5781\n"
 "                GNU/GPL";
 
@@ -276,6 +276,10 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // *** container of "Config" ***
     fTabConfig = fTabHolder->AddTab("Config");
     fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
+    fAcqTimeEntry = new TGNumberEntry(fTabConfig, (Double_t) 1.0 ,5,-1,(TGNumberFormat::EStyle) 1,
+            (TGNumberFormat::EAttribute) 2,(TGNumberFormat::ELimit) 2, 0.1, 600);
+    fTabConfig->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal));
+
 
     // *** container of "DT5781" ***
     fTabDT5781 = fTabHolder->AddTab("DT5781");

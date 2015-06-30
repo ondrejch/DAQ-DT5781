@@ -1,12 +1,10 @@
 /*
  * guitest.C
+ * Macro to help with GUI development. Not used in the application.
  *
  *  Created on: Jun 19, 2015
  *      Author: o
  */
-
-// Mainframe macro generated from application: /usr/bin/root.exe
-// By ROOT version 5.34/19 on 2015-06-12 21:22:34
 
 #include "TGDockableFrame.h"
 #include "TGMenu.h"

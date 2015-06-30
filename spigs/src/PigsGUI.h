@@ -19,6 +19,7 @@
 #include <TCanvas.h>
 #include <TGClient.h>
 #include <TGTextView.h>
+#include <TGNumberEntry.h>
 #include <TH1D.h>
 #include <TThread.h>
 #include <TString.h>
@@ -63,6 +64,7 @@ private:
     TRootEmbeddedCanvas *fSumSpectra;
     TCanvas *cSumSpectra;
     TGCompositeFrame *fTabConfig;       // container of "Config"
+    TGNumberEntry *fAcqTimeEntry;
     TGCompositeFrame *fTabDT5781;       // container of "DT5781"
     TGTextView *fDTinfo;
     TGTextButton *fInitDAQ, *fDisconnectDAQ;  // buttons
