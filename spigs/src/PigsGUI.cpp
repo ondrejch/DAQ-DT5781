@@ -36,6 +36,7 @@ int PigsGUI::InitDAQ() {
         fDTinfo->AddLineFast("Board configured");
         fStartDAQ->SetState(kButtonUp);             // Enable acquisition
         fAcqTimeEntry->SetState(1);                 // Enable changing of the acquisition time
+        this->SetAcquisitionLoopTime();             // Set default acquisition time
         TGText tbuff; tbuff.LoadBuffer(daq->getBoardInfo());
         fDTinfo->AddText(&tbuff);
         fDTinfo->Update();
@@ -84,7 +85,6 @@ int PigsGUI::RunAcquisition() {
     fStopDAQ->SetState(kButtonUp);
     return ret;
 }
-
 
 int PigsGUI::RunSingleAcquisition() {
     // Runs one acquisition loop
@@ -306,7 +306,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
     fControlFrame = new TGGroupFrame(fTabConfig, "Acquisition time [sec]");
     fControlFrame->SetTitlePos(TGGroupFrame::kCenter);
-    fAcqTimeEntry = new TGNumberEntry(fControlFrame, (Double_t) 1.0 ,5,-1,(TGNumberFormat::EStyle) 1,
+    fAcqTimeEntry = new TGNumberEntry(fControlFrame, (Double_t) 10.0 ,5,-1,(TGNumberFormat::EStyle) 1,
             (TGNumberFormat::EAttribute) 2,(TGNumberFormat::ELimit) 2, 0.1, 600);
     (fAcqTimeEntry->GetNumberEntry())->Connect("TextChanged(char*)", "PigsGUI", this,
             "SetAcquisitionLoopTime()");
@@ -315,7 +315,6 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fControlFrame->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
     fTabConfig->AddFrame(fControlFrame, new TGLayoutHints(kLHintsNormal, 20, 20, 20, 20));
     fAcqTimeEntry->SetState(0);
-
 
     // *** container of "DT5781" ***
     fTabDT5781 = fTabHolder->AddTab("DT5781");
@@ -345,7 +344,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 
     // *** container of "About" ***
     fTabAbout = fTabHolder->AddTab("About");
-    //fTabAbout->SetLayoutManager(new TGVerticalLayout(fTabAbout));
+    fTabAbout->SetLayoutManager(new TGVerticalLayout(fTabAbout));
     fAboutText= new TGTextView(fTabAbout,1,1,"SPIGS",kSunkenFrame);
     fTabAbout->AddFrame(fAboutText, new TGLayoutHints(kLHintsNormal));
     fAboutText->LoadBuffer(fAboutMsg);
