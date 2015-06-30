@@ -12,12 +12,10 @@ int PigsGUI::InitDAQ() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int ret = 0;
 
+    if (storage) delete storage;                        // Storage initialization
     fDateTime.Set();
     fDateTime.GetDate(0, 0, &year, &month, &day);
     fDateTime.GetTime(0, 0, &hour, &min,   &sec);
-//    fAcqDate=Form("%04d%02d%02d %02d:%02d:%02d",year,month,day,hour,min,sec);
-
-    if (storage) delete storage;                        // Storage initialization
     storage = new PigsStorage(Form("out-%04d%02d%02d_%02d:%02d:%02d.root",
             year,month,day,hour,min,sec));              // unique file name by using the current date and time
     ev      = storage->getE();
