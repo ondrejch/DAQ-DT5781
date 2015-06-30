@@ -86,7 +86,7 @@ private:
 
     static const int fGUIsizeX    = 600;
     static const int fGUIsizeY    = 500;
-    static const int32_t fVerbose = 1;  // verbosity level settings
+    static const int32_t fVerbose = 0;  // verbosity level settings
     const char *fAboutMsg;
 
     ClassDef(PigsGUI, 0);

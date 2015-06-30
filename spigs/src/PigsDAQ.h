@@ -129,7 +129,7 @@ private:
     char codeStr[MAX_ERRMSG_LEN + 1];
     char histoFName[MAX_HISTOFNAME_LEN];
 
-    static const int32_t fVerbose = 1;      // verbosity level settings
+    static const int32_t fVerbose = 0;      // verbosity level settings
     int32_t fErrCode;       // error code from DPP calls
     TH1D *fCurrHist;        // Current histogram
     TTimeStamp fDt;         // Current date for histogram time
