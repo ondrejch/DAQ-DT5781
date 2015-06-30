@@ -23,6 +23,7 @@
 #include <TH1D.h>
 #include <TThread.h>
 #include <TString.h>
+#include <TTimeStamp.h>
 #include <Riostream.h>
 #include <TApplication.h>
 
@@ -83,6 +84,9 @@ private:
     PigsEvent *ev;                      // Event buffer used to fill the storage
     TH1D *fNormAvgH;                    // Normalized average of last 9 measurements
     Bool_t keepAcquiring;               // Flag if we should continue loop
+
+    TTimeStamp fDateTime;               // Current date for file name
+    UInt_t year, month, day, hour, min, sec;
 
     static const int fGUIsizeX    = 600;
     static const int fGUIsizeY    = 500;
