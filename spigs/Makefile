@@ -1,20 +1,40 @@
+##########################################################################
 # *** sPIGS makefile ***
 # 
 # Ondrej Chvala <ochvala@utk.edu>
 # GNU/GPL
+#
+# For debug build use: make DEBUG=1
+##########################################################################
+
+
+# by default, build Release
+DEBUG=0
+DEBUG ?= 1
+ifeq ($(DEBUG), 1)
+    CFLAGS = -g
+else
+    CFLAGS = -O3
+endif
+
+##########################################################################
 
 CC = g++
 
+# directory with sources
 SRCDIR = src
+# temporary build files
 OBJDIR = obj
+# produced binary
 EXEDIR = bin
+# produced library
 LIBDIR = lib
 
 COPTS = -fPIC -DLINUX -Wall $(shell root-config --cflags) -I/usr/local/include/CAEN 
 
 LIBS = $(shell root-config --libs --glibs) -lCAENDPPLib
 
-CFLAGS = -g -Wall -I$(SRCDIR)
+CFLAGS += -Wall -I$(SRCDIR)
 VPATH = src
 LDFLAGS= 
 
