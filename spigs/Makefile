@@ -32,7 +32,7 @@ LIBDIR = lib
 
 COPTS = -fPIC -DLINUX -Wall $(shell root-config --cflags) -I/usr/local/include/CAEN 
 
-LIBS = $(shell root-config --libs --glibs) -lCAENDPPLib
+LIBS = $(shell root-config --libs --glibs) -L/usr/local/lib/CAEN -lCAENDPPLib
 
 CFLAGS += -Wall -I$(SRCDIR)
 VPATH = src
