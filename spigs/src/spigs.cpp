@@ -55,12 +55,12 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
     int ret = 0;
-    cout << "Welcome to SPIGS DAQ!" << endl;
+    cout << "Welcome to S-PIGS DAQ!" << endl;
     // ret = test1(); // run simple non-GUI tests
 //    gEnv->SetValue("Gui.Backend", "qt");
 //    gEnv->SetValue("Gui.Factory", "qt");
     gEnv->SetValue("Gui.DefaultFont", "-adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-iso8859-1");
-    TApplication spigsApp("SPIGS", &argc, argv);
+    TApplication spigsApp("S-PIGS", &argc, argv);
     new PigsGUI(gClient->GetRoot());     // Popup the GUI...
     spigsApp.Run();
 
