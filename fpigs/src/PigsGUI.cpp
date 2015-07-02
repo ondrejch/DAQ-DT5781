@@ -191,17 +191,17 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "\n"
 "*** Position Indicating Gamma Sensor   ***\n"
 " * CAEN DT-5781 Data Acquisition System *\n"
-"        Single Channel Version\n"
+"         Four Channel Version\n"
 "\n"
 "  by Ondrej Chvala <ochvala@utk.edu>\n"
-"       version 0.04, June 2015\n"
+"       version 0.05, June 2015\n"
 "  https://github.com/ondrejch/DAQ-DT5781\n"
 "                GNU/GPL";
 
     // *** Main GUI window ***
     fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
     fMainGUIFrame->SetName("fMainGUIFrame");
-    fMainGUIFrame->SetWindowName("SPIGS");      // GUI window name
+    fMainGUIFrame->SetWindowName("F-PIGS");      // GUI window name
     fMainGUIFrame->SetLayoutBroken(kTRUE);
     ufont = gClient->GetFont("-*-*-bold-r-*-*-16-*-*-*-*-*-*-*");
     // ufont = gClient->GetFont("-*-helvetica-medium-r-normal-*-14-*-*-*-*-*-iso8859-1");
