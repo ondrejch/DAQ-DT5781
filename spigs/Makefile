@@ -43,7 +43,7 @@ _SRCS = $(wildcard $(SRCDIR)/*.cpp)
 _OBJS = $(_SRCS:.cpp=.o)
 OBJS = $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(_OBJS))
 
-DICT = PigsDict
+DICT = sPigsDict
 DICTSUF = cpp
 DICTSRC = $(DICT).$(DICTSUF)
 
