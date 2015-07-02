@@ -50,8 +50,7 @@ DICTSRC = $(DICT).$(DICTSUF)
 EXEC1NAME = spigs
 EXEC1 = $(EXEDIR)/$(EXEC1NAME).exe
 
-.PHONY: clean $(EXEC1)
-.NOTPARALLEL: $(EXEC1)
+.PHONY: clean
 
 ##########################################################################
 
@@ -65,7 +64,7 @@ $(OBJDIR)/%.o: %.cpp $(DEPS)
 
 # generate dictionary for all classes, including shared dictionary 
 # that gets loaded into interactive ROOT
-$(DICTSRC): $(DEPS) $(OBJS)
+$(DICTSRC): $(DEPS)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	@echo [ROOTCINT] Generating dictionary $(DICTSRC)
 	@cd $(SRCDIR) && rootcint -f ../$(OBJDIR)/$(DICTSRC) -c -p *.h ../PigsLinkDef.h
@@ -75,10 +74,10 @@ $(DICTSRC): $(DEPS) $(OBJS)
 	@$(CC) -shared  -o $(LIBDIR)/$(DICT).so  $(OBJS) $(OBJDIR)/$(DICT).o $(LIBS)
 
 # link executable
-$(EXEC1) : $(EXEC1NAME).cpp
+$(EXEC1) : $(OBJS) $(DICTSRC) $(EXEC1NAME).cpp
 	@echo [${CC}] Compiling $(EXEC1)
 	@if [ ! -d $(EXEDIR) ]; then mkdir -p $(EXEDIR); fi
 	@$(CC) $(CFLAGS) $(COPTS) $(OBJDIR)/$(DICT).o $(OBJS) $(LIBS) -o $@
 	
 clean:
-	rm -rf $(OBJDIR)/*.o $(DICT).* *.o  $(LIBDIR)/*.so $(EXEC1) 
+	rm -rf $(OBJDIR)/* $(LIBDIR)/*.so $(EXEC1) 
