@@ -27,7 +27,7 @@ INSTALLATION:
 Compile the project by typing "make". 
 All sources are in src/.
 Object files and ROOT class dictionary are created in obj/.
-Library for output file reading: lib/PigsDict.so.  
+Library for output file reading: lib/sPigsDict.so.  
 The linked binary executable: bin/spigs.exe.
 
 The DAQ produces output file out-<date>_<time>.root.
@@ -35,7 +35,7 @@ It contains a tree with events, each event corresponding to
 a measurement: histogram spectrum, realTime, deadTime,
 goodCounts, totCounts, countsPerSecond. 
 To read the file, first load the library:
-    root [0] .L lib/PigsDict.so   
+    root [0] .L lib/sPigsDict.so   
 
     
 TERMS OF USE:
