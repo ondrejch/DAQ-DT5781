@@ -28,13 +28,11 @@
 #include <Riostream.h>
 
 // PIGS
-#include <PigsDAQ.h>
-#include <PigsStorage.h>
 #include <PigsEvent.h>
+#include <PigsStorage.h>
+#include <PigsDAQ.h>
 
 class PigsDAQ;
-class PigsStorage;
-class PigsEvent;
 
 class PigsGUI : public TGMainFrame  {
 public:
@@ -88,9 +86,9 @@ private:
     TTimeStamp fDateTime;               // Current date for file name
     UInt_t year, month, day, hour, min, sec;
 
-    static const int fGUIsizeX    = 600;
-    static const int fGUIsizeY    = 500;
-    static const int32_t fVerbose = 0;  // verbosity level settings
+    static const int16_t fGUIsizeX    = 1200;
+    static const int16_t fGUIsizeY    = 1000;
+    static const int8_t fVerbose = 1;  // verbosity level settings
     const char *fAboutMsg;
 
     ClassDef(PigsGUI, 0);

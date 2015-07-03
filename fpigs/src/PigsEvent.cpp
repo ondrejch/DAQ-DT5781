@@ -10,16 +10,25 @@
 
 PigsEvent::PigsEvent() {
     // constructor
-    spectrum = 0;
-    realTime = 0;
-    deadTime = 0;
-    goodCounts = 0;
-    totCounts = 0;
-    countsPerSecond = 0;
+    uint8_t i;
+    for (i=0;i<4;i++) {
+        spectrum[i] = 0;
+        realTime[i] = 0;
+        deadTime[i] = 0;
+        goodCounts[i] = 0;
+        totCounts[i] = 0;
+        countsPerSecond[i] = 0;
+        scaleFactor[i] = 0;
+        energySum[i] = 0;
+    }
+    acqTime = 0;
 }
 
 PigsEvent::~PigsEvent() {
     // destructor
-    if(spectrum) delete spectrum;
+    uint8_t i;
+    for (i=0;i<4;i++) {
+        if(spectrum[i]) delete spectrum[i];
+    }
 }
 

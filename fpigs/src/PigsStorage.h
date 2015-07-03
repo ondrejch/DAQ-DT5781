@@ -17,8 +17,9 @@
 
 #include <PigsEvent.h>
 
+class PigsEvent;
 
-class PigsStorage: public TObject {
+class PigsStorage : public TObject {
 public:
     PigsStorage(TString foutname);  // Use this constructor
     PigsStorage();

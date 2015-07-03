@@ -30,10 +30,19 @@ PigsDAQ * PigsDAQ::getInstance() {
 
 PigsDAQ::PigsDAQ() {
     // Constructor zeroes everything, making Eclipse happy
-    h1NBins=ch=handle=brd=0; totCounts=0;
-    countsPerSecond=deadTime=realTime=goodCounts=0;
+    h=0;
+    for (ch=0; ch<4; ch++) {
+        totCounts[ch]=0;
+        countsPerSecond[ch]=0;
+        deadTime[ch]=0;
+        realTime[ch]=0;
+        goodCounts[ch]=0;
+        fCurrHist[ch]=0;
+        hNBins[ch]=0;
+    }
+    ch=handle=brd=0;
     StopCriteriaValue=0;usecSleepPollDAQ=0;
-    fErrCode=0; fCurrHist=0; fDt=0; h1=0; gui=0; //fAcqThread=0;
+    fErrCode=0; fDt=0; gui=0; //fAcqThread=0;
     year= month= day= hour= min= sec=0;
     isAcquiring=CAENDPP_AcqStatus_Unknown;
     acqMode=CAENDPP_AcqMode_Histogram;
@@ -46,23 +55,25 @@ int32_t PigsDAQ::BasicInit() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     fErrCode = 0;
     // Setting the digitizer and DAQ parameters is safe, no need to error check.
-    // Init digitizer parameters to default value
+    // Initialize digitizer parameters to default value
     fErrCode = instance->InitDgtzParams();
     // Custom digitizer parameters
     fErrCode += instance->SetDgtzParams();
     // Custom DAQ parameters
     fErrCode += instance->SetDAQParams();
-    // Time keeping //    fDt = 0;
-    // No histogram yet
-    fCurrHist = 0;
     // reset counters
-    totCounts = realTime = deadTime = 0;
-    countsPerSecond = 0;
+    for (ch=0; ch<4; ch++) {
+        totCounts[ch] = 0; realTime[ch] = 0; deadTime[ch] = 0;
+        countsPerSecond[ch] = 0;
+    }
     // Allocate the histogram to the given number of bins.
-    h1 = (uint32_t *)calloc(MAX_HISTO_NBINS, sizeof(uint32_t));
-    if (h1 == 0) {
-        std::cerr<<__PRETTY_FUNCTION__<<" Cannot allocate h1"<<std::endl;
-        throw std::bad_alloc(); //std::exception();
+    for (ch=0; ch<4; ch++) {
+        fCurrHist[ch] = 0;
+        h[ch] = (uint32_t *)calloc(MAX_HISTO_NBINS, sizeof(uint32_t));
+        if (h[ch]) {
+            std::cerr<<__PRETTY_FUNCTION__<<" Cannot allocate h1"<<std::endl;
+            throw std::bad_alloc();
+        }
     }
     return fErrCode;
 }
@@ -157,8 +168,8 @@ int32_t PigsDAQ::ConfigureBoard() {
     return fErrCode;
 }
 
-void PigsDAQ::PrintChannelParameters(int32_t ch) {
-    /// \fn      void PrintChannelParameters(int32_t ch);
+void PigsDAQ::PrintChannelParameters(int8_t ch) {
+    /// \fn      void PrintChannelParameters(int8_t ch);
     /// \brief   Prints the given Channel Parameters
     ///
     /// \param   [IN]   ch      : The channel to modify
@@ -167,28 +178,28 @@ void PigsDAQ::PrintChannelParameters(int32_t ch) {
 
     // Print the Configuration
     printf("\nChannel %d configuration:\n",ch);
-    printf(" Decay Time\t\t\t= %.2f us\n", (float)dgtzParams.DPPParams.M[ch] / 1000.0);
-    printf(" Flat Top\t\t\t= %.2f us\n", (float)dgtzParams.DPPParams.m[ch] / 1000.0);
-    printf(" Trapezoid Rise Time\t\t= %.2f us\n", (float)dgtzParams.DPPParams.k[ch] / 1000.0);
-    printf(" Peaking Delay\t\t\t= %.2f us\n", (float)dgtzParams.DPPParams.ftd[ch] / 1000.0);
+    printf(" Decay Time\t\t\t= %.2f us\n", (Float_t)dgtzParams.DPPParams.M[ch] / 1000.0);
+    printf(" Flat Top\t\t\t= %.2f us\n", (Float_t)dgtzParams.DPPParams.m[ch] / 1000.0);
+    printf(" Trapezoid Rise Time\t\t= %.2f us\n", (Float_t)dgtzParams.DPPParams.k[ch] / 1000.0);
+    printf(" Peaking Delay\t\t\t= %.2f us\n", (Float_t)dgtzParams.DPPParams.ftd[ch] / 1000.0);
     printf(" Smoothing Factor\t\t= %d\n", dgtzParams.DPPParams.a[ch]);
-    printf(" Input Rise time\t\t= %.2f us\n", (float)dgtzParams.DPPParams.b[ch] / 1000.0);
+    printf(" Input Rise time\t\t= %.2f us\n", (Float_t)dgtzParams.DPPParams.b[ch] / 1000.0);
     printf(" Threshold\t\t\t= %d\n", dgtzParams.DPPParams.thr[ch]);
     printf(" Baseline Mean\t\t\t= %d\n", dgtzParams.DPPParams.nsbl[ch]);
     printf(" Peak Mean\t\t\t= %d\n", dgtzParams.DPPParams.nspk[ch]);
-    printf(" Peak Hold Off\t\t\t= %.2f us\n", (float)dgtzParams.DPPParams.pkho[ch] / 1000.0);
-    printf(" Baseline Hold Off\t\t= %.2f us\n", (float)dgtzParams.DPPParams.blho[ch] / 1000.0);
-    printf(" Trigger Hold Off\t\t= %.2f us\n", (float)dgtzParams.DPPParams.trgho[ch] / 1000.0);
+    printf(" Peak Hold Off\t\t\t= %.2f us\n", (Float_t)dgtzParams.DPPParams.pkho[ch] / 1000.0);
+    printf(" Baseline Hold Off\t\t= %.2f us\n", (Float_t)dgtzParams.DPPParams.blho[ch] / 1000.0);
+    printf(" Trigger Hold Off\t\t= %.2f us\n", (Float_t)dgtzParams.DPPParams.trgho[ch] / 1000.0);
     printf(" Digital Gain\t\t\t= %d\n", dgtzParams.DPPParams.dgain[ch]);
     printf(" Energy Normalization Factor\t= %.2f\n", dgtzParams.DPPParams.enf[ch]);
     printf(" Decimation\t\t\t= %d\n", dgtzParams.DPPParams.decimation[ch]);
     printf(" Polarity\t\t\t= %s\n", dgtzParams.PulsePolarity[ch] == CAENDPP_PulsePolarityPositive ? "POS" : "NEG");
-    printf(" DCOffset\t\t\t= %.2f\n", ((float)(dgtzParams.DCoffset[ch]) / 655.35) - 50.0);
+    printf(" DCOffset\t\t\t= %.2f\n", ((Float_t)(dgtzParams.DCoffset[ch]) / 655.35) - 50.0);
     printf("\n");
 }
 
 
-int32_t PigsDAQ::StopAcquisition(int32_t ch) {
+int32_t PigsDAQ::StopAcquisition(int8_t ch) {
     fErrCode = CAENDPP_StartAcquisition(handle, ch);
     // Stop Acquisition for channel 0
     fErrCode = CAENDPP_StopAcquisition(handle, ch);
@@ -231,11 +242,15 @@ int32_t PigsDAQ::StopAcquisition(int32_t ch) {
 }*/
 
 
-void PigsDAQ::SetAcquisitionLoopTime(float sec) {
-    // Sets how long the DAQ runs, float seconds to uint ns.
+void PigsDAQ::SetAcquisitionLoopTime(Float_t sec) {
+    // Sets how long the DAQ runs, Float_t seconds to uint ns.
     StopCriteriaValue =  (uint64_t)1000000000L*sec;               // [ns] Run for  10 seconds
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ <<
             " StopCriteriaValue = " << StopCriteriaValue << std::endl;
+}
+
+Float_t PigsDAQ::GetAcquisitionLoopTime() const {
+    return (Float_t) (StopCriteriaValue/1000000000L);
 }
 
 
@@ -244,34 +259,38 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " begin " << std::endl;
 
     // reset counters
-    totCounts = realTime = deadTime = 0;
-    countsPerSecond = 0;
-    Float_t pctProgress = 0.0;        // measures progress in acquisition
-    Float_t pctIncrement = 100.*1000.*(float)usecSleepPollDAQ/(float)StopCriteriaValue;
-
-    // Clear histogram on channel 0
-    ch = 0;
-    fErrCode = CAENDPP_ClearHistogram(handle, ch, 0);
-    if (fErrCode != CAENDPP_RetCode_Ok) {
-        std::cerr << "Error clearing histogram" << std::endl;
-        return fErrCode;
-    } else {
-        if(fVerbose) std::cout << "Histogram on channel " << ch << " cleared." << std::endl;
+    for (ch=0; ch<4; ch++) {
+        totCounts[ch] = 0; realTime[ch] = 0; deadTime[ch] = 0;
+        countsPerSecond[ch] = 0;
     }
+    Float_t pctProgress = 0.0;        // measures progress in acquisition
+    Float_t pctIncrement = 100.*1000.*(Float_t)usecSleepPollDAQ/(Float_t)StopCriteriaValue;
 
+    // Clear histogram on all channels
+    for (ch=0; ch<4; ch++) {
+        fErrCode = CAENDPP_ClearHistogram(handle, ch, 0);
+        if (fErrCode != CAENDPP_RetCode_Ok) {
+            std::cerr << "Error clearing histogram on channel" << ch << std::endl;
+            return fErrCode;
+        } else {
+            if(fVerbose) std::cout << "Histogram on channel " << ch << " cleared." << std::endl;
+        }
+    }
     if(gui) gui->SetProgressBarPosition(pctProgress);    // If GUI is set, update the progress bar
 
     // Set starting date time
     fDt.Set();
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " timestamp set " << std::endl;
 
-    // Start Acquisition for channel 0
-    fErrCode = CAENDPP_StartAcquisition(handle, ch);
-    if (fErrCode != CAENDPP_RetCode_Ok) {
-        printf("Error Starting Acquisition for channel %d: %s\n", ch, decodeError(codeStr, fErrCode));
-        return fErrCode;
-    } else {
-        if(fVerbose) printf("Acquisition Started for channel %d\n", ch);
+    // Start Acquisition for all channels
+    for (ch=0; ch<4; ch++) {
+        fErrCode = CAENDPP_StartAcquisition(handle, ch);
+        if (fErrCode != CAENDPP_RetCode_Ok) {
+            printf("Error Starting Acquisition for channel %d: %s\n", ch, decodeError(codeStr, fErrCode));
+            return fErrCode;
+        } else {
+            if(fVerbose) printf("Acquisition Started for channel %d\n", ch);
+        }
     }
 
     do {
@@ -281,29 +300,33 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
         }
         usleep(usecSleepPollDAQ);        // waits to poll DT5781
         gSystem->ProcessEvents();
-        CAENDPP_IsChannelAcquiring(handle, ch, &isAcquiring );
-        if(fVerbose>9) printf("  -- ch %d acq status %d\n", ch, isAcquiring);
+//        CAENDPP_IsChannelAcquiring(handle, ch, &isAcquiring );
+//        if(fVerbose>9) printf("  -- ch %d acq status %d\n", ch, isAcquiring);
         if(gui) pctProgress += pctIncrement;
     } while (isAcquiring);
 
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " acquisition stopped " << std::endl;
 
-    // Get The Histogram
-    fErrCode = CAENDPP_GetCurrentHistogram(handle, ch, h1, &goodCounts, &realTime, &deadTime, &isAcquiring);
-    if (fErrCode != CAENDPP_RetCode_Ok) {
-        printf("ERROR: Can't get current Histogram for ch %d: %s\n", ch, decodeError(codeStr, fErrCode));
-        return fErrCode;
+    // Get The Histograms
+    for (ch=0; ch<4; ch++) {
+        fErrCode = CAENDPP_GetCurrentHistogram(handle, ch, h[ch], &goodCounts[ch], &realTime[ch], &deadTime[ch], &isAcquiring);
+        if (fErrCode != CAENDPP_RetCode_Ok) {
+            printf("ERROR: Can't get current Histogram for ch %d: %s\n", ch, decodeError(codeStr, fErrCode));
+            return fErrCode;
+        }
     }
-    // Get the histogram bin number
-    fErrCode = CAENDPP_GetHistogramSize(handle, ch, HISTO_IDX_CURRENT, &h1NBins);
-    if (fErrCode != CAENDPP_RetCode_Ok) {
-        printf("ERROR: Can't get current Histogram size for ch %d: %s\n", ch, decodeError(codeStr, fErrCode));
-        return fErrCode;
+    // Get the histogram bin numbers
+    for (ch=0; ch<4; ch++) {
+        fErrCode = CAENDPP_GetHistogramSize(handle, ch, HISTO_IDX_CURRENT, &hNBins[ch]);
+        if (fErrCode != CAENDPP_RetCode_Ok) {
+            printf("ERROR: Can't get current Histogram size for ch %d: %s\n", ch, decodeError(codeStr, fErrCode));
+            return fErrCode;
+        }
+        totCounts[ch]       = (uint32_t)(goodCounts[ch] * (1.0 + (double)deadTime[ch] / (double)(realTime[ch])));
+        countsPerSecond[ch] = (realTime[ch] - deadTime[ch]) > 0 ? (double)goodCounts[ch] / (double)((realTime[ch] - deadTime[ch]) / 1000000000.0) : 0;
+        if(fVerbose) PrintAcquisotionInfo(ch);
     }
-    totCounts       = (uint32_t)(goodCounts * (1.0 + (double)deadTime / (double)(realTime)));
-    countsPerSecond = (realTime - deadTime) > 0 ? (double)goodCounts / (double)((realTime - deadTime) / 1000000000.0) : 0;
-    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " done " <<  h1NBins << std::endl;
-    if(fVerbose) PrintAcquisotionInfo();
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " done " <<  hNBins[0]+hNBins[1]+hNBins[2]+hNBins[3] << std::endl;
     return fErrCode;
 }
 
@@ -314,32 +337,34 @@ int32_t PigsDAQ::RefreshCurrHist() {
     fDt.GetDate(0, 0, &year, &month, &day);
     fDt.GetTime(0, 0, &hour, &min,   &sec);
     fAcqDate=Form("%04d%02d%02d %02d:%02d:%02d",year,month,day,hour,min,sec);
-    if(fCurrHist) fCurrHist->Delete();//delete fCurrHist;
-    fCurrHist = new TH1D("fCurrHist", Form("ch0: %s",fAcqDate.Data()), h1NBins, 0, h1NBins-1);
-    fCurrHist->SetXTitle("ADC channel");
-    fCurrHist->SetYTitle("Counts");
-    if(fCurrHist) {
-        for (int32_t i=0; i < h1NBins; i++) { // copy over data from h1
-            fCurrHist->SetBinContent(i+1,h1[i]);
+    for(ch=0; ch<4; ch++) {
+        if(fCurrHist[ch]) fCurrHist[ch]->Delete();//delete fCurrHist;
+        fCurrHist[ch] = new TH1D(Form("fCurrHist%d",ch), Form("ch%d: %s",ch, fAcqDate.Data()), hNBins[ch], 0, hNBins[ch]-1);
+        fCurrHist[ch]->SetXTitle("ADC channel");
+        fCurrHist[ch]->SetYTitle("Counts");
+        if(fCurrHist[ch]) {
+            for (int32_t i=0; i < hNBins[ch]; i++) { // copy over data from h1
+                fCurrHist[ch]->SetBinContent(i+1,h[ch][i]);
+            }
+        } else {
+            std::cerr << "Error creating fCurrHist for channel " << ch << std::endl;
+            return 999;
         }
-        return 0;
-    } else {
-        std::cerr << "Error creating fCurrHist!" << std::endl;
     }
-    return 999;
+    return 0;
 }
 
-void PigsDAQ::PrintAcquisotionInfo() {
+void PigsDAQ::PrintAcquisotionInfo(int8_t ch) {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     printf("CH%d\n", ch);
-    printf(" RT\t= %.3f s\n", realTime / 1000000000.0);
-    printf(" DT\t= %.3f ms\n", deadTime / 1000000.0);
-    printf(" Good\t= %u counts\n", goodCounts);
-    printf(" Tot.\t= %u counts\n", totCounts);
-    printf(" ICR\t= %.3f counts/s\n", countsPerSecond);
+    printf(" RT\t= %.3f s\n", realTime[ch] / 1000000000.0);
+    printf(" DT\t= %.3f ms\n", deadTime[ch] / 1000000.0);
+    printf(" Good\t= %u counts\n", goodCounts[ch]);
+    printf(" Tot.\t= %u counts\n", totCounts[ch]);
+    printf(" ICR\t= %.3f counts/s\n", countsPerSecond[ch]);
 }
 
-int32_t PigsDAQ::ConfigureChannel(int32_t ch) {
+int32_t PigsDAQ::ConfigureChannel(int8_t ch) {
     // Configures channel with parameters set in the class data
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     if (isChannelDisabled(ch)) {
@@ -363,8 +388,8 @@ int32_t PigsDAQ::ConfigureChannel(int32_t ch) {
     return fErrCode;
 }
 
-int32_t PigsDAQ::isChannelDisabled(int32_t ch) {
-    /// \fn      int32_t isChannelDisabled(int32_t handle, int32_t ch);
+int32_t PigsDAQ::isChannelDisabled(int8_t ch) {
+    /// \fn      int32_t isChannelDisabled(int32_t handle, int8_t ch);
     /// \brief   Get if a channel is Enabled
     ///
     /// \param   [IN] handle    : Handle to the Library
@@ -391,11 +416,12 @@ int32_t PigsDAQ::SetDgtzParams() {
 
     // The channel mask is used to set the enabled Acquisition Input Channels
     // Binary mask in hex, 0 to F
-    dgtzParams.ChannelMask = 0x1;    //  0x1 = channel 0 enabled
+//  dgtzParams.ChannelMask = 0x1;    //  0x1 = channel 0 enabled
+    dgtzParams.ChannelMask = 0xf;    //  0xf = channels 0-3 enabled
 
-    int32_t ch;
     // Channel parameters
-    for (ch = 0; ch < MAX_BOARD_CHNUM; ch++) {
+//    for (ch = 0; ch < MAX_BOARD_CHNUM; ch++) {
+    for (ch = 0; ch < 4; ch++) {                    // hard-coded 4 channels
         // Channel parameters
         dgtzParams.DCoffset[ch] = 58950;
         //        dgtzParams.PulsePolarity[ch] = CAENDPP_PulsePolarityNegative;
@@ -596,17 +622,16 @@ int32_t PigsDAQ::EndLibrary() {
 }
 
 // getters & setters
-void     PigsDAQ::setGUI(PigsGUI *gui)          { this->gui = gui;}
-void     PigsDAQ::setCurrHist(TH1D *currHist)   { fCurrHist = currHist; }
-TH1D   * PigsDAQ::getCurrHist() const           { return fCurrHist; }
-double   PigsDAQ::getCountsPerSecond() const    { return countsPerSecond; }
-uint64_t PigsDAQ::getRealTime() const           { return realTime; }
-uint64_t PigsDAQ::getDeadTime() const           { return deadTime; }
-uint32_t PigsDAQ::getTotCounts() const          { return totCounts; }
-uint32_t PigsDAQ::getGoodCounts() const         { return goodCounts; }
-PigsGUI *PigsDAQ::getGUI() const                { return gui; }
-const char *PigsDAQ::getBoardInfo() const       { return fBoardInfo.Data();  }
-
+void      PigsDAQ::setGUI(PigsGUI *gui)          { this->gui = gui;}
+//void      PigsDAQ::setCurrHist(TH1D *currHist)   { fCurrHist = currHist; }
+TH1D     *PigsDAQ::getCurrHist(int8_t ch) const { return fCurrHist[ch]; }
+double   PigsDAQ::getCountsPerSecond(int8_t ch) const    { return countsPerSecond[ch]; }
+uint64_t PigsDAQ::getRealTime(int8_t ch) const           { return realTime[ch]; }
+uint64_t PigsDAQ::getDeadTime(int8_t ch) const           { return deadTime[ch]; }
+uint32_t PigsDAQ::getTotCounts(int8_t ch) const          { return totCounts[ch]; }
+uint32_t PigsDAQ::getGoodCounts(int8_t ch) const         { return goodCounts[ch]; }
+PigsGUI  *PigsDAQ::getGUI() const                { return gui; }
+const char *PigsDAQ::getBoardInfo() const        { return fBoardInfo.Data();  }
 
 CAENDPP_StopCriteria_t PigsDAQ::getStopCriteria() const {
     return StopCriteria;
@@ -622,13 +647,3 @@ uint64_t PigsDAQ::getStopCriteriaValue() const {
 void PigsDAQ::setStopCriteriaValue(uint64_t stopCriteriaValue) {
     StopCriteriaValue = stopCriteriaValue;
 }
-
-
-
-
-
-
-
-
-
-

@@ -10,7 +10,7 @@
 int PigsGUI::InitDAQ() {
     // Initialization of the PigsDAQ object, DPP library, DAQ config, storage
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    int ret = 0;
+    int ch, ret = 0;
 
     if (storage) delete storage;                        // Storage initialization
     fDateTime.Set();
@@ -28,9 +28,12 @@ int PigsGUI::InitDAQ() {
     if (!ret) ret = daq->BasicInit();
     if (!ret) ret = daq->ConfigureBoard();
     if (!ret) ret = daq->ConfigureChannel(0);
+    if (!ret) ret = daq->ConfigureChannel(1);
+    if (!ret) ret = daq->ConfigureChannel(2);
+    if (!ret) ret = daq->ConfigureChannel(3);
     if (!ret) {
         daq->PrintBoardInfo();
-        daq->PrintChannelParameters(0);
+        if(fVerbose) for (ch=0; ch<4;ch++) daq->PrintChannelParameters(ch);
         fDTinfo->AddLineFast("Board configured");
         fStartDAQ->SetState(kButtonUp);             // Enable acquisition
         fAcqTimeEntry->SetState(1);                 // Enable changing of the acquisition time
@@ -55,25 +58,29 @@ int PigsGUI::DisconnectDAQ() {
 int PigsGUI::RunAcquisition() {
     // Runs acquisition as a loop
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    int ret=0;
+    int ch, ret=0;
     fStartDAQ->SetState(kButtonDown);
     keepAcquiring = kTRUE;
     while(keepAcquiring) {                      // Acquisition loop
-        ret = daq->ConfigureChannel(0);
-        ret = daq->AcquisitionSingleLoop();
+        for (ch=0; ch<4;ch++) ret += daq->ConfigureChannel(ch);
+        ret += daq->AcquisitionSingleLoop();
         if(!ret) {
             daq->RefreshCurrHist();             // transfer data to TH1D
-            cCurrHCanvas->cd();
-            daq->getCurrHist()->Draw();         // plot latest TH1D
-            cCurrHCanvas->Modified();
-            cCurrHCanvas->Update();
+            for (ch=0; ch<4;ch++) {
+                cCurrHCanvas->GetPad(ch+1)->cd();
+                daq->getCurrHist(ch)->Draw();         // plot latest TH1D
+                cCurrHCanvas->GetPad(ch+1)->Update();
+                ev->spectrum[ch]  = daq->getCurrHist(ch);   // save current measurement
+                ev->realTime[ch]  = daq->getRealTime(ch);
+                ev->deadTime[ch]  = daq->getDeadTime(ch);
+                ev->goodCounts[ch]= daq->getGoodCounts(ch);
+                ev->totCounts[ch] = daq->getTotCounts(ch);
+                ev->countsPerSecond[ch] = daq->getCountsPerSecond(ch);
+                // TODO energy integration
+            }
+            ev->acqTime = daq->GetAcquisitionLoopTime();
             gSystem->ProcessEvents();
-            ev->spectrum  = daq->getCurrHist();   // save current measurement
-            ev->realTime  = daq->getRealTime();
-            ev->deadTime  = daq->getDeadTime();
-            ev->goodCounts= daq->getGoodCounts();
-            ev->totCounts = daq->getTotCounts();
-            ev->countsPerSecond = daq->getCountsPerSecond();
+            cCurrHCanvas->Modified();
             storage->getTree()->Fill();
             UpdateHistory();                     // Updates the history & average tabs
         }
@@ -87,6 +94,9 @@ int PigsGUI::RunAcquisition() {
 int PigsGUI::RunSingleAcquisition() {
     // Runs one acquisition loop
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+    std::cerr << "Not implemented in F-PIGS \n" << std::endl;     // TODO if needed?
+    return 999;
+/*
     int ret=0;
     ret = daq->ConfigureChannel(0);
     fStartDAQ->SetState(kButtonDown);
@@ -113,7 +123,7 @@ int PigsGUI::RunSingleAcquisition() {
     }
     fHCurrHProgressBar->SetPosition(1);
     fStartDAQ->SetState(kButtonUp);
-    return ret;
+    return ret;*/
 }
 
 void PigsGUI::SetAcquisitionLoopTime() {
@@ -128,7 +138,7 @@ void PigsGUI::SetAcquisitionLoopTime() {
 void PigsGUI::UpdateHistory() {
     // Updates the history and average tabs
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    Long64_t totalEntries = storage->getTree()->GetEntries();
+/*    Long64_t totalEntries = storage->getTree()->GetEntries();
     Long64_t currentEntry = -1;
     if(fNormAvgH) fNormAvgH->Delete();
     fNormAvgH = (TH1D*) daq->getCurrHist()->Clone();
@@ -149,14 +159,15 @@ void PigsGUI::UpdateHistory() {
     cSumSpectra->cd();
     fNormAvgH->Draw();
     cSumSpectra->Modified();
-    cSumSpectra->Update();
+    cSumSpectra->Update();*/
 }
 
 int PigsGUI::HardStopAcquisition() {
-    // Stops acquisition on channel 0
+    // Stops acquisition on all channels
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int ret = 0;
-    if (daq) ret = daq->StopAcquisition(0);
+    uint8_t ch;
+    if (daq) for (ch=0; ch<4; ch++) ret += daq->StopAcquisition(ch);
     return ret;
 }
 
@@ -265,6 +276,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     Int_t wfLatestHistoCanvas = fLatestHistoCanvas->GetCanvasWindowId();
     cCurrHCanvas = new TCanvas("cCurrHCanvas", 10, 10, wfLatestHistoCanvas);
     fLatestHistoCanvas->AdoptCanvas(cCurrHCanvas);
+    cCurrHCanvas->Divide(2,2);
     fCurHistFrame->AddFrame(fLatestHistoCanvas, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
     fHCurrHProgressBar = new TGHProgressBar(fCurHistFrame,fGUIsizeX-5);
     fHCurrHProgressBar->SetFillType(TGProgressBar::kBlockFill);
@@ -284,7 +296,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     Int_t wfLastNspectra = fLastNspectra->GetCanvasWindowId();
     cLastNspectra = new TCanvas("cLastNspectra", 10, 10, wfLastNspectra);
     fLastNspectra->AdoptCanvas(cLastNspectra);
-    cLastNspectra->Divide(3,3);
+    //cLastNspectra->Divide(3,3); TODO TGraph instead?
     fTabHisto->AddFrame(fLastNspectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
     // *** container of "Sum" ***
@@ -294,9 +306,13 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fSumSpectra = new TRootEmbeddedCanvas("SumHEC",fTabSum,fGUIsizeX-10,fGUIsizeY-110);
     Int_t wfSumSpectra = fSumSpectra->GetCanvasWindowId();
     cSumSpectra = new TCanvas("cSumSpectra", 10, 10, wfSumSpectra);
-    cSumSpectra->SetLogx();
-    cSumSpectra->SetLogy();
     fSumSpectra->AdoptCanvas(cSumSpectra);
+    cSumSpectra->Divide(2,2);
+    int8_t ic;
+    for (ic=1; ic<5; ic++) {
+        cSumSpectra->GetPad(ic)->SetLogx();
+        cSumSpectra->GetPad(ic)->SetLogy();
+    }
     fTabSum->AddFrame(fSumSpectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
     // *** container of "Config" ***
