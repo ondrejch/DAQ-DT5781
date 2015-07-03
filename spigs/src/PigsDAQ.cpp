@@ -59,10 +59,10 @@ int32_t PigsDAQ::BasicInit() {
     totCounts = realTime = deadTime = 0;
     countsPerSecond = 0;
     // Allocate the histogram to the given number of bins.
-    h1 = (uint32_t *)calloc(MAX_HISTO_NBINS, sizeof(uint32_t));
+    h1 = new uint32_t[MAX_HISTO_NBINS];
     if (h1 == 0) {
         std::cerr<<__PRETTY_FUNCTION__<<" Cannot allocate h1"<<std::endl;
-        throw std::bad_alloc(); //std::exception();
+        throw std::bad_alloc();
     }
     return fErrCode;
 }
@@ -157,8 +157,8 @@ int32_t PigsDAQ::ConfigureBoard() {
     return fErrCode;
 }
 
-void PigsDAQ::PrintChannelParameters(int32_t ch) {
-    /// \fn      void PrintChannelParameters(int32_t ch);
+void PigsDAQ::PrintChannelParameters(int8_t ch) {
+    /// \fn      void PrintChannelParameters(int8_t ch);
     /// \brief   Prints the given Channel Parameters
     ///
     /// \param   [IN]   ch      : The channel to modify
@@ -188,7 +188,7 @@ void PigsDAQ::PrintChannelParameters(int32_t ch) {
 }
 
 
-int32_t PigsDAQ::StopAcquisition(int32_t ch) {
+int32_t PigsDAQ::StopAcquisition(int8_t ch) {
     fErrCode = CAENDPP_StartAcquisition(handle, ch);
     // Stop Acquisition for channel 0
     fErrCode = CAENDPP_StopAcquisition(handle, ch);
@@ -339,7 +339,7 @@ void PigsDAQ::PrintAcquisotionInfo() {
     printf(" ICR\t= %.3f counts/s\n", countsPerSecond);
 }
 
-int32_t PigsDAQ::ConfigureChannel(int32_t ch) {
+int32_t PigsDAQ::ConfigureChannel(int8_t ch) {
     // Configures channel with parameters set in the class data
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     if (isChannelDisabled(ch)) {
@@ -363,8 +363,8 @@ int32_t PigsDAQ::ConfigureChannel(int32_t ch) {
     return fErrCode;
 }
 
-int32_t PigsDAQ::isChannelDisabled(int32_t ch) {
-    /// \fn      int32_t isChannelDisabled(int32_t handle, int32_t ch);
+int32_t PigsDAQ::isChannelDisabled(int8_t ch) {
+    /// \fn      int32_t isChannelDisabled(int32_t handle, int8_t ch);
     /// \brief   Get if a channel is Enabled
     ///
     /// \param   [IN] handle    : Handle to the Library
@@ -393,7 +393,7 @@ int32_t PigsDAQ::SetDgtzParams() {
     // Binary mask in hex, 0 to F
     dgtzParams.ChannelMask = 0x1;    //  0x1 = channel 0 enabled
 
-    int32_t ch;
+    int8_t ch;
     // Channel parameters
     for (ch = 0; ch < MAX_BOARD_CHNUM; ch++) {
         // Channel parameters
