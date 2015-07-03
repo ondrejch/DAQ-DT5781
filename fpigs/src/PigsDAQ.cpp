@@ -78,7 +78,7 @@ int32_t PigsDAQ::BasicInit() {
             throw std::bad_alloc();
         }
     }
-    std::cout<< "DGB " << __PRETTY_FUNCTION__<<" ** over **  " << ch<<std::endl;
+//    std::cout<< "DGB " << __PRETTY_FUNCTION__<<" ** over **  " << ch<<std::endl;
     return fErrCode;
 }
 
@@ -204,7 +204,7 @@ void PigsDAQ::PrintChannelParameters(int32_t ch) {
 
 
 int32_t PigsDAQ::StopAcquisition(int32_t ch) {
-    fErrCode = CAENDPP_StartAcquisition(handle, ch);
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     // Stop Acquisition for channel ch; -1 for all channels
     fErrCode = CAENDPP_StopAcquisition(handle, ch);
     if (fErrCode != CAENDPP_RetCode_Ok) {
@@ -309,13 +309,13 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
         for (ch=0; ch<4; ch++) {
             CAENDPP_IsChannelAcquiring(handle, ch, &checkAcquiring[ch]);
             keepGoing += checkAcquiring[ch];
-            //if(fVerbose>0) printf("  -- %5.2f %, ch %d acq status %d\n", pctProgress, ch, checkAcquiring[ch]);
+            if(fVerbose>0) printf("  -- %5.2f %%, ch %d acq status %d\n", pctProgress, ch, checkAcquiring[ch]);
         }
-        if(gui) pctProgress += pctIncrement;
-        if(pctProgress > 120.0) {           // taking data too long, something fishy
-            this->StopAcquisition(-1);
+        pctProgress += pctIncrement;
+        if(pctProgress > 120.0) {       // taking data too long, something is fishy
             std::cerr << "ERROR: taking data for too long, are all detectors connected?" << std::endl;
             keepGoing = 0;
+            this->StopAcquisition(-1);
         }
   } while (keepGoing);
   //} while (checkAcquiring[0]);

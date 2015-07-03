@@ -61,7 +61,7 @@ int32_t PigsGUI::RunAcquisition() {
     fStartDAQ->SetState(kButtonDown);
     keepAcquiring = kTRUE;
     while(keepAcquiring) {                      // Acquisition loop
-        for (ch=0; ch<4;ch++) ret += daq->ConfigureChannel(ch);
+        for (ch=0; ch<4;ch++) ret += daq->ConfigureChannel(ch); // TODO Ideally this should only be called if acquisition parameters changed
         ret += daq->AcquisitionSingleLoop();
         if(!ret) {
             daq->RefreshCurrHist();             // transfer data to TH1D
