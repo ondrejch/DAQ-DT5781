@@ -7,10 +7,11 @@
 
 #include "PigsGUI.h"
 
-int PigsGUI::InitDAQ() {
+int32_t PigsGUI::InitDAQ() {
     // Initialization of the PigsDAQ object, DPP library, DAQ config, storage
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    int ch, ret = 0;
+    int32_t ret = 0;
+    int32_t ch;
 
     if (storage) delete storage;                        // Storage initialization
     fDateTime.Set();
@@ -27,10 +28,7 @@ int PigsGUI::InitDAQ() {
     if (!ret) { ret = daq->AddBoardUSB(); fDTinfo->AddLineFast("Board added"); }
     if (!ret) ret = daq->BasicInit();
     if (!ret) ret = daq->ConfigureBoard();
-    if (!ret) ret = daq->ConfigureChannel(0);
-    if (!ret) ret = daq->ConfigureChannel(1);
-    if (!ret) ret = daq->ConfigureChannel(2);
-    if (!ret) ret = daq->ConfigureChannel(3);
+    for (ch=0; ch<4;ch++) if (!ret) ret = daq->ConfigureChannel(ch);
     if (!ret) {
         daq->PrintBoardInfo();
         if(fVerbose) for (ch=0; ch<4;ch++) daq->PrintChannelParameters(ch);
@@ -46,19 +44,20 @@ int PigsGUI::InitDAQ() {
     return ret;
 }
 
-int PigsGUI::DisconnectDAQ() {
+int32_t PigsGUI::DisconnectDAQ() {
     // Ends connection to the DPP library
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    int ret = 0;
+    int32_t ret = 0;
     fDTinfo->AddLine("*** Disconnecting the DAQ ***");
     if (daq) ret = daq->EndLibrary();
     return ret;
 }
 
-int PigsGUI::RunAcquisition() {
+int32_t PigsGUI::RunAcquisition() {
     // Runs acquisition as a loop
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    int ch, ret=0;
+    int32_t ret=0;
+    int32_t ch;
     fStartDAQ->SetState(kButtonDown);
     keepAcquiring = kTRUE;
     while(keepAcquiring) {                      // Acquisition loop
@@ -91,13 +90,13 @@ int PigsGUI::RunAcquisition() {
     return ret;
 }
 
-int PigsGUI::RunSingleAcquisition() {
+int32_t PigsGUI::RunSingleAcquisition() {
     // Runs one acquisition loop
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     std::cerr << "Not implemented in F-PIGS \n" << std::endl;     // TODO if needed?
     return 999;
 /*
-    int ret=0;
+    int32_t ret=0;
     ret = daq->ConfigureChannel(0);
     fStartDAQ->SetState(kButtonDown);
     ret = daq->AcquisitionSingleLoop();
@@ -143,7 +142,7 @@ void PigsGUI::UpdateHistory() {
     if(fNormAvgH) fNormAvgH->Delete();
     fNormAvgH = (TH1D*) daq->getCurrHist()->Clone();
     if(fVerbose>1) cout << __PRETTY_FUNCTION__ << "totalEntries: " << totalEntries << endl;
-    for (int i=0; i<9; i++) {       // loop over subcanvases
+    for (int32_t i=0; i<9; i++) {       // loop over subcanvases
         currentEntry = totalEntries - i;
         if(currentEntry>0) {
             if(fVerbose>2) cout << __PRETTY_FUNCTION__ << "i: " << i << " entry: " << currentEntry << endl;
@@ -162,19 +161,18 @@ void PigsGUI::UpdateHistory() {
     cSumSpectra->Update();*/
 }
 
-int PigsGUI::HardStopAcquisition() {
+int32_t PigsGUI::HardStopAcquisition() {
     // Stops acquisition on all channels
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    int ret = 0;
-    uint8_t ch;
-    if (daq) for (ch=0; ch<4; ch++) ret += daq->StopAcquisition(ch);
+    int32_t ret = 0;
+    if (daq) ret = daq->StopAcquisition(-1); // -1 = all channels
     return ret;
 }
 
-int PigsGUI::StopAcquisition() {
+int32_t PigsGUI::StopAcquisition() {
     // Stops the acquisition loop
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    int ret = 0;
+    int32_t ret = 0;
     fStopDAQ->SetState(kButtonDown);
     if (daq && keepAcquiring) keepAcquiring = kFALSE;
     return ret;

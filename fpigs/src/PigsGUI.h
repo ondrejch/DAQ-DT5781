@@ -38,12 +38,12 @@ class PigsGUI : public TGMainFrame  {
 public:
     PigsGUI(const TGWindow *p); // Creates the GUI
     ~PigsGUI();                         // Ends DAQ, DPP, GUI
-    int InitDAQ();                      // Initialization of the PigsDAQ object, DPP library, DAQ config
-    int DisconnectDAQ();                // Ends connection to the DPP library
-    int RunSingleAcquisition();         // Runs one acquisition loop
-    int RunAcquisition();               // Loop acquisition
-    int StopAcquisition();              // Stops acquisition loop
-    int HardStopAcquisition();          // Stops acquisition on channel 0
+    int32_t InitDAQ();                      // Initialization of the PigsDAQ object, DPP library, DAQ config
+    int32_t DisconnectDAQ();                // Ends connection to the DPP library
+    int32_t RunSingleAcquisition();         // Runs one acquisition loop
+    int32_t RunAcquisition();               // Loop acquisition
+    int32_t StopAcquisition();              // Stops acquisition loop
+    int32_t HardStopAcquisition();          // Stops acquisition on channel 0
     void SetAcquisitionLoopTime();                     // Changes acquisition time using GUI
     void SetProgressBarPosition(Float_t fposition);    // Set the position of the progress bar
 
@@ -86,9 +86,9 @@ private:
     TTimeStamp fDateTime;               // Current date for file name
     UInt_t year, month, day, hour, min, sec;
 
-    static const int16_t fGUIsizeX    = 1200;
-    static const int16_t fGUIsizeY    = 1000;
-    static const int8_t fVerbose = 1;  // verbosity level settings
+    static const int32_t fGUIsizeX    = 1200;
+    static const int32_t fGUIsizeY    = 1000;
+    static const int32_t fVerbose = 1;  // verbosity level settings
     const char *fAboutMsg;
 
     ClassDef(PigsGUI, 0);

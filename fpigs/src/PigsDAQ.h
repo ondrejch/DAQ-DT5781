@@ -13,7 +13,6 @@
 #define PIGSDAQ_H_
 
 #include <stdio.h>          // printf, scanf, NULL */
-#include <stdlib.h>         // calloc, exit, free
 #include <string.h>         // strcpy
 #include <iostream>         // std::cerr
 #include <typeinfo>         // operator typeid
@@ -70,27 +69,27 @@ public:
     int32_t ConfigureBoard();       // Configures the board with digitizer and DAQ parameters
     int32_t EndLibrary();           // Cleanup: call this before the program ends!
 
-    int32_t isChannelDisabled(int8_t ch);          // 0 if enabled, 1 if disabled
-    void PrintChannelParameters(int8_t ch);        // Prints Channel Parameters
+    int32_t isChannelDisabled(int32_t ch);          // 0 if enabled, 1 if disabled
+    void PrintChannelParameters(int32_t ch);        // Prints Channel Parameters
     char * decodeError(char *dest, int32_t code);   // Decodes the given error code into a message
 
-    int32_t ConfigureChannel(int8_t ch);   // Sets channel parameters specified in Init & Set calls
-    int32_t StopAcquisition(int8_t ch);    // Stops acquisition for channel ch
+    int32_t ConfigureChannel(int32_t ch);   // Sets channel parameters specified in Init & Set calls
+    int32_t StopAcquisition(int32_t ch);    // Stops acquisition for channel ch
     int32_t AcquisitionSingleLoop();        // Runs acquisition
     int32_t ThreadAcqSingleLoop();          // Runs acquisition in a separate thread
-    void PrintAcquisotionInfo(int8_t ch);  // Prints real/dead time, cps, ...
+    void PrintAcquisotionInfo(int32_t ch);  // Prints real/dead time, cps, ...
     void SetAcquisitionLoopTime(Float_t sec); // Set acquisition loop time in seconds
     Float_t GetAcquisitionLoopTime() const;
 
     int32_t RefreshCurrHist();              // Transfers h1 into currHist
 
-    TH1D *getCurrHist(int8_t ch) const;
+    TH1D *getCurrHist(int32_t ch) const;
 //    void setCurrHist(TH1D *currHist);
-    double getCountsPerSecond(int8_t ch) const;
-    uint32_t getGoodCounts(int8_t ch) const;
-    uint64_t getRealTime(int8_t ch) const;
-    uint64_t getDeadTime(int8_t ch) const;
-    uint32_t getTotCounts(int8_t ch) const;
+    double getCountsPerSecond(int32_t ch) const;
+    uint32_t getGoodCounts(int32_t ch) const;
+    uint64_t getRealTime(int32_t ch) const;
+    uint64_t getDeadTime(int32_t ch) const;
+    uint32_t getTotCounts(int32_t ch) const;
     CAENDPP_StopCriteria_t getStopCriteria() const;
     uint64_t getStopCriteriaValue() const;
     void setStopCriteria(CAENDPP_StopCriteria_t stopCriteria);
@@ -106,7 +105,7 @@ protected:
     ~PigsDAQ(){};
 
 private:
-    int8_t  ch;         // ch is the variable used to identify a board's channel inside DPPLibrary.
+    int32_t  ch;         // ch is the variable used to identify a board's channel inside DPPLibrary.
     int32_t handle;     // Handler to the Library
     int32_t brd;        // Board Identifier - this code assumes we only have one board
     CAENDPP_ConnectionParams_t connParam;   // Connection Parameters - Used to connect to the board.
@@ -118,19 +117,20 @@ private:
     CAENDPP_StopCriteria_t StopCriteria;    // Stop Criteria definition
     uint64_t StopCriteriaValue;             // Stop Criteria value
     CAENDPP_AcqStatus_t isAcquiring;        // 1 yes, 0 no
+    CAENDPP_AcqStatus_t checkAcquiring[4];        // 1 yes, 0 no
     uint32_t usecSleepPollDAQ;              // sleep in microseconds to poll DAQ acquisition status
     uint64_t realTime[4];
     uint64_t deadTime[4];
     uint32_t goodCounts[4];
     uint32_t totCounts[4];
     double countsPerSecond[4];
-    uint32_t **h;         // histograms used for DPP dump
+    uint32_t *h[4];         // histograms used for DPP dump
     int32_t  hNBins[4];   // number of bins in the histograms
 
     char codeStr[MAX_ERRMSG_LEN + 1];
     char histoFName[MAX_HISTOFNAME_LEN];
 
-    static const int8_t fVerbose = 1;      // verbosity level settings
+    static const int32_t fVerbose = 1;      // verbosity level settings
     int32_t fErrCode;       // error code from DPP calls
     TH1D *fCurrHist[4];     // Current histograms
     TTimeStamp fDt;         // Current date for histogram time
