@@ -189,7 +189,7 @@ void PigsDAQ::PrintChannelParameters(int8_t ch) {
 
 
 int32_t PigsDAQ::StopAcquisition(int8_t ch) {
-    fErrCode = CAENDPP_StartAcquisition(handle, ch);
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     // Stop Acquisition for channel 0
     fErrCode = CAENDPP_StopAcquisition(handle, ch);
     if (fErrCode != CAENDPP_RetCode_Ok) {
