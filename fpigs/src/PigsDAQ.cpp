@@ -312,7 +312,7 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
             if(fVerbose>0) printf("  -- %5.2f %%, ch %d acq status %d\n", pctProgress, ch, checkAcquiring[ch]);
         }
         pctProgress += pctIncrement;
-        if(pctProgress > 120.0) {       // taking data too long, something is fishy
+        if(pctProgress > 200.0) {       // taking data too long, something is fishy
             std::cerr << "ERROR: taking data for too long, are all detectors connected?" << std::endl;
             keepGoing = 0;
             this->StopAcquisition(-1);
