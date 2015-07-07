@@ -59,6 +59,7 @@ int32_t PigsGUI::RunAcquisition() {
     int32_t ret=0;
     int32_t ch;
     fStartDAQ->SetState(kButtonDown);
+    fStopDAQ->SetState(kButtonUp);
     keepAcquiring = kTRUE;
     while(keepAcquiring) {                      // Acquisition loop
         for (ch=0; ch<4;ch++) ret += daq->ConfigureChannel(ch); // TODO Ideally this should only be called if acquisition parameters changed
@@ -89,7 +90,7 @@ int32_t PigsGUI::RunAcquisition() {
     }
     storage->getTree()->Write();
     fStartDAQ->SetState(kButtonUp);
-    fStopDAQ->SetState(kButtonUp);
+    fStopDAQ->SetState(kButtonDisabled);
     return ret;
 }
 
@@ -151,14 +152,28 @@ void PigsGUI::UpdateHistory() {
     int32_t ch;
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;   // TODO implement graph
     Long64_t totalEntries = storage->getTree()->GetEntries();
-//    daq->getTimeStamp().GetDate(0, 0, &year, &month, &day);
-//    daq->getTimeStamp().GetTime(0, 0, &hour, &min,   &sec);
+
+    for(ch=0; ch<4; ch++) {                 // Clean the multigraph - so we refresh the view
+        fMG->RecursiveRemove(fGraph[ch]);
+    }
     for(ch=0; ch<4; ch++) {
         fGraph[ch]->SetPoint(fGraph[ch]->GetN(),daq->getTimeStamp().GetSec(), ev->detectorResponse[ch]);
+        fMG->Add(fGraph[ch]);
     }
-    cLastMeas->cd();
-    fMG->Draw("AP");
-    cLastMeas->Modified();
+    if(fGraph[0]->GetN() >= 2) {            // we have the first two data points
+        cLastMeas->cd();
+        fMG->Draw("AP");
+        fMG->GetXaxis()->SetTimeDisplay(1);
+        fMG->GetXaxis()->SetTimeOffset(1);
+        fMG->GetXaxis()->SetTimeFormat("#splitline{%Y-%m-%d}{%H:%M:%S}");
+        fMG->GetXaxis()->SetLabelSize(0.02);
+        fMG->GetXaxis()->SetLabelOffset(0.03);
+//        fMG->GetXaxis()->SetNdivisions(508);
+        fMG->GetYaxis()->SetLabelSize(0.03);
+        fMG->Draw("APC");
+        cLastMeas->Update();
+        cLastMeas->Modified();
+    }
 
     // update the average tab
     Long64_t currentEntry = -1;
@@ -214,6 +229,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     year = month = day = hour = min = sec = 0;
     fAcqThread = 0;
     keepAcquiring = kFALSE;
+    const int32_t fHistColors[] = { kRed+1, kBlue+1, kGreen+1, kMagenta+1 };
     fAboutMsg = (char*)
 "       _____  _____  ______ _______\n"
 "      |_____]   |   |  ____ |______\n"
@@ -225,7 +241,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "         Four Channel Version\n"
 "\n"
 "  by Ondrej Chvala <ochvala@utk.edu>\n"
-"       version 0.061, July 2015\n"
+"       version 0.07, July 2015\n"
 "  https://github.com/ondrejch/DAQ-DT5781\n"
 "                GNU/GPL";
     int32_t i = 0; // helper variable
@@ -320,18 +336,16 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     Int_t wfLastNspectra = fLastMeas->GetCanvasWindowId();
     cLastMeas = new TCanvas("cLastMeas", 10, 10, wfLastNspectra);
     fLastMeas->AdoptCanvas(cLastMeas);
-    //cLastNspectra->Divide(3,3); TODO TGraph instead?
     fMG = new TMultiGraph("fMG","History of Measurements");
-//    fMG->GetXaxis()->SetTimeDisplay(1); TODO needs actual graph to get axis
-//    fMG->GetXaxis()->SetTimeOffset(1);
-    //fMG->GetXaxis()->SetTimeFormat();
     for (i=0; i<4; i++) {
         fGraph[i] = new TGraph();
         fGraph[i]->SetName(Form("gCh%d",i));
         fGraph[i]->SetDrawOption("AP");
-        fGraph[i]->SetMarkerColor(i+2);
-        fGraph[i]->SetMarkerStyle(i+21);
-        fGraph[i]->SetLineWidth(3);
+        fGraph[i]->SetMarkerColor(fHistColors[i]);
+        fGraph[i]->SetMarkerStyle(21);
+        fGraph[i]->SetMarkerSize(2.0);
+        fGraph[i]->SetLineWidth(0.5);
+        fGraph[i]->SetLineColor(i+12);
         fGraph[i]->SetFillStyle(0);
         fMG->Add(fGraph[i]);
     }

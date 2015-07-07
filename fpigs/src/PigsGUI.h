@@ -26,6 +26,7 @@
 #include <TThread.h>
 #include <TString.h>
 #include <TTimeStamp.h>
+#include <TColor.h>
 #include <TApplication.h>
 #include <Riostream.h>
 
@@ -101,6 +102,7 @@ private:
 
     Float_t fScaleFactor[4];            // scaling of the integral
 
+    static const int32_t fHistColors[4];
     static const int32_t fGUIsizeX    = 1200;
     static const int32_t fGUIsizeY    = 1000;
     static const int32_t fVerbose = 1;  // verbosity level settings
