@@ -56,6 +56,7 @@ int PigsGUI::RunAcquisition() {
     // Runs acquisition as a loop
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int ret=0;
+    fStopDAQ->SetState(kButtonUp);
     fStartDAQ->SetState(kButtonDown);
     keepAcquiring = kTRUE;
     while(keepAcquiring) {                      // Acquisition loop
@@ -74,12 +75,6 @@ int PigsGUI::RunAcquisition() {
             ev->goodCounts= daq->getGoodCounts();
             ev->totCounts = daq->getTotCounts();
             ev->countsPerSecond = daq->getCountsPerSecond();
-//            storage->getE()->spectrum  = daq->getCurrHist();   // save current measurement
-//            storage->getE()->realTime  = daq->getRealTime();
-//            storage->getE()->deadTime  = daq->getDeadTime();
-//            storage->getE()->goodCounts= daq->getGoodCounts();
-//            storage->getE()->totCounts = daq->getTotCounts();
-//            storage->getE()->countsPerSecond = daq->getCountsPerSecond();
             storage->getTree()->Fill();
             UpdateHistory();                     // Updates the history & average tabs
         }
@@ -118,6 +113,7 @@ int PigsGUI::RunSingleAcquisition() {
         storage->getTree()->Fill();
         UpdateHistory();                     // Updates the history & average tabs
     }
+    storage->getTree()->Write();
     fHCurrHProgressBar->SetPosition(1);
     fStartDAQ->SetState(kButtonUp);
     return ret;
@@ -142,14 +138,16 @@ void PigsGUI::UpdateHistory() {
     if(fVerbose>1) cout << __PRETTY_FUNCTION__ << "totalEntries: " << totalEntries << endl;
     for (int i=0; i<9; i++) {       // loop over subcanvases
         currentEntry = totalEntries - i;
-        if(currentEntry>0) {
+        if(currentEntry>=0) {
             if(fVerbose>2) cout << __PRETTY_FUNCTION__ << "i: " << i << " entry: " << currentEntry << endl;
+            cLastNspectra->GetPad(i+1)->Clear();
             cLastNspectra->GetPad(i+1)->cd();
             storage->getTree()->GetEntry(currentEntry);
-            storage->getE()->spectrum->Draw();
-            cLastNspectra->Modified();
-            cLastNspectra->Update();
-            if(i>0) fNormAvgH->Add(storage->getE()->spectrum);
+//            storage->getE()->spectrum->Draw();
+            ev->spectrum->DrawClone();
+            cLastNspectra->GetPad(i+1)->Modified();
+            cLastNspectra->GetPad(i+1)->Update();
+            if(i>0) fNormAvgH->Add(ev->spectrum);
         }
     }
     fNormAvgH->Scale(1.0/fNormAvgH->Integral()); // Histogram normalization
@@ -201,7 +199,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "        Single Channel Version\n"
 "\n"
 "  by Ondrej Chvala <ochvala@utk.edu>\n"
-"       version 0.05, June 2015\n"
+"       version 0.06, July 2015\n"
 "  https://github.com/ondrejch/DAQ-DT5781\n"
 "                GNU/GPL";
 
@@ -250,7 +248,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fStopDAQ->MoveResize(fGUIsizeX-50-90,fGUIsizeY-30,90,25);
     gClient->GetColorByName("red", fColor);
     fStopDAQ->ChangeBackground(fColor);
-//    fStopDAQ->SetState(kButtonDisabled);
+    fStopDAQ->SetState(kButtonDisabled);
     fStopDAQ->Connect("Clicked()","PigsGUI",this,"StopAcquisition()");
 
     fExitDAQ = new TGTextButton(fMainGUIFrame, "Exit DAQ");        // exit DAQ
