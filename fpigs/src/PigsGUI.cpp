@@ -58,12 +58,18 @@ int32_t PigsGUI::RunAcquisition() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int32_t ret=0;
     int32_t ch;
+    Float_t currentAcqTime  = -2.0;     // used to check if we need to reconfigure channels
+    Float_t previousAcqTime = -1.0;
     fStartDAQ->SetState(kButtonDown);
     fStopDAQ->SetState(kButtonUp);
     keepAcquiring = kTRUE;
     while(keepAcquiring) {                      // Acquisition loop
-        for (ch=0; ch<4;ch++) ret += daq->ConfigureChannel(ch); // TODO Ideally this should only be called if acquisition parameters changed
-        ret += daq->AcquisitionSingleLoop();
+        currentAcqTime  = daq->GetAcquisitionLoopTime();
+        if(currentAcqTime != previousAcqTime) { // Acquisition time changed, reconfigure channels
+            for (ch=0; ch<4;ch++) ret += daq->ConfigureChannel(ch);
+            previousAcqTime = currentAcqTime;
+        }
+        ret += daq->AcquisitionSingleLoop();    // Run data acquisition
         if(!ret) {
             daq->RefreshCurrHist();             // transfer data to TH1D
             for (ch=0; ch<4;ch++) {
@@ -229,7 +235,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     year = month = day = hour = min = sec = 0;
     fAcqThread = 0;
     keepAcquiring = kFALSE;
-    const int32_t fHistColors[] = { kRed+1, kBlue+1, kGreen+1, kMagenta+1 };
+    const int32_t fHistColors[] = { kMagenta+1, kGreen+1, kBlue+1, kRed+1 };
     fAboutMsg = (char*)
 "       _____  _____  ______ _______\n"
 "      |_____]   |   |  ____ |______\n"
@@ -336,7 +342,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     Int_t wfLastNspectra = fLastMeas->GetCanvasWindowId();
     cLastMeas = new TCanvas("cLastMeas", 10, 10, wfLastNspectra);
     fLastMeas->AdoptCanvas(cLastMeas);
-    fMG = new TMultiGraph("fMG","History of Measurements");
+    fMG = new TMultiGraph("fMG","");
     for (i=0; i<4; i++) {
         fGraph[i] = new TGraph();
         fGraph[i]->SetName(Form("gCh%d",i));
