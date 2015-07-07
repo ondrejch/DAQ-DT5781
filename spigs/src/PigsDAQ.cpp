@@ -325,6 +325,7 @@ int32_t PigsDAQ::RefreshCurrHist() {
         for (int32_t i=0; i < h1NBins; i++) { // copy over data from h1
             fCurrHist->SetBinContent(i+1,h1[i]);
         }
+        fCurrHist->SetEntries(goodCounts);
         return 0;
     } else {
         std::cerr << "Error creating fCurrHist!" << std::endl;
