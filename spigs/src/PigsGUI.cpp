@@ -80,7 +80,7 @@ int PigsGUI::RunAcquisition() {
         }
         fHCurrHProgressBar->SetPosition(1);
     }
-    storage->getTree()->Write();
+    storage->getTree()->Write();                // Writes are fast, acquisition takes a long time, but in principle this is not necessary
     fStartDAQ->SetState(kButtonUp);
     fStopDAQ->SetState(kButtonUp);
     return ret;
@@ -113,7 +113,6 @@ int PigsGUI::RunSingleAcquisition() {
         storage->getTree()->Fill();
         UpdateHistory();                     // Updates the history & average tabs
     }
-    storage->getTree()->Write();
     fHCurrHProgressBar->SetPosition(1);
     fStartDAQ->SetState(kButtonUp);
     return ret;
@@ -140,10 +139,9 @@ void PigsGUI::UpdateHistory() {
         currentEntry = totalEntries - i;
         if(currentEntry>=0) {
             if(fVerbose>2) cout << __PRETTY_FUNCTION__ << "i: " << i << " entry: " << currentEntry << endl;
-            cLastNspectra->GetPad(i+1)->Clear();
+            cLastNspectra->GetPad(i+1)->Clear();    // wipes out previous DrawCloned histograms
             cLastNspectra->GetPad(i+1)->cd();
             storage->getTree()->GetEntry(currentEntry);
-//            storage->getE()->spectrum->Draw();
             ev->spectrum->DrawClone();
             cLastNspectra->GetPad(i+1)->Modified();
             cLastNspectra->GetPad(i+1)->Update();
