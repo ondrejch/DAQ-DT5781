@@ -35,7 +35,7 @@ private:
     TTree *t;                   // Tree with measurements
     PigsEvent *e;               // Measurement object
 
-    ClassDef(PigsStorage, 0);
+    ClassDef(PigsStorage, 1);
 };
 
 #endif /* PIGSSTORAGE_H_ */

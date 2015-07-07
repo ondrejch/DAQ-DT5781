@@ -24,7 +24,7 @@ public:
     unsigned int  totCounts;
     double countsPerSecond;
 
-    ClassDef(PigsEvent, 0);
+    ClassDef(PigsEvent, 1);
 };
 
 #endif /* PIGSEVENT_H_ */

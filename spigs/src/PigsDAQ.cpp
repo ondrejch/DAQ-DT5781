@@ -314,10 +314,13 @@ int32_t PigsDAQ::RefreshCurrHist() {
     fDt.GetDate(0, 0, &year, &month, &day);
     fDt.GetTime(0, 0, &hour, &min,   &sec);
     fAcqDate=Form("%04d%02d%02d %02d:%02d:%02d",year,month,day,hour,min,sec);
-    if(fCurrHist) fCurrHist->Delete();//delete fCurrHist;
-    fCurrHist = new TH1D("fCurrHist", Form("ch0: %s",fAcqDate.Data()), h1NBins, 0, h1NBins-1);
+    //if(fCurrHist) fCurrHist->Delete();//delete fCurrHist;
+    fCurrHist = new TH1D(Form("h_ch0_%04d%02d%02d_%02d%02d%02d",year,month,day,hour,min,sec),
+            Form("ch0: %s",fAcqDate.Data()), h1NBins, 0, h1NBins-1);
     fCurrHist->SetXTitle("ADC channel");
     fCurrHist->SetYTitle("Counts");
+//    fCurrHist->SetName(Form("h_ch0_%04d%02d%02d_%02d%02d%02d",year,month,day,hour,min,sec));
+    //fCurrHist->SetDirectory(0); // prevent writing it itno the file
     if(fCurrHist) {
         for (int32_t i=0; i < h1NBins; i++) { // copy over data from h1
             fCurrHist->SetBinContent(i+1,h1[i]);

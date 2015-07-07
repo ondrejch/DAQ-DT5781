@@ -68,17 +68,18 @@ int PigsGUI::RunAcquisition() {
             cCurrHCanvas->Modified();
             cCurrHCanvas->Update();
             gSystem->ProcessEvents();
-            ev->spectrum  = daq->getCurrHist();   // save current measurement
-            ev->realTime  = daq->getRealTime();
-            ev->deadTime  = daq->getDeadTime();
-            ev->goodCounts= daq->getGoodCounts();
-            ev->totCounts = daq->getTotCounts();
-            ev->countsPerSecond = daq->getCountsPerSecond();
+            storage->getE()->spectrum  = daq->getCurrHist();   // save current measurement
+            storage->getE()->realTime  = daq->getRealTime();
+            storage->getE()->deadTime  = daq->getDeadTime();
+            storage->getE()->goodCounts= daq->getGoodCounts();
+            storage->getE()->totCounts = daq->getTotCounts();
+            storage->getE()->countsPerSecond = daq->getCountsPerSecond();
             storage->getTree()->Fill();
             UpdateHistory();                     // Updates the history & average tabs
         }
         fHCurrHProgressBar->SetPosition(1);
     }
+    storage->getTree()->Write();
     fStartDAQ->SetState(kButtonUp);
     fStopDAQ->SetState(kButtonUp);
     return ret;
