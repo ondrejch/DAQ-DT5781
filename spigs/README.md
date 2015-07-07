@@ -5,7 +5,8 @@ Ondrej Chvala <ochvala@utk.edu>
 
 ABOUT:
 
-"spigs" is a single channel data acquisition system GUI for DT5781.
+Single-channel Position Indicating Gamma Sensor (S-PIGS) 
+is a single channel data acquisition system GUI for DT5781.
 It is written in C++ and uses the ROOT/C++ framework. 
 The channel parameters are optimized for an NaI scintillator. 
 
