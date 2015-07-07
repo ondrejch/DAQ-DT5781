@@ -372,6 +372,17 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     }
     fTabSum->AddFrame(fSumSpectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
+    // *** container of "Arrow" ***
+    fTabArrow = fTabHolder->AddTab("Arrow");
+    fTabArrow->SetLayoutManager(new TGVerticalLayout(fTabArrow));
+    // embedded canvas
+    fArrowECanvas = new TRootEmbeddedCanvas("ArrowHEC",fTabArrow,fGUIsizeX-10,fGUIsizeY-110);
+    Int_t wfArrowECanvas = fArrowECanvas->GetCanvasWindowId();
+    cArrowCanvas = new TCanvas("cArrowCanvas", 10, 10, wfArrowECanvas);
+    fArrowECanvas->AdoptCanvas(cArrowCanvas);
+    fTabArrow->AddFrame(fSumSpectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+
+
     // *** container of "Config" ***
     fTabConfig = fTabHolder->AddTab("Config");
     fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));

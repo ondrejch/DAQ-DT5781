@@ -27,6 +27,7 @@
 #include <TString.h>
 #include <TTimeStamp.h>
 #include <TColor.h>
+#include <TArrow.h>
 #include <TApplication.h>
 #include <Riostream.h>
 
@@ -74,6 +75,9 @@ private:
     TGCompositeFrame *fTabSum;          // container of "Sum"
     TRootEmbeddedCanvas *fSumSpectra;
     TCanvas *cSumSpectra;
+    TGCompositeFrame *fTabArrow;        // container of "Arrow"
+    TRootEmbeddedCanvas *fArrowECanvas;
+    TCanvas *cArrowCanvas;
     TGCompositeFrame *fTabConfig;       // container of "Config"
     TGGroupFrame *fControlFrame;
     TGNumberEntry *fAcqTimeEntry;
