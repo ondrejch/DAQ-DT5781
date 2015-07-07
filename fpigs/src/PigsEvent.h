@@ -29,7 +29,7 @@ public:
 
     Float_t acqTime;               // acquisition time set by DAQ
 
-    ClassDef(PigsEvent, 0);
+    ClassDef(PigsEvent, 1);
 };
 
 #endif /* PIGSEVENT_H_ */

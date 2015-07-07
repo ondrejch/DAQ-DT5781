@@ -72,13 +72,11 @@ int32_t PigsDAQ::BasicInit() {
     for (ch=0; ch<4; ch++) {
         std::cout<< "DGB " << __PRETTY_FUNCTION__<<" ** ch  " << ch<<std::endl;
         h[ch] = new uint32_t[MAX_HISTO_NBINS];
-//        h[ch] = (uint32_t *)calloc(MAX_HISTO_NBINS, sizeof(uint32_t));
         if (h[ch] == 0) {
             std::cerr<<__PRETTY_FUNCTION__<<" Cannot allocate h1"<<std::endl;
             throw std::bad_alloc();
         }
     }
-//    std::cout<< "DGB " << __PRETTY_FUNCTION__<<" ** over **  " << ch<<std::endl;
     return fErrCode;
 }
 
@@ -215,37 +213,6 @@ int32_t PigsDAQ::StopAcquisition(int32_t ch) {
     return fErrCode;
 }
 
-/*void *PigsDAQ::CleanAcqThread(void *arg ) {
-    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    if(fAcqThread) {
-        TThread::Delete(fAcqThread);
-        delete fAcqThread;
-        if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " Thread deleted " << std::endl;
-        fAcqThread = 0;
-        if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " Thread zeroed " << std::endl;
-    }
-    return arg;
-};*/
-
-/*int32_t PigsDAQ::ThreadAcqSingleLoop() {
-    // Runs AcquisitionSingleLoop() in a separate thread
-    void *arg;
-    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    if(!fAcqThread) {
-        fAcqThread = new TThread("AcqThread0",
-                (void(*)(void *))AcquisitionSingleLoop(),(void*) this);
-        fAcqThread->CleanUpPush(CleanAcqThread(arg), arg);
-        fAcqThread->Run();
-        if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " Thread runs!"<< std::endl;
-        return 0;
-    } else {
-        std::cerr << "Thread already exists!" << std::endl;
-    }
-    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " Thread exit"<< std::endl;
-    return 1;
-}*/
-
-
 void PigsDAQ::SetAcquisitionLoopTime(Float_t sec) {
     // Sets how long the DAQ runs, Float_t seconds to uint ns.
     StopCriteriaValue =  (uint64_t)1000000000L*sec;               // [ns] Run for  10 seconds
@@ -254,9 +221,9 @@ void PigsDAQ::SetAcquisitionLoopTime(Float_t sec) {
 }
 
 Float_t PigsDAQ::GetAcquisitionLoopTime() const {
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     return (Float_t) (StopCriteriaValue/1000000000L);
 }
-
 
 int32_t PigsDAQ::AcquisitionSingleLoop() {
     // Currently does only one cycle in the loop...
@@ -268,7 +235,6 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
     for (ch=0; ch<4; ch++) {
         totCounts[ch] = 0; realTime[ch] = 0; deadTime[ch] = 0;
         countsPerSecond[ch] = 0;
-
     }
 
     // Clear histogram on all channels
@@ -309,7 +275,7 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
         for (ch=0; ch<4; ch++) {
             CAENDPP_IsChannelAcquiring(handle, ch, &checkAcquiring[ch]);
             keepGoing += checkAcquiring[ch];
-            if(fVerbose>0) printf("  -- %5.2f %%, ch %d acq status %d\n", pctProgress, ch, checkAcquiring[ch]);
+            if(fVerbose>3) printf("  -- %5.2f %%, ch %d acq status %d\n", pctProgress, ch, checkAcquiring[ch]);
         }
         pctProgress += pctIncrement;
         if(pctProgress > 200.0) {       // taking data too long, something is fishy
@@ -353,14 +319,15 @@ int32_t PigsDAQ::RefreshCurrHist() {
     fDt.GetTime(0, 0, &hour, &min,   &sec);
     fAcqDate=Form("%04d%02d%02d %02d:%02d:%02d",year,month,day,hour,min,sec);
     for(ch=0; ch<4; ch++) {
-        if(fCurrHist[ch]) fCurrHist[ch]->Delete();//delete fCurrHist;
-        fCurrHist[ch] = new TH1D(Form("fCurrHist%d",ch), Form("ch%d: %s",ch, fAcqDate.Data()), hNBins[ch], 0, hNBins[ch]-1);
+        fCurrHist[ch] = new TH1D(Form("h_ch%d_%04d%02d%02d_%02d%02d%02d",ch,year,month,day,hour,min,sec),
+                Form("ch%d: %s",ch, fAcqDate.Data()), hNBins[ch], 0, hNBins[ch]-1);
         fCurrHist[ch]->SetXTitle("ADC channel");
         fCurrHist[ch]->SetYTitle("Counts");
         if(fCurrHist[ch]) {
             for (int32_t i=0; i < hNBins[ch]; i++) { // copy over data from h1
                 fCurrHist[ch]->SetBinContent(i+1,h[ch][i]);
             }
+            fCurrHist[ch]->SetEntries(goodCounts[ch]); // fix number of entries
         } else {
             std::cerr << "Error creating fCurrHist for channel " << ch << std::endl;
             return 999;

@@ -85,6 +85,7 @@ int32_t PigsGUI::RunAcquisition() {
         }
         fHCurrHProgressBar->SetPosition(1);
     }
+    storage->getTree()->Write();
     fStartDAQ->SetState(kButtonUp);
     fStopDAQ->SetState(kButtonUp);
     return ret;
@@ -203,7 +204,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "         Four Channel Version\n"
 "\n"
 "  by Ondrej Chvala <ochvala@utk.edu>\n"
-"       version 0.05, June 2015\n"
+"       version 0.06, July 2015\n"
 "  https://github.com/ondrejch/DAQ-DT5781\n"
 "                GNU/GPL";
 
@@ -241,7 +242,6 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     gClient->GetColorByName("green", fColor);
     fStartDAQ->ChangeBackground(fColor);
     fStartDAQ->SetState(kButtonDisabled);
-//    fStartDAQ->Connect("Clicked()","PigsGUI",this,"RunSingleAcquisition()");
     fStartDAQ->Connect("Clicked()","PigsGUI",this,"RunAcquisition()");
 
     fStopDAQ = new TGTextButton(fMainGUIFrame, "Stop DAQ");        // stop DAQ
@@ -252,7 +252,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fStopDAQ->MoveResize(fGUIsizeX-50-90,fGUIsizeY-30,90,25);
     gClient->GetColorByName("red", fColor);
     fStopDAQ->ChangeBackground(fColor);
-//    fStopDAQ->SetState(kButtonDisabled);
+    fStopDAQ->SetState(kButtonDisabled);
     fStopDAQ->Connect("Clicked()","PigsGUI",this,"StopAcquisition()");
 
     fExitDAQ = new TGTextButton(fMainGUIFrame, "Exit DAQ");        // exit DAQ
