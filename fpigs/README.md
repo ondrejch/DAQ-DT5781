@@ -5,7 +5,8 @@ Ondrej Chvala <ochvala@utk.edu>
 
 ABOUT:
 
-"F-PIGS" is a Four channel data acquisition system GUI for DT5781.
+Four-channel Position Indicating Gamma Sensor (F-PIGS) 
+is a data acquisition system GUI for DT5781.
 It is written in C++ and uses the ROOT/C++ framework. 
 The channel parameters are optimized for an NaI scintillator. 
 

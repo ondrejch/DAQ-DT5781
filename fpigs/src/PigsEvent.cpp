@@ -19,9 +19,10 @@ PigsEvent::PigsEvent() {
         totCounts[i] = 0;
         countsPerSecond[i] = 0;
         scaleFactor[i] = 0;
-        energySum[i] = 0;
+        detectorResponse[i] = 0;
     }
     acqTime = 0;
+    arrowAngle = 0;
 }
 
 PigsEvent::~PigsEvent() {

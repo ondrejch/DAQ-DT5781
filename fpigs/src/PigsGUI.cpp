@@ -69,15 +69,17 @@ int32_t PigsGUI::RunAcquisition() {
                 cCurrHCanvas->GetPad(ch+1)->cd();
                 daq->getCurrHist(ch)->Draw();         // plot latest TH1D
                 cCurrHCanvas->GetPad(ch+1)->Update();
-                ev->spectrum[ch]  = daq->getCurrHist(ch);   // save current measurement
-                ev->realTime[ch]  = daq->getRealTime(ch);
-                ev->deadTime[ch]  = daq->getDeadTime(ch);
-                ev->goodCounts[ch]= daq->getGoodCounts(ch);
-                ev->totCounts[ch] = daq->getTotCounts(ch);
+                ev->spectrum[ch]        = daq->getCurrHist(ch);   // save current measurement
+                ev->realTime[ch]        = daq->getRealTime(ch);
+                ev->deadTime[ch]        = daq->getDeadTime(ch);
+                ev->goodCounts[ch]      = daq->getGoodCounts(ch);
+                ev->totCounts[ch]       = daq->getTotCounts(ch);
+                ev->scaleFactor[ch]     = fScaleFactor[ch];
                 ev->countsPerSecond[ch] = daq->getCountsPerSecond(ch);
-                // TODO energy integration
+                ev->detectorResponse[ch]= this->CalcResponseV1(ch);     // detector response
             }
             ev->acqTime = daq->GetAcquisitionLoopTime();
+            ev->arrowAngle = -1.0;               // TODO calculate arrow angle
             gSystem->ProcessEvents();
             cCurrHCanvas->Modified();
             storage->getTree()->Fill();
@@ -91,41 +93,6 @@ int32_t PigsGUI::RunAcquisition() {
     return ret;
 }
 
-int32_t PigsGUI::RunSingleAcquisition() {
-    // Runs one acquisition loop
-    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    std::cerr << "Not implemented in F-PIGS \n" << std::endl;     // TODO if needed?
-    return 999;
-/*
-    int32_t ret=0;
-    ret = daq->ConfigureChannel(0);
-    fStartDAQ->SetState(kButtonDown);
-    ret = daq->AcquisitionSingleLoop();
-//    fAcqThread = new TThread("AcqThread",(void(*)(void *))daq->AcquisitionSingleLoop(), (void*) 0);
-//    fAcqThread->Run();
-
-    if(!ret) {
-        daq->RefreshCurrHist();             // transfer data to TH1D
-        cCurrHCanvas->cd();
-        daq->getCurrHist()->Draw();         // plot latest TH1D
-        cCurrHCanvas->Modified();
-        cCurrHCanvas->Update();
-        gSystem->ProcessEvents();
-
-        ev->spectrum  = daq->getCurrHist();   // save current measurement
-        ev->realTime  = daq->getRealTime();
-        ev->deadTime  = daq->getDeadTime();
-        ev->goodCounts= daq->getGoodCounts();
-        ev->totCounts = daq->getTotCounts();
-        ev->countsPerSecond = daq->getCountsPerSecond();
-        storage->getTree()->Fill();
-        UpdateHistory();                     // Updates the history & average tabs
-    }
-    fHCurrHProgressBar->SetPosition(1);
-    fStartDAQ->SetState(kButtonUp);
-    return ret;*/
-}
-
 void PigsGUI::SetAcquisitionLoopTime() {
     // Changes the acquisition time
     if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- val: " <<
@@ -135,31 +102,86 @@ void PigsGUI::SetAcquisitionLoopTime() {
     }
 }
 
-void PigsGUI::UpdateHistory() {
-    // Updates the history and average tabs
+// Channel gain settings - one may write this more neatly has we have more time...
+void PigsGUI::SetGainScalerCh0() {
+    // Changes the scaler gain
+    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- gain: " <<
+            fScalerInput[0]->GetEntry()->GetNumber() << std::endl;
+    fScaleFactor[0] = fScalerInput[0]->GetEntry()->GetNumber();
+}
+
+void PigsGUI::SetGainScalerCh1() {
+    // Changes the scaler gain
+    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- gain: " <<
+            fScalerInput[1]->GetEntry()->GetNumber() << std::endl;
+    fScaleFactor[1] = fScalerInput[1]->GetEntry()->GetNumber();
+}
+
+void PigsGUI::SetGainScalerCh2() {
+    // Changes the scaler gain
+    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- gain: " <<
+            fScalerInput[2]->GetEntry()->GetNumber() << std::endl;
+    fScaleFactor[2] = fScalerInput[2]->GetEntry()->GetNumber();
+}
+
+void PigsGUI::SetGainScalerCh3() {
+    // Changes the scaler gain
+    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- gain: " <<
+            fScalerInput[3]->GetEntry()->GetNumber() << std::endl;
+    fScaleFactor[3] = fScalerInput[3]->GetEntry()->GetNumber();
+}
+
+
+Float_t PigsGUI::CalcResponseV1(int32_t ch) {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-/*    Long64_t totalEntries = storage->getTree()->GetEntries();
+    if(daq)
+        return fScaleFactor[ch]*daq->getGoodCounts(ch);
+    else
+        return 0;
+}
+
+Float_t PigsGUI::CalcResponseV2(int32_t ch) {
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl; // TODO needs integration limits and energy integrating function
+    std::cerr<< "Not implemented yet" << std::endl;
+    return -1.0;
+}
+
+void PigsGUI::UpdateHistory() {
+    // Updates the history tab
+    int32_t ch;
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;   // TODO implement graph
+    Long64_t totalEntries = storage->getTree()->GetEntries();
+//    daq->getTimeStamp().GetDate(0, 0, &year, &month, &day);
+//    daq->getTimeStamp().GetTime(0, 0, &hour, &min,   &sec);
+    for(ch=0; ch<4; ch++) {
+        fGraph[ch]->SetPoint(fGraph[ch]->GetN(),daq->getTimeStamp().GetSec(), ev->detectorResponse[ch]);
+    }
+    cLastMeas->cd();
+    fMG->Draw("AP");
+    cLastMeas->Modified();
+
+    // update the average tab
     Long64_t currentEntry = -1;
-    if(fNormAvgH) fNormAvgH->Delete();
-    fNormAvgH = (TH1D*) daq->getCurrHist()->Clone();
+    for(ch=0; ch<4; ch++) {               // averages
+        if(fNormAvgH[ch]) fNormAvgH[ch]->Delete();
+        fNormAvgH[ch] = (TH1D*) daq->getCurrHist(ch)->Clone();
+    }
     if(fVerbose>1) cout << __PRETTY_FUNCTION__ << "totalEntries: " << totalEntries << endl;
-    for (int32_t i=0; i<9; i++) {       // loop over subcanvases
+    for (int32_t i=0; i<10; i++) {       // loop over last 10 measurements
         currentEntry = totalEntries - i;
-        if(currentEntry>0) {
+        if(currentEntry >=0 ) {
             if(fVerbose>2) cout << __PRETTY_FUNCTION__ << "i: " << i << " entry: " << currentEntry << endl;
-            cLastNspectra->GetPad(i+1)->cd();
             storage->getTree()->GetEntry(currentEntry);
-            storage->getE()->spectrum->Draw();
-            cLastNspectra->Modified();
-            cLastNspectra->Update();
-            if(i>0) fNormAvgH->Add(storage->getE()->spectrum);
+            for(ch=0;ch<4;ch++) if(i>0) fNormAvgH[ch]->Add(storage->getE()->spectrum[ch]);
         }
     }
-    fNormAvgH->Scale(1.0/fNormAvgH->Integral()); // Histogram normalization
-    cSumSpectra->cd();
-    fNormAvgH->Draw();
+    for(ch=0; ch<4; ch++) {               // plot the normalized average
+        fNormAvgH[ch]->Scale(1.0/fNormAvgH[ch]->Integral()); // Histogram normalization
+        cSumSpectra->GetPad(ch+1)->cd();
+        fNormAvgH[ch]->Draw();
+        cSumSpectra->GetPad(ch+1)->Update();
+    }
     cSumSpectra->Modified();
-    cSumSpectra->Update();*/
 }
 
 int32_t PigsGUI::HardStopAcquisition() {
@@ -188,10 +210,9 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
 PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // Creates the GUI
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+    daq = 0; storage = 0; ev = 0;               // init local variables
     year = month = day = hour = min = sec = 0;
-    daq = 0; storage = 0; ev = 0;
     fAcqThread = 0;
-    fNormAvgH = 0;
     keepAcquiring = kFALSE;
     fAboutMsg = (char*)
 "       _____  _____  ______ _______\n"
@@ -204,9 +225,14 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "         Four Channel Version\n"
 "\n"
 "  by Ondrej Chvala <ochvala@utk.edu>\n"
-"       version 0.06, July 2015\n"
+"       version 0.061, July 2015\n"
 "  https://github.com/ondrejch/DAQ-DT5781\n"
 "                GNU/GPL";
+    int32_t i = 0; // helper variable
+    for (i=0; i<4; i++) {
+        fScaleFactor[i] = 1.0;
+        fNormAvgH[i] = 0;
+    }
 
     // *** Main GUI window ***
     fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
@@ -290,12 +316,26 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fTabHisto = fTabHolder->AddTab("History");
     fTabHisto->SetLayoutManager(new TGVerticalLayout(fTabHisto));
     // embedded canvas
-    fLastNspectra = new TRootEmbeddedCanvas("HistoryHEC",fTabHisto,fGUIsizeX-10,fGUIsizeY-110);
-    Int_t wfLastNspectra = fLastNspectra->GetCanvasWindowId();
-    cLastNspectra = new TCanvas("cLastNspectra", 10, 10, wfLastNspectra);
-    fLastNspectra->AdoptCanvas(cLastNspectra);
+    fLastMeas = new TRootEmbeddedCanvas("HistoryHEC",fTabHisto,fGUIsizeX-10,fGUIsizeY-110);
+    Int_t wfLastNspectra = fLastMeas->GetCanvasWindowId();
+    cLastMeas = new TCanvas("cLastMeas", 10, 10, wfLastNspectra);
+    fLastMeas->AdoptCanvas(cLastMeas);
     //cLastNspectra->Divide(3,3); TODO TGraph instead?
-    fTabHisto->AddFrame(fLastNspectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+    fMG = new TMultiGraph("fMG","History of Measurements");
+//    fMG->GetXaxis()->SetTimeDisplay(1); TODO needs actual graph to get axis
+//    fMG->GetXaxis()->SetTimeOffset(1);
+    //fMG->GetXaxis()->SetTimeFormat();
+    for (i=0; i<4; i++) {
+        fGraph[i] = new TGraph();
+        fGraph[i]->SetName(Form("gCh%d",i));
+        fGraph[i]->SetDrawOption("AP");
+        fGraph[i]->SetMarkerColor(i+2);
+        fGraph[i]->SetMarkerStyle(i+21);
+        fGraph[i]->SetLineWidth(3);
+        fGraph[i]->SetFillStyle(0);
+        fMG->Add(fGraph[i]);
+    }
+    fTabHisto->AddFrame(fLastMeas, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
     // *** container of "Sum" ***
     fTabSum = fTabHolder->AddTab("Sum");
@@ -306,27 +346,37 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     cSumSpectra = new TCanvas("cSumSpectra", 10, 10, wfSumSpectra);
     fSumSpectra->AdoptCanvas(cSumSpectra);
     cSumSpectra->Divide(2,2);
-    int8_t ic;
-    for (ic=1; ic<5; ic++) {
-        cSumSpectra->GetPad(ic)->SetLogx();
-        cSumSpectra->GetPad(ic)->SetLogy();
+    for (i=1; i<5; i++) {
+        cSumSpectra->GetPad(i)->SetLogx();
+        cSumSpectra->GetPad(i)->SetLogy();
     }
     fTabSum->AddFrame(fSumSpectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
     // *** container of "Config" ***
     fTabConfig = fTabHolder->AddTab("Config");
     fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
+    // Acquisition time settings
     fControlFrame = new TGGroupFrame(fTabConfig, "Acquisition time [sec]");
     fControlFrame->SetTitlePos(TGGroupFrame::kCenter);
-    fAcqTimeEntry = new TGNumberEntry(fControlFrame, (Double_t) 10.0 ,5,-1,(TGNumberFormat::EStyle) 1,
-            (TGNumberFormat::EAttribute) 2,(TGNumberFormat::ELimit) 2, 0.1, 600);
-    (fAcqTimeEntry->GetNumberEntry())->Connect("TextChanged(char*)", "PigsGUI", this,
+    fAcqTimeEntry = new TGNumberEntry(fControlFrame, (Double_t) 10.0 ,5,-1, TGNumberFormat::kNESRealOne,
+            TGNumberFormat::kNEAPositive,TGNumberFormat::kNELLimitMinMax, 0.1, 600);
+    fAcqTimeEntry->GetNumberEntry()->Connect("TextChanged(char*)", "PigsGUI", this,
             "SetAcquisitionLoopTime()");
-    (fAcqTimeEntry->GetNumberEntry())->Connect("ReturnPressed()", "PigsGUI", this,
+    fAcqTimeEntry->GetNumberEntry()->Connect("ReturnPressed()", "PigsGUI", this,
             "SetAcquisitionLoopTime()");
     fControlFrame->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
-    fTabConfig->AddFrame(fControlFrame, new TGLayoutHints(kLHintsNormal, 20, 20, 20, 20));
+    fTabConfig->AddFrame(fControlFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));
     fAcqTimeEntry->SetState(0);
+    // Scale Factor setting
+    fScalerFrame = new TGGroupFrame(fTabConfig, "Channel Gain Compensation");
+    fScalerFrame->SetTitlePos(TGGroupFrame::kCenter);
+    for (i=0; i<4; i++){
+        fScalerInput[i] = new PigsScalerInput(fScalerFrame, Form("ch %d scaling", i));
+        fScalerInput[i]->GetEntry()->Connect("TextChanged(char*)", "PigsGUI", this, Form("SetGainScalerCh%d()",i));
+        fScalerFrame->AddFrame(fScalerInput[i], new TGLayoutHints(kLHintsNormal, 0, 0, 2, 2));
+    }
+    fTabConfig->AddFrame(fScalerFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));
+
 
     // *** container of "DT5781" ***
     fTabDT5781 = fTabHolder->AddTab("DT5781");

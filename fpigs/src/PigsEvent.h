@@ -24,12 +24,13 @@ public:
     uint32_t totCounts[4];
     uint32_t goodCounts[4];
     Float_t countsPerSecond[4];
-    Float_t scaleFactor[4];        // scaling of the integral
-    Float_t energySum[4];
+    Float_t scaleFactor[4];         // scaling of the integral
+    Float_t detectorResponse[4];    // signals used to calculate the arrow pointing angle
 
-    Float_t acqTime;               // acquisition time set by DAQ
+    Float_t acqTime;                // acquisition time set by DAQ
+    Float_t arrowAngle;
 
-    ClassDef(PigsEvent, 1);
+    ClassDef(PigsEvent, 1)
 };
 
 #endif /* PIGSEVENT_H_ */

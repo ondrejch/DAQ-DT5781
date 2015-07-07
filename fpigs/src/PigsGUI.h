@@ -21,6 +21,8 @@
 #include <TGTextView.h>
 #include <TGNumberEntry.h>
 #include <TH1D.h>
+#include <TMultiGraph.h>
+#include <TGraph.h>
 #include <TThread.h>
 #include <TString.h>
 #include <TTimeStamp.h>
@@ -33,6 +35,7 @@
 #include <PigsDAQ.h>
 
 class PigsDAQ;
+class PigsScalerInput;
 
 class PigsGUI : public TGMainFrame  {
 public:
@@ -40,12 +43,17 @@ public:
     ~PigsGUI();                         // Ends DAQ, DPP, GUI
     int32_t InitDAQ();                      // Initialization of the PigsDAQ object, DPP library, DAQ config
     int32_t DisconnectDAQ();                // Ends connection to the DPP library
-    int32_t RunSingleAcquisition();         // Runs one acquisition loop
     int32_t RunAcquisition();               // Loop acquisition
     int32_t StopAcquisition();              // Stops acquisition loop
     int32_t HardStopAcquisition();          // Stops acquisition on channel 0
     void SetAcquisitionLoopTime();                     // Changes acquisition time using GUI
     void SetProgressBarPosition(Float_t fposition);    // Set the position of the progress bar
+    Float_t CalcResponseV1(int32_t ch);     // Simple response function that returns scaled number of counts
+    Float_t CalcResponseV2(int32_t ch);     // Detector response function using energy integrals
+    void SetGainScalerCh0();                   // Changes scaler gain using GUI
+    void SetGainScalerCh1();                   // Changes scaler gain using GUI
+    void SetGainScalerCh2();                   // Changes scaler gain using GUI
+    void SetGainScalerCh3();                   // Changes scaler gain using GUI
 
 private:
     void UpdateHistory();
@@ -58,14 +66,19 @@ private:
     TCanvas *cCurrHCanvas;
     TGHProgressBar *fHCurrHProgressBar;
     TGCompositeFrame *fTabHisto;        // container of "History"
-    TRootEmbeddedCanvas *fLastNspectra;
-    TCanvas *cLastNspectra;
+    TRootEmbeddedCanvas *fLastMeas;
+    TMultiGraph *fMG;
+    TGraph *fGraph[4];
+    TCanvas *cLastMeas;
     TGCompositeFrame *fTabSum;          // container of "Sum"
     TRootEmbeddedCanvas *fSumSpectra;
     TCanvas *cSumSpectra;
     TGCompositeFrame *fTabConfig;       // container of "Config"
     TGGroupFrame *fControlFrame;
     TGNumberEntry *fAcqTimeEntry;
+    TGGroupFrame *fScalerFrame;
+    PigsScalerInput *fScalerInput[4];
+
     TGCompositeFrame *fTabDT5781;       // container of "DT5781"
     TGTextView *fDTinfo;
     TGTextButton *fInitDAQ, *fDisconnectDAQ;  // buttons
@@ -80,18 +93,42 @@ private:
     PigsDAQ *daq;                       // DAQ pointer
     PigsStorage *storage;               // Data storage
     PigsEvent *ev;                      // Event buffer used to fill the storage
-    TH1D *fNormAvgH;                    // Normalized average of last 9 measurements
+    TH1D *fNormAvgH[4];                    // Normalized average of last 9 measurements
     Bool_t keepAcquiring;               // Flag if we should continue loop
 
     TTimeStamp fDateTime;               // Current date for file name
     UInt_t year, month, day, hour, min, sec;
+
+    Float_t fScaleFactor[4];            // scaling of the integral
 
     static const int32_t fGUIsizeX    = 1200;
     static const int32_t fGUIsizeY    = 1000;
     static const int32_t fVerbose = 1;  // verbosity level settings
     const char *fAboutMsg;
 
-    ClassDef(PigsGUI, 0);
+    ClassDef(PigsGUI, 0)
+};
+
+//----------------------------------------------------------------------------
+
+class PigsScalerInput : public TGHorizontalFrame {
+// Auxiliary class for scaler value input
+protected:
+   TGNumberEntry *fEntry;
+   static const Float_t fScalerMin = 0.5;
+   static const Float_t fScalerMax = 2.0;
+
+public:
+   PigsScalerInput(const TGWindow *p, const char *name) : TGHorizontalFrame(p)  {
+      fEntry = new TGNumberEntry(this, 1.0, 5, -1, TGNumberFormat::kNESRealThree,
+              TGNumberFormat::kNEAPositive,TGNumberFormat::kNELLimitMinMax, fScalerMin, fScalerMax);
+      AddFrame(fEntry, new TGLayoutHints(kLHintsLeft));
+      TGLabel *label = new TGLabel(this, name);
+      AddFrame(label, new TGLayoutHints(kLHintsLeft, 10));
+   }
+   TGNumberEntryField *GetEntry() const { return fEntry->GetNumberEntry(); }
+
+   ClassDef(PigsScalerInput, 0)
 };
 
 #endif /* PIGSGUI_H_ */

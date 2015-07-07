@@ -97,6 +97,7 @@ public:
     PigsGUI *getGUI() const;
     void setGUI(PigsGUI *gui);
     const char *getBoardInfo() const;
+    const TTimeStamp& getTimeStamp() const;
 
 protected:
     static PigsDAQ * instance;

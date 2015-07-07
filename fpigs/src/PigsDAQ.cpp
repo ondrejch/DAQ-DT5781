@@ -614,6 +614,7 @@ uint32_t PigsDAQ::getTotCounts(int32_t ch) const          { return totCounts[ch]
 uint32_t PigsDAQ::getGoodCounts(int32_t ch) const         { return goodCounts[ch]; }
 PigsGUI  *PigsDAQ::getGUI() const                { return gui; }
 const char *PigsDAQ::getBoardInfo() const        { return fBoardInfo.Data();  }
+const TTimeStamp& PigsDAQ::getTimeStamp() const  { return fDt; }
 
 CAENDPP_StopCriteria_t PigsDAQ::getStopCriteria() const {
     return StopCriteria;
