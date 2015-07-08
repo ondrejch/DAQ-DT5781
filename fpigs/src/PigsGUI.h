@@ -59,6 +59,7 @@ public:
     void SetGainScalerCh3();                // Changes scaler gain using GUI
     void SetIntegralLimitMin();             // Changes lower limit for energy integration using GUI
     void SetIntegralLimitMax();             // Changes upper limit for energy integration using GUI
+    void ToggleUseIntegration();            // Use count sum or energy integration as detector response, set from GUI
 
 private:
     void UpdateHistory();
@@ -87,9 +88,9 @@ private:
     TGGroupFrame *fScalerFrame;
     PigsScalerInput *fScalerInput[4];
     TGGroupFrame *fIntLimFrame;
+    TGCheckButton *fUseIntegration;
     PigsIntLimInput *fIntLimInputMin;
     PigsIntLimInput *fIntLimInputMax;
-
 
     TGCompositeFrame *fTabDT5781;       // container of "DT5781"
     TGTextView *fDTinfo;
@@ -105,8 +106,9 @@ private:
     PigsDAQ *daq;                       // DAQ pointer
     PigsStorage *storage;               // Data storage
     PigsEvent *ev;                      // Event buffer used to fill the storage
-    TH1D *fNormAvgH[4];                    // Normalized average of last 9 measurements
+    TH1D *fNormAvgH[4];                 // Normalized average of last 9 measurements
     Bool_t keepAcquiring;               // Flag if we should continue loop
+    Bool_t useIntegration;              // Flag if integration is used for detector response
 
     TTimeStamp fDateTime;               // Current date for file name
     UInt_t year, month, day, hour, min, sec;

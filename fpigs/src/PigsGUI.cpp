@@ -62,6 +62,7 @@ int32_t PigsGUI::RunAcquisition() {
     Float_t previousAcqTime = -1.0;
     fStartDAQ->SetState(kButtonDown);
     fStopDAQ->SetState(kButtonUp);
+    fUseIntegration->SetState(kButtonDisabled);
     keepAcquiring = kTRUE;
     while(keepAcquiring) {                      // Acquisition loop
         currentAcqTime  = daq->GetAcquisitionLoopTime();
@@ -83,7 +84,10 @@ int32_t PigsGUI::RunAcquisition() {
                 ev->totCounts[ch]       = daq->getTotCounts(ch);
                 ev->scaleFactor[ch]     = fScaleFactor[ch];
                 ev->countsPerSecond[ch] = daq->getCountsPerSecond(ch);
-                ev->detectorResponse[ch]= this->CalcResponseV1(ch);     // detector response TODO add option to use either V1 Or V2
+                if (useIntegration)                                 // detector response
+                    ev->detectorResponse[ch]= this->CalcResponseV2(ch);
+                else
+                    ev->detectorResponse[ch]= this->CalcResponseV1(ch);
             }
             ev->acqTime = daq->GetAcquisitionLoopTime();
             ev->arrowAngle = -1.0;               // TODO calculate arrow angle
@@ -97,6 +101,7 @@ int32_t PigsGUI::RunAcquisition() {
     storage->getTree()->Write();
     fStartDAQ->SetState(kButtonUp);
     fStopDAQ->SetState(kButtonDisabled);
+    fUseIntegration->SetState(kButtonUp);
     return ret;
 }
 
@@ -161,12 +166,20 @@ Float_t PigsGUI::CalcResponseV1(int32_t ch) {
 Float_t PigsGUI::CalcResponseV2(int32_t ch) {
     // detector response which integrates captured energy
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    int32_t i;
+    int32_t ibin;
     Float_t energyIntegral = 0;
-    for (i=fIntegralMin; i<=fIntegralMax; i++) {
-        energyIntegral += ev->spectrum[ch]->GetBinContent(i);
+    for (ibin = fIntegralMin; ibin <= fIntegralMax; ibin++) {
+        energyIntegral += ev->spectrum[ch]->GetBinContent(ibin)*(Float_t)ibin;
     }
     return  fScaleFactor[ch] * energyIntegral;
+}
+
+void PigsGUI::ToggleUseIntegration() {
+    // switch energy integration method
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+    useIntegration = fUseIntegration->IsOn();
+    fIntLimInputMin->GetEntry()->SetEnabled(useIntegration);
+    fIntLimInputMax->GetEntry()->SetEnabled(useIntegration);
 }
 
 void PigsGUI::UpdateHistory() {
@@ -184,14 +197,16 @@ void PigsGUI::UpdateHistory() {
     }
     if(fGraph[0]->GetN() >= 2) {            // we have the first two data points
         cLastMeas->cd();
-        fMG->Draw("AP");
+        fMG->Draw("AQ");
         fMG->GetXaxis()->SetTimeDisplay(1);
         fMG->GetXaxis()->SetTimeOffset(1);
         fMG->GetXaxis()->SetTimeFormat("#splitline{%Y-%m-%d}{%H:%M:%S}");
         fMG->GetXaxis()->SetLabelSize(0.02);
         fMG->GetXaxis()->SetLabelOffset(0.03);
 //        fMG->GetXaxis()->SetNdivisions(508);
-        fMG->GetYaxis()->SetLabelSize(0.03);
+        fMG->GetYaxis()->SetLabelSize(0.025);
+        fMG->GetYaxis()->SetLabelOffset(0.03);
+        fMG->GetYaxis()->SetTitle("Detector response");
         fMG->Draw("APC");
         cLastMeas->Update();
         cLastMeas->Modified();
@@ -250,7 +265,8 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     daq = 0; storage = 0; ev = 0;               // init local variables
     year = month = day = hour = min = sec = 0;
     fAcqThread = 0;
-    keepAcquiring = kFALSE;
+    keepAcquiring  = kFALSE;
+    useIntegration = kTRUE;
     const int32_t fHistColors[] = { kMagenta+1, kGreen+1, kBlue+1, kRed+1 };
     fAboutMsg = (char*)
 "       _____  _____  ______ _______\n"
@@ -409,6 +425,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fControlFrame->SetTitlePos(TGGroupFrame::kCenter);
     fAcqTimeEntry = new TGNumberEntry(fControlFrame, (Double_t) 10.0 ,5,-1, TGNumberFormat::kNESRealOne,
             TGNumberFormat::kNEAPositive,TGNumberFormat::kNELLimitMinMax, 0.1, 600);
+    fAcqTimeEntry->GetNumberEntry()->SetToolTipText("Time for one DAQ loop in seconds.");
     fAcqTimeEntry->GetNumberEntry()->Connect("TextChanged(char*)", "PigsGUI", this,
             "SetAcquisitionLoopTime()");
     fAcqTimeEntry->GetNumberEntry()->Connect("ReturnPressed()", "PigsGUI", this,
@@ -417,17 +434,25 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fTabConfig->AddFrame(fControlFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));
     fAcqTimeEntry->SetState(0);
     // Scale Factor setting
-    fScalerFrame = new TGGroupFrame(fTabConfig, "Channel Gain Compensation");
+    fScalerFrame = new TGGroupFrame(fTabConfig, "Channel gain compensation");
     fScalerFrame->SetTitlePos(TGGroupFrame::kCenter);
     for (i=0; i<4; i++){
         fScalerInput[i] = new PigsScalerInput(fScalerFrame, Form("ch %d scaling", i));
         fScalerInput[i]->GetEntry()->Connect("TextChanged(char*)", "PigsGUI", this, Form("SetGainScalerCh%d()",i));
+        fScalerInput[i]->GetEntry()->SetToolTipText("Channel gain is a multiplicative factor used in detector response calculation.");
         fScalerFrame->AddFrame(fScalerInput[i], new TGLayoutHints(kLHintsNormal, 0, 0, 2, 2));
     }
     fTabConfig->AddFrame(fScalerFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));
     // Integration Limits
     fIntLimFrame = new TGGroupFrame(fTabConfig, "ADC window for integration");
     fIntLimFrame->SetTitlePos(TGGroupFrame::kCenter);
+    fUseIntegration = new TGCheckButton(fIntLimFrame, "Energy integration On/Off");
+    fUseIntegration->SetOn();
+    fUseIntegration->SetToolTipText("If enabled, the detector response is calculated by integrating "
+            "the energy deposited in ADC bins within the limits specidied below.\n"
+            "If disabled, the hit count is used as a detector response.");
+    fUseIntegration->Connect("Toggled(Bool_t)", "PigsGUI", this, "ToggleUseIntegration()");
+    fIntLimFrame->AddFrame(fUseIntegration, new TGLayoutHints(kLHintsNormal, 0, 0, 2, 2));
     fIntLimInputMin = new PigsIntLimInput(fIntLimFrame, "Lower limit");
     fIntLimInputMin->GetEntry()->SetIntNumber(fIntegralMin);
     fIntLimInputMin->GetEntry()->Connect("TextChanged(char*)", "PigsGUI", this, "SetIntegralLimitMin()");
