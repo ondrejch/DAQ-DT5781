@@ -279,7 +279,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "         Four Channel Version\n"
 "\n"
 "  by Ondrej Chvala <ochvala@utk.edu>\n"
-"       version 0.07, July 2015\n"
+"       version 0.075, July 2015\n"
 "  https://github.com/ondrejch/DAQ-DT5781\n"
 "                GNU/GPL";
     int32_t i = 0; // helper variable
