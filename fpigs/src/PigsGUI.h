@@ -28,6 +28,7 @@
 #include <TTimeStamp.h>
 #include <TColor.h>
 #include <TArrow.h>
+#include <TImage.h>
 #include <TApplication.h>
 #include <Riostream.h>
 

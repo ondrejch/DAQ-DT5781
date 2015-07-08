@@ -292,6 +292,11 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 
     // *** Main GUI window ***
     fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
+    #include "fpigsicon.xpm"
+    TImage *tmpicon = TImage::Create();
+    tmpicon->SetImageBuffer((char**)fpigsicon_xpm, TImage::kXpm);
+    gVirtualX->SetIconPixmap(fMainGUIFrame->GetId(),tmpicon->GetPixmap());
+    delete tmpicon;
     fMainGUIFrame->SetName("fMainGUIFrame");
     fMainGUIFrame->SetWindowName("F-PIGS");      // GUI window name
     fMainGUIFrame->SetLayoutBroken(kTRUE);
