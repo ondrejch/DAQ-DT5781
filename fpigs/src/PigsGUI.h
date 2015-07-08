@@ -38,6 +38,7 @@
 
 class PigsDAQ;
 class PigsScalerInput;
+class PigsIntLimInput;
 
 class PigsGUI : public TGMainFrame  {
 public:
@@ -52,10 +53,12 @@ public:
     void SetProgressBarPosition(Float_t fposition);    // Set the position of the progress bar
     Float_t CalcResponseV1(int32_t ch);     // Simple response function that returns scaled number of counts
     Float_t CalcResponseV2(int32_t ch);     // Detector response function using energy integrals
-    void SetGainScalerCh0();                   // Changes scaler gain using GUI
-    void SetGainScalerCh1();                   // Changes scaler gain using GUI
-    void SetGainScalerCh2();                   // Changes scaler gain using GUI
-    void SetGainScalerCh3();                   // Changes scaler gain using GUI
+    void SetGainScalerCh0();                // Changes scaler gain using GUI
+    void SetGainScalerCh1();                // Changes scaler gain using GUI
+    void SetGainScalerCh2();                // Changes scaler gain using GUI
+    void SetGainScalerCh3();                // Changes scaler gain using GUI
+    void SetIntegralLimitMin();             // Changes lower limit for energy integration using GUI
+    void SetIntegralLimitMax();             // Changes upper limit for energy integration using GUI
 
 private:
     void UpdateHistory();
@@ -83,6 +86,10 @@ private:
     TGNumberEntry *fAcqTimeEntry;
     TGGroupFrame *fScalerFrame;
     PigsScalerInput *fScalerInput[4];
+    TGGroupFrame *fIntLimFrame;
+    PigsIntLimInput *fIntLimInputMin;
+    PigsIntLimInput *fIntLimInputMax;
+
 
     TGCompositeFrame *fTabDT5781;       // container of "DT5781"
     TGTextView *fDTinfo;
@@ -104,7 +111,8 @@ private:
     TTimeStamp fDateTime;               // Current date for file name
     UInt_t year, month, day, hour, min, sec;
 
-    Float_t fScaleFactor[4];            // scaling of the integral
+    Float_t fScaleFactor[4];            // scaling of the detector response
+    int32_t fIntegralMin, fIntegralMax; // bin limits for integration used by CalcResponseV2
 
     static const int32_t fHistColors[4];
     static const int32_t fGUIsizeX    = 1200;
@@ -137,4 +145,22 @@ public:
    ClassDef(PigsScalerInput, 0)
 };
 
+
+class PigsIntLimInput : public TGHorizontalFrame {
+// Auxiliary class for integral limit value input
+protected:
+   TGNumberEntry *fEntry;
+
+public:
+   PigsIntLimInput(const TGWindow *p, const char *name) : TGHorizontalFrame(p)  {
+      fEntry = new TGNumberEntry(this, 1, 5, -1, TGNumberFormat::kNESInteger,
+              TGNumberFormat::kNEAPositive,TGNumberFormat::kNELLimitMinMax, 1, 16384);
+      AddFrame(fEntry, new TGLayoutHints(kLHintsLeft));
+      TGLabel *label = new TGLabel(this, name);
+      AddFrame(label, new TGLayoutHints(kLHintsLeft, 10));
+   }
+   TGNumberEntryField *GetEntry() const { return fEntry->GetNumberEntry(); }
+
+   ClassDef(PigsIntLimInput, 0)
+};
 #endif /* PIGSGUI_H_ */

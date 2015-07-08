@@ -83,7 +83,7 @@ int32_t PigsGUI::RunAcquisition() {
                 ev->totCounts[ch]       = daq->getTotCounts(ch);
                 ev->scaleFactor[ch]     = fScaleFactor[ch];
                 ev->countsPerSecond[ch] = daq->getCountsPerSecond(ch);
-                ev->detectorResponse[ch]= this->CalcResponseV1(ch);     // detector response
+                ev->detectorResponse[ch]= this->CalcResponseV1(ch);     // detector response TODO add option to use either V1 Or V2
             }
             ev->acqTime = daq->GetAcquisitionLoopTime();
             ev->arrowAngle = -1.0;               // TODO calculate arrow angle
@@ -138,25 +138,41 @@ void PigsGUI::SetGainScalerCh3() {
     fScaleFactor[3] = fScalerInput[3]->GetEntry()->GetNumber();
 }
 
+void PigsGUI::SetIntegralLimitMin() {
+    // changes lower ACD limit for energy integration
+    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- lower ACD limit: " <<
+            fIntLimInputMin->GetEntry()->GetNumber() << std::endl;
+    fIntegralMin = fIntLimInputMin->GetEntry()->GetNumber();
+}
+
+void PigsGUI::SetIntegralLimitMax() {
+    // changes upper ACD limit for energy integration
+    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- upper ACD limit: " <<
+            fIntLimInputMax->GetEntry()->GetNumber() << std::endl;
+    fIntegralMax = fIntLimInputMax->GetEntry()->GetNumber();
+}
 
 Float_t PigsGUI::CalcResponseV1(int32_t ch) {
+    // simple detector response using just number of recored counts
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    if(daq)
-        return fScaleFactor[ch]*daq->getGoodCounts(ch);
-    else
-        return 0;
+    return fScaleFactor[ch] * daq->getGoodCounts(ch);
 }
 
 Float_t PigsGUI::CalcResponseV2(int32_t ch) {
-    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl; // TODO needs integration limits and energy integrating function
-    std::cerr<< "Not implemented yet" << std::endl;
-    return -1.0;
+    // detector response which integrates captured energy
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+    int32_t i;
+    Float_t energyIntegral = 0;
+    for (i=fIntegralMin; i<=fIntegralMax; i++) {
+        energyIntegral += ev->spectrum[ch]->GetBinContent(i);
+    }
+    return  fScaleFactor[ch] * energyIntegral;
 }
 
 void PigsGUI::UpdateHistory() {
     // Updates the history tab
     int32_t ch;
-    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;   // TODO implement graph
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     Long64_t totalEntries = storage->getTree()->GetEntries();
 
     for(ch=0; ch<4; ch++) {                 // Clean the multigraph - so we refresh the view
@@ -255,6 +271,8 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
         fScaleFactor[i] = 1.0;
         fNormAvgH[i] = 0;
     }
+    fIntegralMin = 1;
+    fIntegralMax = 16384;
 
     // *** Main GUI window ***
     fMainGUIFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
@@ -407,7 +425,18 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
         fScalerFrame->AddFrame(fScalerInput[i], new TGLayoutHints(kLHintsNormal, 0, 0, 2, 2));
     }
     fTabConfig->AddFrame(fScalerFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));
-
+    // Integration Limits
+    fIntLimFrame = new TGGroupFrame(fTabConfig, "ADC window for integration");
+    fIntLimFrame->SetTitlePos(TGGroupFrame::kCenter);
+    fIntLimInputMin = new PigsIntLimInput(fIntLimFrame, "Lower limit");
+    fIntLimInputMin->GetEntry()->SetIntNumber(fIntegralMin);
+    fIntLimInputMin->GetEntry()->Connect("TextChanged(char*)", "PigsGUI", this, "SetIntegralLimitMin()");
+    fIntLimFrame->AddFrame(fIntLimInputMin, new TGLayoutHints(kLHintsNormal, 0, 0, 2, 2));
+    fIntLimInputMax = new PigsIntLimInput(fIntLimFrame, "Upper limit");
+    fIntLimInputMax->GetEntry()->SetIntNumber(fIntegralMax);
+    fIntLimInputMax->GetEntry()->Connect("TextChanged(char*)", "PigsGUI", this, "SetIntegralLimitMax()");
+    fIntLimFrame->AddFrame(fIntLimInputMax, new TGLayoutHints(kLHintsNormal, 0, 0, 2, 2));
+    fTabConfig->AddFrame(fIntLimFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));
 
     // *** container of "DT5781" ***
     fTabDT5781 = fTabHolder->AddTab("DT5781");
@@ -474,3 +503,4 @@ PigsGUI::~PigsGUI() {
     Cleanup();
     gApplication->Terminate(0);
 }
+
