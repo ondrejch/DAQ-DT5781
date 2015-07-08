@@ -205,7 +205,7 @@ void PigsGUI::UpdateHistory() {
         fMG->GetXaxis()->SetLabelOffset(0.03);
 //        fMG->GetXaxis()->SetNdivisions(508);
         fMG->GetYaxis()->SetLabelSize(0.025);
-        fMG->GetYaxis()->SetLabelOffset(0.03);
+        fMG->GetYaxis()->SetTitleOffset(1.25);
         fMG->GetYaxis()->SetTitle("Detector response");
         fMG->Draw("APC");
         cLastMeas->Update();
