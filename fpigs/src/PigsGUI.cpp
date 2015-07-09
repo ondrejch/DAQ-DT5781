@@ -72,10 +72,10 @@ int32_t PigsGUI::RunAcquisition() {
         }
         ret += daq->AcquisitionSingleLoop();    // Run data acquisition
         if(!ret) {
-            daq->RefreshCurrHist();             // transfer data to TH1D
+            daq->RefreshCurrHist();             // transfer data to TH1F
             for (ch=0; ch<4;ch++) {
                 cCurrHCanvas->GetPad(ch+1)->cd();
-                daq->getCurrHist(ch)->Draw();         // plot latest TH1D
+                daq->getCurrHist(ch)->Draw();         // plot latest TH1F
                 cCurrHCanvas->GetPad(ch+1)->Update();
                 ev->spectrum[ch]        = daq->getCurrHist(ch);   // save current measurement
                 ev->realTime[ch]        = daq->getRealTime(ch);
@@ -98,7 +98,7 @@ int32_t PigsGUI::RunAcquisition() {
         }
         fHCurrHProgressBar->SetPosition(1);
     }
-    storage->getTree()->Write();
+    storage->getTree()->Write();                 // This may be excessive, but we have SSD for storage :)
     fStartDAQ->SetState(kButtonUp);
     fStopDAQ->SetState(kButtonDisabled);
     fUseIntegration->SetState(kButtonUp);
@@ -203,7 +203,6 @@ void PigsGUI::UpdateHistory() {
         fMG->GetXaxis()->SetTimeFormat("#splitline{%Y-%m-%d}{%H:%M:%S}");
         fMG->GetXaxis()->SetLabelSize(0.02);
         fMG->GetXaxis()->SetLabelOffset(0.03);
-//        fMG->GetXaxis()->SetNdivisions(508);
         fMG->GetYaxis()->SetLabelSize(0.025);
         fMG->GetYaxis()->SetTitleOffset(1.25);
         fMG->GetYaxis()->SetTitle("Detector response");
@@ -212,11 +211,11 @@ void PigsGUI::UpdateHistory() {
         cLastMeas->Modified();
     }
 
-    // update the average tab
+    // Update the average tab
     Long64_t currentEntry = -1;
     for(ch=0; ch<4; ch++) {               // averages
         if(fNormAvgH[ch]) fNormAvgH[ch]->Delete();
-        fNormAvgH[ch] = (TH1D*) daq->getCurrHist(ch)->Clone();
+        fNormAvgH[ch] = (TH1F*) daq->getCurrHist(ch)->Clone();
     }
     if(fVerbose>1) cout << __PRETTY_FUNCTION__ << "totalEntries: " << totalEntries << endl;
     for (int32_t i=0; i<10; i++) {       // loop over last 10 measurements
@@ -269,19 +268,21 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     useIntegration = kTRUE;
     const int32_t fHistColors[] = { kMagenta+1, kGreen+1, kBlue+1, kRed+1 };
     fAboutMsg = (char*)
-"       _____  _____  ______ _______\n"
-"      |_____]   |   |  ____ |______\n"
-"      |       __|__ |_____| ______|\n"
 "\n"
 "\n"
-"*** Position Indicating Gamma Sensor   ***\n"
-" * CAEN DT-5781 Data Acquisition System *\n"
+"        _____  _____  ______ _______\n"
+"       |_____]   |   |  ____ |______\n"
+"       |       __|__ |_____| ______|\n"
+"\n"
+"\n"
+" *** Position Indicating Gamma Sensor   ***\n"
+"  * CAEN DT-5781 Data Acquisition System *\n"
 "         Four Channel Version\n"
 "\n"
-"  by Ondrej Chvala <ochvala@utk.edu>\n"
-"       version 0.075, July 2015\n"
-"  https://github.com/ondrejch/DAQ-DT5781\n"
-"                GNU/GPL";
+"   by Ondrej Chvala <ochvala@utk.edu>\n"
+"        version 0.075, July 2015\n"
+"   https://github.com/ondrejch/DAQ-DT5781\n"
+"                 GNU/GPL";
     int32_t i = 0; // helper variable
     for (i=0; i<4; i++) {
         fScaleFactor[i] = 1.0;
@@ -497,7 +498,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // *** container of "About" ***
     fTabAbout = fTabHolder->AddTab("About");
     fTabAbout->SetLayoutManager(new TGVerticalLayout(fTabAbout));
-    ufont = gClient->GetFont("-*-fixed-medium-r-*-*-12-*-*-*-*-*-*-*");
+    ufont = gClient->GetFont("-*-fixed-medium-r-*-*-15-*-*-*-*-*-*-*");
     fAboutText = new TGTextView(fTabAbout,1,1,"SPIGS",kSunkenFrame);
     fAboutText->SetFont(ufont->GetFontStruct());
     fTabAbout->AddFrame(fAboutText, new TGLayoutHints(kLHintsNormal));
@@ -521,16 +522,17 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fMainGUIFrame->MapWindow();
     fMainGUIFrame->Resize(fGUIsizeX,fGUIsizeY);
 
-    fAboutText->MoveResize(80,30,320,220);
+    static const int32_t tmpw = 410;        // Constants for About window placement
+    static const int32_t tmph = 250;
+    fAboutText->MoveResize((fGUIsizeX-tmpw)/2,(fGUIsizeY-tmph)/3,tmpw,tmph);
 }
 
 PigsGUI::~PigsGUI() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     HardStopAcquisition();
     DisconnectDAQ();
-    if(storage) delete storage;
-    // Clean up all widgets, frames and layout hints that were used
-    Cleanup();
+    if(storage) delete storage;     // Save data
+    Cleanup();                      // Clean up all widgets, frames and layout hints that were used
     gApplication->Terminate(0);
 }
 

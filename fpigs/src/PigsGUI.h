@@ -20,7 +20,7 @@
 #include <TGClient.h>
 #include <TGTextView.h>
 #include <TGNumberEntry.h>
-#include <TH1D.h>
+#include <TH1F.h>
 #include <TMultiGraph.h>
 #include <TGraph.h>
 #include <TThread.h>
@@ -107,7 +107,7 @@ private:
     PigsDAQ *daq;                       // DAQ pointer
     PigsStorage *storage;               // Data storage
     PigsEvent *ev;                      // Event buffer used to fill the storage
-    TH1D *fNormAvgH[4];                 // Normalized average of last 9 measurements
+    TH1F *fNormAvgH[4];                 // Normalized average of last 9 measurements
     Bool_t keepAcquiring;               // Flag if we should continue loop
     Bool_t useIntegration;              // Flag if integration is used for detector response
 

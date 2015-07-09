@@ -312,14 +312,14 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
 }
 
 int32_t PigsDAQ::RefreshCurrHist() {
-    // creates TH1D from h1
+    // creates TH1F from h1
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
     fDt.GetDate(0, 0, &year, &month, &day);
     fDt.GetTime(0, 0, &hour, &min,   &sec);
     fAcqDate=Form("%04d%02d%02d %02d:%02d:%02d",year,month,day,hour,min,sec);
     for(ch=0; ch<4; ch++) {
-        fCurrHist[ch] = new TH1D(Form("h_ch%d_%04d%02d%02d_%02d%02d%02d",ch,year,month,day,hour,min,sec),
+        fCurrHist[ch] = new TH1F(Form("h_ch%d_%04d%02d%02d_%02d%02d%02d",ch,year,month,day,hour,min,sec),
                 Form("ch%d: %s",ch, fAcqDate.Data()), hNBins[ch], 0, hNBins[ch]-1);
         fCurrHist[ch]->SetXTitle("ADC channel");
         fCurrHist[ch]->SetYTitle("Counts");
@@ -605,9 +605,9 @@ int32_t PigsDAQ::EndLibrary() {
 
 // getters & setters
 void      PigsDAQ::setGUI(PigsGUI *gui)          { this->gui = gui;}
-//void      PigsDAQ::setCurrHist(TH1D *currHist)   { fCurrHist = currHist; }
-TH1D     *PigsDAQ::getCurrHist(int32_t ch) const { return fCurrHist[ch]; }
-double   PigsDAQ::getCountsPerSecond(int32_t ch) const    { return countsPerSecond[ch]; }
+//void      PigsDAQ::setCurrHist(TH1F *currHist)   { fCurrHist = currHist; }
+TH1F     *PigsDAQ::getCurrHist(int32_t ch) const { return fCurrHist[ch]; }
+Float_t   PigsDAQ::getCountsPerSecond(int32_t ch) const    { return countsPerSecond[ch]; }
 uint64_t PigsDAQ::getRealTime(int32_t ch) const           { return realTime[ch]; }
 uint64_t PigsDAQ::getDeadTime(int32_t ch) const           { return deadTime[ch]; }
 uint32_t PigsDAQ::getTotCounts(int32_t ch) const          { return totCounts[ch]; }
