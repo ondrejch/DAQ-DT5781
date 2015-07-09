@@ -1,4 +1,8 @@
 # DAQ-DT5781
-Simple DAQ system for CAEN DT-5781 
-using DPP-PHA firmware in ROOT/C++.
-Licensed under GNU/GPL. Enjoy!
+Simple DAQ system for CAEN DT-5781 with DPP-PHA firmware.
+
+Writen in C++ using ROOT/C++ framework.
+
+Licensed under GNU/GPL. 
+
+Enjoy!
