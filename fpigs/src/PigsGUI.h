@@ -43,24 +43,24 @@ class PigsIntLimInput;
 
 class PigsGUI : public TGMainFrame  {
 public:
-    PigsGUI(const TGWindow *p); // Creates the GUI
+    PigsGUI(const TGWindow *p);         // Creates the GUI
     ~PigsGUI();                         // Ends DAQ, DPP, GUI
-    int32_t InitDAQ();                      // Initialization of the PigsDAQ object, DPP library, DAQ config
-    int32_t DisconnectDAQ();                // Ends connection to the DPP library
-    int32_t RunAcquisition();               // Loop acquisition
-    int32_t StopAcquisition();              // Stops acquisition loop
-    int32_t HardStopAcquisition();          // Stops acquisition on channel 0
+    int32_t InitDAQ();                  // Initialization of the PigsDAQ object, DPP library, DAQ config
+    int32_t DisconnectDAQ();            // Ends connection to the DPP library
+    int32_t RunAcquisition();           // Loop acquisition
+    int32_t StopAcquisition();          // Stops acquisition loop
+    int32_t HardStopAcquisition();      // Stops acquisition on channel 0
     void SetAcquisitionLoopTime();                     // Changes acquisition time using GUI
     void SetProgressBarPosition(Float_t fposition);    // Set the position of the progress bar
-    Float_t CalcResponseV1(int32_t ch);     // Simple response function that returns scaled number of counts
-    Float_t CalcResponseV2(int32_t ch);     // Detector response function using energy integrals
-    void SetGainScalerCh0();                // Changes scaler gain using GUI
-    void SetGainScalerCh1();                // Changes scaler gain using GUI
-    void SetGainScalerCh2();                // Changes scaler gain using GUI
-    void SetGainScalerCh3();                // Changes scaler gain using GUI
-    void SetIntegralLimitMin();             // Changes lower limit for energy integration using GUI
-    void SetIntegralLimitMax();             // Changes upper limit for energy integration using GUI
-    void ToggleUseIntegration();            // Use count sum or energy integration as detector response, set from GUI
+    Float_t CalcResponseV1(int32_t ch); // Simple response function that returns scaled number of counts
+    Float_t CalcResponseV2(int32_t ch); // Detector response function using energy integrals
+    void SetGainScalerCh0();            // Changes scaler gain using GUI
+    void SetGainScalerCh1();            // Changes scaler gain using GUI
+    void SetGainScalerCh2();            // Changes scaler gain using GUI
+    void SetGainScalerCh3();            // Changes scaler gain using GUI
+    void SetIntegralLimitMin();         // Changes lower limit for energy integration using GUI
+    void SetIntegralLimitMax();         // Changes upper limit for energy integration using GUI
+    void ToggleUseIntegration();        // Use count sum or energy integration as detector response, set from GUI
 
 private:
     void UpdateHistory();
@@ -99,9 +99,9 @@ private:
     TGCompositeFrame *fTabAbout;        // container of "About"
     TGTextView *fAboutText;
 
-    TGFont *ufont;                      // will reflect user font changes
+    TGFont *ufont;                      // Will reflect user font changes
     ULong_t fColor;                     // Color helper
-    TGGC   *uGC;                        // will reflect user GC changes
+    TGGC   *uGC;                        // Will reflect user GC changes
     GCValues_t valTitle;                // graphics context changes
     TThread *fAcqThread;                // Acquisition thread
     PigsDAQ *daq;                       // DAQ pointer
@@ -114,14 +114,14 @@ private:
     TTimeStamp fDateTime;               // Current date for file name
     UInt_t year, month, day, hour, min, sec;
 
-    Float_t fScaleFactor[4];            // scaling of the detector response
-    int32_t fIntegralMin, fIntegralMax; // bin limits for integration used by CalcResponseV2
+    Float_t fScaleFactor[4];            // Scaling of the detector response
+    int32_t fIntegralMin, fIntegralMax; // Bin limits for integration used by CalcResponseV2
 
-    static const int32_t fHistColors[4];
-    static const int32_t fGUIsizeX    = 1200;
+    static const int32_t fHistColors[4];        // Colors for history plot
+    static const int32_t fGUIsizeX    = 1200;   // GUI size in pixels
     static const int32_t fGUIsizeY    = 1000;
-    static const int32_t fVerbose = 1;  // verbosity level settings
-    const char *fAboutMsg;
+    static const int32_t fVerbose = 1;  // Verbosity level settings
+    const char *fAboutMsg;              // "About" tab text
 
     ClassDef(PigsGUI, 0)
 };

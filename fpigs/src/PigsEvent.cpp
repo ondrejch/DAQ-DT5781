@@ -12,17 +12,17 @@ PigsEvent::PigsEvent() {
     // constructor
     uint8_t i;
     for (i=0;i<4;i++) {
-        spectrum[i] = 0;
-        realTime[i] = 0;
-        deadTime[i] = 0;
-        goodCounts[i] = 0;
-        totCounts[i] = 0;
-        countsPerSecond[i] = 0;
-        scaleFactor[i] = 0;
+        spectrum[i]         = 0;
+        realTime[i]         = 0;
+        deadTime[i]         = 0;
+        goodCounts[i]       = 0;
+        totCounts[i]        = 0;
+        countsPerSecond[i]  = 0;
+        scaleFactor[i]      = 0;
         detectorResponse[i] = 0;
     }
-    acqTime = 0;
-    arrowAngle = 0;
+    acqTime     = 0;
+    arrowAngle  = 0;
 }
 
 PigsEvent::~PigsEvent() {
@@ -32,4 +32,3 @@ PigsEvent::~PigsEvent() {
         if(spectrum[i]) delete spectrum[i];
     }
 }
-

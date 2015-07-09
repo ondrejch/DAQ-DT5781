@@ -1,10 +1,10 @@
-//============================================================================
-// Name        : fpigs.cpp
-// Author      : Ondrej Chvala <ochvala@utk.edu>
-// Version     :
-// Copyright   : GNU/GPL
-// Description : Hello World in C++, Ansi-style
-//============================================================================
+/*
+ * Name        : fpigs.cpp
+ * Author      : Ondrej Chvala <ochvala@utk.edu>
+ * Version     : 0.08 beta
+ * Copyright   : GNU/GPL
+ * Description : Main program for Four-channel Position Indicating Gamma Sensor (F-PIGS)
+ */
 
 #include <iostream>
 #include <PigsDAQ.h>
@@ -16,11 +16,9 @@
 #include <TEnv.h>
 #include <TApplication.h>
 
-using namespace std;
-
 int main(int argc, char *argv[]) {
     int ret = 0;
-    cout << "Welcome to FPIGS DAQ!" << endl;
+    std::cout << "Welcome to F-PIGS DAQ!" << std::endl;
 
 //    gEnv->SetValue("Gui.Backend", "qt");
 //    gEnv->SetValue("Gui.Factory", "qt");

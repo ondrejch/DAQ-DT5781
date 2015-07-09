@@ -18,7 +18,7 @@ public:
     PigsEvent();
     virtual ~PigsEvent();
 
-    TH1F *spectrum[4];              // data about the four detectors
+    TH1F    *spectrum[4];           // data about the four detectors
     uint64_t realTime[4];           // Real time from DAQ [ns]
     uint64_t deadTime[4];           // Dead time from DAQ [ns]
     uint32_t goodCounts[4];         // Counts as measured by DAQ

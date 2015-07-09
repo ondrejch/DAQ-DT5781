@@ -110,7 +110,7 @@ private:
     int32_t brd;        // Board Identifier - this code assumes we only have one board
     CAENDPP_ConnectionParams_t connParam;   // Connection Parameters - Used to connect to the board.
     CAENDPP_Info_t info;                    // Board Infos Structure
-    TString fBoardInfo;
+    TString fBoardInfo;                     // String that holds board information
     CAENDPP_DgtzParams_t dgtzParams;        // Acquisition Parameters - Used to set the acquisition properties.
     CAENDPP_AcqMode_t acqMode;              // Acquisition Mode (Histogram or Waveforms)
     CAENDPP_InputRange_t iputLevel;         // Channel input range
@@ -137,7 +137,6 @@ private:
     TString fAcqDate;       // Acquisition date
     UInt_t year, month, day, hour, min, sec;    // Helpers to form strings from time stamps
     PigsGUI *gui;           // Associated GUI
-
 };
 
 #endif /* PIGSDAQ_H_ */

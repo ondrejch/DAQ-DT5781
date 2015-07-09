@@ -280,7 +280,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "         Four Channel Version\n"
 "\n"
 "   by Ondrej Chvala <ochvala@utk.edu>\n"
-"        version 0.075, July 2015\n"
+"        version 0.080, July 2015\n"
 "   https://github.com/ondrejch/DAQ-DT5781\n"
 "                 GNU/GPL";
     int32_t i = 0; // helper variable
@@ -422,7 +422,6 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fArrowECanvas->AdoptCanvas(cArrowCanvas);
     fTabArrow->AddFrame(fSumSpectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
-
     // *** container of "Config" ***
     fTabConfig = fTabHolder->AddTab("Config");
     fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
@@ -507,7 +506,6 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     //-------------------------------------------------------------------------
 
     // change to the starting tab
-    //fTabHolder->SetTab("CurrentHistogram");
     fTabHolder->SetTab("DT5781");
 
     // display GUI
@@ -517,13 +515,12 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 
     fMainGUIFrame->SetMWMHints(kMWMDecorAll, kMWMFuncAll, kMWMInputModeless);
     fMainGUIFrame->MapSubwindows();
-
     fMainGUIFrame->Resize(fMainGUIFrame->GetDefaultSize());
     fMainGUIFrame->MapWindow();
     fMainGUIFrame->Resize(fGUIsizeX,fGUIsizeY);
 
     static const int32_t tmpw = 410;        // Constants for About window placement
-    static const int32_t tmph = 250;
+    static const int32_t tmph = 260;
     fAboutText->MoveResize((fGUIsizeX-tmpw)/2,(fGUIsizeY-tmph)/3,tmpw,tmph);
 }
 
