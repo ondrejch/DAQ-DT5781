@@ -1,6 +1,7 @@
 /*
  * PigsEvent.h
  * Class to hold the measurement information
+ * Four channel version
  *
  *  Created on: Jun 26, 2015
  *      Author: Ondrej Chvala <ochvala@utk.edu>
@@ -10,6 +11,8 @@
 #define PIGSEVENT_H
 
 #include <stdint.h>
+#include <iostream>
+#include <string>
 #include <TObject.h>
 #include <TH1F.h>
 
@@ -17,6 +20,8 @@ class PigsEvent : public TObject {
 public:
     PigsEvent();
     virtual ~PigsEvent();
+    virtual void Print(Option_t *option="") const;  // Prints the event information to stdout
+    const char* GetMeasDate() const;                // Gets date of the measurement
 
     TH1F    *spectrum[4];           // data about the four detectors
     uint64_t realTime[4];           // Real time from DAQ [ns]
