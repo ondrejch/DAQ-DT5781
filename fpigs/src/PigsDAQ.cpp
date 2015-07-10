@@ -1,13 +1,11 @@
 /*
  * Position Indicating Gamma Sensing system
- * Currently assumes single channel operation on channel 0
- *
+ * Four channel version
  *
  * PigsDAQ.cpp
  *
  *  Created on: Jun 12, 2015
  *      Author: Ondrej Chvala <ochvala@utk.edu>
- *
  */
 
 #include "PigsDAQ.h"
@@ -92,19 +90,19 @@ int32_t PigsDAQ::SetDAQParams(){
     acqMode = CAENDPP_AcqMode_Histogram;        // For Histogram mode (no waveforms)
     //acqMode = CAENDPP_AcqMode_Waveform;       // For Oscilloscope mode (waves + histogram)
     iputLevel = CAENDPP_InputRange_1_0Vpp;      // Channel input level - could be per channel
-    usecSleepPollDAQ = 100000;                   // [ns] DAQ acquisition poll
+    usecSleepPollDAQ = 100000;                  // [ns] DAQ acquisition poll
     // Set stop criteria
     StopCriteria = CAENDPP_StopCriteria_RealTime;       // Elapsed real time
     //StopCriteriaValue = 600L*1000000000L;             // [ns] Run for 600 seconds
     StopCriteriaValue =  10L*1000000000L;               // [ns] Run for  10 seconds
-    //StopCriteriaValue =   1000000000;// 1000*1000*1000; // 1 sec [ns] Run for 600 seconds
+  //StopCriteriaValue =      1000000000L;// 1000*1000*1000; // 1 sec [ns] Run for 600 seconds
     return 0;
 }
 
 int32_t PigsDAQ::InitDPPLib() {
     // Initialize the DPP library
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    fErrCode = CAENDPP_InitLibrary(&handle); // The handle will be used to command the library
+    fErrCode = CAENDPP_InitLibrary(&handle);    // The handle will be used to command the library
     if(fErrCode != CAENDPP_RetCode_Ok)
         std::cerr<<"Problem initializing the library: "<< decodeError(codeStr,fErrCode) << std::endl;
     return fErrCode;

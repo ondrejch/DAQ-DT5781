@@ -1,5 +1,6 @@
 /*
  * PigsGUI.cpp
+ * Four channel version
  *
  *  Created on: Jun 19, 2015
  *      Author: Ondrej Chvala <ochvala@utk.edu>
@@ -77,14 +78,14 @@ int32_t PigsGUI::RunAcquisition() {
                 cCurrHCanvas->GetPad(ch+1)->cd();
                 daq->getCurrHist(ch)->Draw();         // plot latest TH1F
                 cCurrHCanvas->GetPad(ch+1)->Update();
-                ev->spectrum[ch]        = daq->getCurrHist(ch);   // save current measurement
+                ev->spectrum[ch]        = daq->getCurrHist(ch); // save current measurement
                 ev->realTime[ch]        = daq->getRealTime(ch);
                 ev->deadTime[ch]        = daq->getDeadTime(ch);
                 ev->goodCounts[ch]      = daq->getGoodCounts(ch);
                 ev->totCounts[ch]       = daq->getTotCounts(ch);
                 ev->scaleFactor[ch]     = fScaleFactor[ch];
                 ev->countsPerSecond[ch] = daq->getCountsPerSecond(ch);
-                if (useIntegration)                                 // detector response
+                if (useIntegration)                             // detector response
                     ev->detectorResponse[ch]= this->CalcResponseV2(ch);
                 else
                     ev->detectorResponse[ch]= this->CalcResponseV1(ch);
@@ -116,55 +117,55 @@ void PigsGUI::SetAcquisitionLoopTime() {
 
 // Channel gain settings - one may write this more neatly has we have more time...
 void PigsGUI::SetGainScalerCh0() {
-    // Changes the scaler gain
+    // Changes the scaler gain for channel 0
     if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- gain: " <<
             fScalerInput[0]->GetEntry()->GetNumber() << std::endl;
     fScaleFactor[0] = fScalerInput[0]->GetEntry()->GetNumber();
 }
 
 void PigsGUI::SetGainScalerCh1() {
-    // Changes the scaler gain
+    // Changes the scaler gain for channel 1
     if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- gain: " <<
             fScalerInput[1]->GetEntry()->GetNumber() << std::endl;
     fScaleFactor[1] = fScalerInput[1]->GetEntry()->GetNumber();
 }
 
 void PigsGUI::SetGainScalerCh2() {
-    // Changes the scaler gain
+    // Changes the scaler gain for channel 2
     if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- gain: " <<
             fScalerInput[2]->GetEntry()->GetNumber() << std::endl;
     fScaleFactor[2] = fScalerInput[2]->GetEntry()->GetNumber();
 }
 
 void PigsGUI::SetGainScalerCh3() {
-    // Changes the scaler gain
+    // Changes the scaler gain for channel 3
     if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- gain: " <<
             fScalerInput[3]->GetEntry()->GetNumber() << std::endl;
     fScaleFactor[3] = fScalerInput[3]->GetEntry()->GetNumber();
 }
 
 void PigsGUI::SetIntegralLimitMin() {
-    // changes lower ACD limit for energy integration
+    // Changes lower ACD limit for energy integration
     if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- lower ACD limit: " <<
             fIntLimInputMin->GetEntry()->GetNumber() << std::endl;
     fIntegralMin = fIntLimInputMin->GetEntry()->GetNumber();
 }
 
 void PigsGUI::SetIntegralLimitMax() {
-    // changes upper ACD limit for energy integration
+    // Changes upper ACD limit for energy integration
     if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- upper ACD limit: " <<
             fIntLimInputMax->GetEntry()->GetNumber() << std::endl;
     fIntegralMax = fIntLimInputMax->GetEntry()->GetNumber();
 }
 
 Float_t PigsGUI::CalcResponseV1(int32_t ch) {
-    // simple detector response using just number of recored counts
+    // Simple detector response using just number of recored counts
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     return fScaleFactor[ch] * daq->getGoodCounts(ch);
 }
 
 Float_t PigsGUI::CalcResponseV2(int32_t ch) {
-    // detector response which integrates captured energy
+    // Detector response which integrates captured energy
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int32_t ibin;
     Float_t energyIntegral = 0;
@@ -175,7 +176,7 @@ Float_t PigsGUI::CalcResponseV2(int32_t ch) {
 }
 
 void PigsGUI::ToggleUseIntegration() {
-    // switch energy integration method
+    // Switch energy integration method
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     useIntegration = fUseIntegration->IsOn();
     fIntLimInputMin->GetEntry()->SetEnabled(useIntegration);
@@ -195,7 +196,7 @@ void PigsGUI::UpdateHistory() {
         fGraph[ch]->SetPoint(fGraph[ch]->GetN(),daq->getTimeStamp().GetSec(), ev->detectorResponse[ch]);
         fMG->Add(fGraph[ch]);
     }
-    if(fGraph[0]->GetN() >= 2) {            // we have the first two data points
+    if(fGraph[0]->GetN() >= 2) {            // After we have the first two data points
         cLastMeas->cd();
         fMG->Draw("AQ");
         fMG->GetXaxis()->SetTimeDisplay(1);
@@ -218,7 +219,7 @@ void PigsGUI::UpdateHistory() {
         fNormAvgH[ch] = (TH1F*) daq->getCurrHist(ch)->Clone();
     }
     if(fVerbose>1) cout << __PRETTY_FUNCTION__ << "totalEntries: " << totalEntries << endl;
-    for (int32_t i=0; i<10; i++) {       // loop over last 10 measurements
+    for (int32_t i=0; i<10; i++) {       // Loop over last 10 measurements
         currentEntry = totalEntries - i;
         if(currentEntry >=0 ) {
             if(fVerbose>2) cout << __PRETTY_FUNCTION__ << "i: " << i << " entry: " << currentEntry << endl;
@@ -253,7 +254,7 @@ int32_t PigsGUI::StopAcquisition() {
 }
 
 void PigsGUI::SetProgressBarPosition(Float_t fposition) {
-    // set position of the progress bar
+    // Set position of the progress bar
     fHCurrHProgressBar->SetPosition(fposition);
     gClient->NeedRedraw(fHCurrHProgressBar);
 }
@@ -261,7 +262,7 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
 PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // Creates the GUI
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    daq = 0; storage = 0; ev = 0;               // init local variables
+    daq = 0; storage = 0; ev = 0;               // Initialize local variables
     year = month = day = hour = min = sec = 0;
     fAcqThread = 0;
     keepAcquiring  = kFALSE;
@@ -311,7 +312,8 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     valTitle.fFont = ufont->GetFontHandle();
     valTitle.fGraphicsExposures = kFALSE;
     uGC = gClient->GetGC(&valTitle, kTRUE);
-    fMainTitle = new TGLabel(fMainGUIFrame,"Single-channel Position Identifying Gamma Sensor",uGC->GetGC(),ufont->GetFontStruct());
+    fMainTitle = new TGLabel(fMainGUIFrame,"Single-channel Position Identifying Gamma Sensor",
+            uGC->GetGC(),ufont->GetFontStruct());
     fMainTitle->SetTextJustify(36);
     fMainTitle->SetMargins(0,0,0,0);
     fMainTitle->SetWrapLength(-1);
@@ -443,8 +445,10 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fScalerFrame->SetTitlePos(TGGroupFrame::kCenter);
     for (i=0; i<4; i++){
         fScalerInput[i] = new PigsScalerInput(fScalerFrame, Form("ch %d scaling", i));
-        fScalerInput[i]->GetEntry()->Connect("TextChanged(char*)", "PigsGUI", this, Form("SetGainScalerCh%d()",i));
-        fScalerInput[i]->GetEntry()->SetToolTipText("Channel gain is a multiplicative factor used in detector response calculation.");
+        fScalerInput[i]->GetEntry()->Connect("TextChanged(char*)", "PigsGUI", this,
+                Form("SetGainScalerCh%d()",i));
+        fScalerInput[i]->GetEntry()->SetToolTipText(
+                "Channel gain is a multiplicative factor used in detector response calculation.");
         fScalerFrame->AddFrame(fScalerInput[i], new TGLayoutHints(kLHintsNormal, 0, 0, 2, 2));
     }
     fTabConfig->AddFrame(fScalerFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));
@@ -505,10 +509,10 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 
     //-------------------------------------------------------------------------
 
-    // change to the starting tab
+    // Change to the starting tab
     fTabHolder->SetTab("DT5781");
 
-    // display GUI
+    // Display the GUI
     fTabHolder->Resize(fTabHolder->GetDefaultSize());
     fMainGUIFrame->AddFrame(fTabHolder, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
     fTabHolder->MoveResize(0,32,fGUIsizeX-2,fGUIsizeY-80);

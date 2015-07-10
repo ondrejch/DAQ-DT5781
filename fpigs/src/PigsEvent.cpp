@@ -34,15 +34,15 @@ PigsEvent::~PigsEvent() {
     }
 }
 
-const char* PigsEvent::GetMeasDate() const {
+const char* PigsEvent::GetMeasurementDate() const {
     // Extracts measurement date from the histogram title
    return std::string(spectrum[0]->GetTitle(),5,22).c_str();
 }
 
 void PigsEvent::Print(Option_t *) const {
     // Prints information about the measurement
-    //std::cout << "*** Printing information of " << this->GetName() <<" ***"<< std::endl;
-    std::cout << "Measurement time stamp: " << this->GetMeasDate();
+    std::cout << "*** Printing information of " << this->GetName() <<" ***"<< std::endl;
+    std::cout << "Measurement time stamp: " << this->GetMeasurementDate();
     std::cout << std::endl << "Set acquisition time [s]:\t" << acqTime;
     std::cout << std::endl << "Arrow pointing angle [deg]:\t" << arrowAngle;
     uint8_t i;

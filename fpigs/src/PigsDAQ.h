@@ -4,7 +4,6 @@
  *
  * PigsDAQ.h - Main/Helper singleton class
  *
- *
  *  Created on: Jun 12, 2015
  *      Author: Ondrej Chvala <ochvala@utk.edu>
  */
@@ -124,19 +123,19 @@ private:
     uint32_t goodCounts[4];                 // Counts as measured by DAQ
     uint32_t totCounts[4];                  // DAQ counts scaled up by (1+ deadTime)/realTime
     Float_t  countsPerSecond[4];            // goodCounts/(realTime-deadTime)
-    uint32_t *h[4];                 // histograms used for DPP dump
-    int32_t  hNBins[4];             // number of bins in the histograms
+    uint32_t *h[4];                         // Histograms used for DPP dump
+    int32_t  hNBins[4];                     // Number of bins in the histograms
 
     char codeStr[MAX_ERRMSG_LEN + 1];
     char histoFName[MAX_HISTOFNAME_LEN];
 
-    static const int32_t fVerbose = 1;      // verbosity level settings
-    int32_t fErrCode;       // Error code from DPP calls
-    TH1F *fCurrHist[4];     // Current histograms
-    TTimeStamp fDt;         // Current date for histogram time
-    TString fAcqDate;       // Acquisition date
-    UInt_t year, month, day, hour, min, sec;    // Helpers to form strings from time stamps
-    PigsGUI *gui;           // Associated GUI
+    static const int32_t fVerbose = 1;      // Verbosity level settings
+    int32_t fErrCode;                       // Error code from DPP calls
+    TH1F *fCurrHist[4];                     // Current histograms
+    TTimeStamp fDt;                         // Current date for histogram time
+    TString fAcqDate;                       // Acquisition date
+    UInt_t year, month, day, hour, min, sec;// Helpers to form strings from time stamps
+    PigsGUI *gui;                           // Associated GUI
 };
 
 #endif /* PIGSDAQ_H_ */

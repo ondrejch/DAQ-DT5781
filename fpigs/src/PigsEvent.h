@@ -21,7 +21,7 @@ public:
     PigsEvent();
     virtual ~PigsEvent();
     virtual void Print(Option_t *option="") const;  // Prints the event information to stdout
-    const char* GetMeasDate() const;                // Gets date of the measurement
+    const char* GetMeasurementDate() const;         // Gets date of the measurement
 
     TH1F    *spectrum[4];           // data about the four detectors
     uint64_t realTime[4];           // Real time from DAQ [ns]

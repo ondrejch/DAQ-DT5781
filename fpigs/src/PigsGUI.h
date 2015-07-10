@@ -1,6 +1,6 @@
 /*
  * PigsGUI.h
- * Single channel version
+ * Four channel version
  *
  *  Created on: Jun 19, 2015
  *      Author: Ondrej Chvala <ochvala@utk.edu>
