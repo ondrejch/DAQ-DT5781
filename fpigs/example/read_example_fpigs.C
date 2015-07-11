@@ -37,6 +37,9 @@ void read_example_fpigs()
     // Show spectrum of 7th measurement on channel 0
     int ch=0;                   // Channel 0
     t->GetEntry(7);             // 7th measurement
+    TCanvas *c = new TCanvas("c","show histogram",800,600);  // Canvas for the histogram
+    c->SetLogx();               // Log scale on X-axis
+    c->SetGrid();               // Nice grid
     e->spectrum[ch]->Draw();    // Draw the spectrum histogram
     e->Print();                 // Print information about this measurement
 }
