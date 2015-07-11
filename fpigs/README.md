@@ -31,12 +31,21 @@ Object files and ROOT class dictionary are created in obj/.
 Library for output file reading: lib/fPigsDict.so.  
 The linked binary executable: bin/fpigs.exe.
 
+
+OUTPUT DATA:
+
 The DAQ produces output file out-<date>_<time>.root.
 It contains a tree with events, each event corresponding to 
 a measurement: histogram spectrum, realTime, deadTime,
 goodCounts, totCounts, countsPerSecond. 
 To read the file, first load the library:
+
     root [0] .L lib/fPigsDict.so   
+
+There is an example data file out-test-fpigs.root 
+and a ROOT macro  read_example_fpigs.C in the examples/ 
+directory. The macro shows how to process the measurements. 
+Please see comments in the macro for detailed explanation.  
 
     
 TERMS OF USE:

@@ -281,7 +281,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "         Four Channel Version\n"
 "\n"
 "   by Ondrej Chvala <ochvala@utk.edu>\n"
-"        version 0.080, July 2015\n"
+"        version 0.085, July 2015\n"
 "   https://github.com/ondrejch/DAQ-DT5781\n"
 "                 GNU/GPL";
     int32_t i = 0; // helper variable
@@ -312,7 +312,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     valTitle.fFont = ufont->GetFontHandle();
     valTitle.fGraphicsExposures = kFALSE;
     uGC = gClient->GetGC(&valTitle, kTRUE);
-    fMainTitle = new TGLabel(fMainGUIFrame,"Single-channel Position Identifying Gamma Sensor",
+    fMainTitle = new TGLabel(fMainGUIFrame,"Four-channel Position Identifying Gamma Sensor (F-PIGS)",
             uGC->GetGC(),ufont->GetFontStruct());
     fMainTitle->SetTextJustify(36);
     fMainTitle->SetMargins(0,0,0,0);

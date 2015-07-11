@@ -14,8 +14,8 @@ using namespace std;
 
 void read_example_fpigs()
 {
-    gSystem->Load("../lib/fPigsDict.so");
-    TFile *f = TFile::Open("out-test-fpigs.root");
+    gSystem->Load("../lib/fPigsDict.so");       // Load the library with class dictionary
+    TFile *f = TFile::Open("out-test-fpigs.root");  // Open the data file
     PigsEvent *e = 0;                           // Object to access data in the tree
     TTree *t = (TTree*)f->FindObjectAny("t");   // Get the tree with stored measurements
     t->SetBranchAddress("e", &e);               // Associate the object with the tree
@@ -25,9 +25,9 @@ void read_example_fpigs()
     cout << "Measurement\t|\t\tcounts\t\t|\tdetector response"<<endl;
     cout << "  number   \t|ch0\t ch1\t ch2 \tch3 \t|ch0\t ch1\t ch2 \tch3"<<endl;
     // Loop over all measurements and show measured counts and detector response
-    for (int i=0;i<nev;i++) {
-        t->GetEntry(i);
-        cout <<"\t"<< i<< "\t"<<
+    for (int i=0; i<nev; i++) {
+        t->GetEntry(i);                         // Sets "e" to a particular measurement
+        cout <<"\t"<< i<< "\t"<<                // Print information about that measurement
                 e->totCounts[0] <<"\t"<< e->totCounts[1] <<"\t"<<
                 e->totCounts[2] <<"\t"<< e->totCounts[3] <<"\t"<<
                 e->detectorResponse[0] <<"\t"<< e->detectorResponse[1] <<"\t"<<
@@ -39,5 +39,4 @@ void read_example_fpigs()
     t->GetEntry(7);             // 7th measurement
     e->spectrum[ch]->Draw();    // Draw the spectrum histogram
     e->Print();                 // Print information about this measurement
-//    e->Dump();
 }
