@@ -10,24 +10,37 @@
  *      Author: Ondrej Chvala <ochvala@utk.edu>
  */
 
+#include <TFile.h>
+#include <TTree.h>
+#include <TCanvas.h>
+#include <TROOT.h>
+
+class PigsEvent;
+
+TCanvas *c;             // It is useful to declare the variables outside the macro.
+TFile *f;               // Then these can be used in the interactive session after
+TTree *t;               // the macro finishes.
+PigsEvent *e;
+int nev, i, ch;
+
 using namespace std;
 
 void read_example_fpigs()
 {
-    gSystem->Load("../lib/fPigsDict.so");       // Load the library with class dictionary
-    TFile *f = TFile::Open("out-test-fpigs.root");  // Open the data file
-    PigsEvent *e = 0;                           // Object to access data in the tree
-    TTree *t = (TTree*)f->FindObjectAny("t");   // Get the tree with stored measurements
-    t->SetBranchAddress("e", &e);               // Associate the object with the tree
-    int nev = t->GetEntries();                  // Get total number of measurements
+    gSystem->Load("../lib/fPigsDict.so");    // Load the library with class dictionary
+    f = TFile::Open("out-test-fpigs.root");  // Open the data file
+    e = 0;                                   // Object to access data in the tree
+    t = (TTree*)f->FindObjectAny("t");       // Get the tree with stored measurements
+    t->SetBranchAddress("e", &e);            // Associate the object with the tree
+    nev = t->GetEntries();                   // Get total number of measurements
 
     // Table header
     cout << "Measurement\t|\t\tcounts\t\t|\tdetector response"<<endl;
     cout << "  number   \t|ch0\t ch1\t ch2 \tch3 \t|ch0\t ch1\t ch2 \tch3"<<endl;
     // Loop over all measurements and show measured counts and detector response
-    for (int i=0; i<nev; i++) {
-        t->GetEntry(i);                         // Sets "e" to a particular measurement
-        cout <<"\t"<< i<< "\t"<<                // Print information about that measurement
+    for (i=0; i<nev; i++) {
+        t->GetEntry(i);               // Sets "e" to this particular measurement
+        cout <<"\t"<< i<< "\t"<<      // Print information about that measurement
                 e->totCounts[0] <<"\t"<< e->totCounts[1] <<"\t"<<
                 e->totCounts[2] <<"\t"<< e->totCounts[3] <<"\t"<<
                 e->detectorResponse[0] <<"\t"<< e->detectorResponse[1] <<"\t"<<
@@ -35,9 +48,9 @@ void read_example_fpigs()
     }
 
     // Show spectrum of 7th measurement on channel 0
-    int ch=0;                   // Channel 0
+    ch=0;                       // Channel 0
     t->GetEntry(7);             // 7th measurement
-    TCanvas *c = new TCanvas("c","show histogram",800,600);  // Canvas for the histogram
+    c = new TCanvas("c","show histogram",800,600);  // Canvas for the histogram
     c->SetLogx();               // Log scale on X-axis
     c->SetGrid();               // Nice grid
     e->spectrum[ch]->Draw();    // Draw the spectrum histogram
