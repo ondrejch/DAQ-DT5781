@@ -17,9 +17,9 @@
 
 class PigsEvent;
 
-TCanvas *c;             // It is useful to declare the variables outside the macro.
-TFile *f;               // Then these can be used in the interactive session after
-TTree *t;               // the macro finishes.
+TCanvas   *c;       // It is useful to declare the variables outside the macro.
+TFile     *f;       // Then these can be used in the interactive session after
+TTree     *t;       // the macro finishes.
 PigsEvent *e;
 int nev, i, ch;
 
@@ -48,7 +48,7 @@ void read_example_fpigs()
     }
 
     // Show spectrum of 7th measurement on channel 0
-    ch=0;                       // Channel 0
+    ch = 0;                     // Channel 0
     t->GetEntry(7);             // 7th measurement
     c = new TCanvas("c","show histogram",800,600);  // Canvas for the histogram
     c->SetLogx();               // Log scale on X-axis

@@ -9,7 +9,7 @@
 #include "PigsGUI.h"
 
 int32_t PigsGUI::InitDAQ() {
-    // Initialization of the PigsDAQ object, DPP library, DAQ config, storage
+    // Initialization of the PigsDAQ object, DPP library, DAQ configuration, storage
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int32_t ret = 0;
     int32_t ch;
@@ -19,7 +19,7 @@ int32_t PigsGUI::InitDAQ() {
     fDateTime.GetDate(0, 0, &year, &month, &day);
     fDateTime.GetTime(0, 0, &hour, &min,   &sec);
     storage = new PigsStorage(Form("out-%04d%02d%02d_%02d:%02d:%02d.root",
-            year,month,day,hour,min,sec));              // unique file name by using the current date and time
+            year,month,day,hour,min,sec));              // Unique file name by using the current date and time
     ev      = storage->getE();
     fDTinfo->AddLine(Form("Output file: %s",storage->getOutFileName()));
 

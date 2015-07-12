@@ -23,17 +23,17 @@ public:
     virtual void Print(Option_t *option="") const;  // Prints the event information to stdout
     const char* GetMeasurementDate() const;         // Gets date of the measurement
 
-    TH1F    *spectrum[4];           // data about the four detectors
+    TH1F    *spectrum[4];           // Spectrum collected by the four detectors
     uint64_t realTime[4];           // Real time from DAQ [ns]
     uint64_t deadTime[4];           // Dead time from DAQ [ns]
     uint32_t goodCounts[4];         // Counts as measured by DAQ
-    uint32_t totCounts[4];          // DAQ counts scaled up by (1+ deadTime)/realTime
+    uint32_t totCounts[4];          // DAQ counts scaled up by (1+deadTime)/realTime
     Float_t  countsPerSecond[4];    // goodCounts/(realTime-deadTime)
-    Float_t  scaleFactor[4];        // scaling of the integral
-    Float_t  detectorResponse[4];   // signals used to calculate the arrow pointing angle
+    Float_t  scaleFactor[4];        // Scaling of the integral
+    Float_t  detectorResponse[4];   // Signals used to calculate the arrow pointing angle
 
-    Float_t  acqTime;               // acquisition time set by DAQ
-    Float_t  arrowAngle;            // angle of the arrow as calculated by the fuzzy logic algorithm
+    Float_t  acqTime;               // Acquisition time set by DAQ
+    Float_t  arrowAngle;            // Angle of the arrow as calculated by the fuzzy logic algorithm
 
     ClassDef(PigsEvent, 1)
 };
