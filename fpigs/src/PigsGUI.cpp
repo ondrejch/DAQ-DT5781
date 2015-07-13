@@ -356,7 +356,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // *** Tab widget ****
     fTabHolder = new TGTab(fMainGUIFrame,fGUIsizeX-4,fGUIsizeX-4);//,uGC->GetGC());
 
-    // *** container of "CurrentHistogram" ***
+    // *** Container of "CurrentHistogram" ***
     fCurHistFrame = fTabHolder->AddTab("CurrentHistogram");
     fCurHistFrame->SetLayoutManager(new TGVerticalLayout(fCurHistFrame));
     // embedded canvas
@@ -376,7 +376,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fHCurrHProgressBar->SetPosition(1);
     fCurHistFrame->AddFrame(fHCurrHProgressBar, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
-    // *** container of "History" ***
+    // *** Container of "History" ***
     fTabHisto = fTabHolder->AddTab("History");
     fTabHisto->SetLayoutManager(new TGVerticalLayout(fTabHisto));
     // embedded canvas
@@ -399,7 +399,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     }
     fTabHisto->AddFrame(fLastMeas, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
-    // *** container of "Sum" ***
+    // *** Container of "Sum" ***
     fTabSum = fTabHolder->AddTab("Sum");
     fTabSum->SetLayoutManager(new TGVerticalLayout(fTabSum));
     // embedded canvas
@@ -414,7 +414,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     }
     fTabSum->AddFrame(fSumSpectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
-    // *** container of "Arrow" ***
+    // *** Container of "Arrow" ***
     fTabArrow = fTabHolder->AddTab("Arrow");
     fTabArrow->SetLayoutManager(new TGVerticalLayout(fTabArrow));
     // embedded canvas
@@ -424,7 +424,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fArrowECanvas->AdoptCanvas(cArrowCanvas);
     fTabArrow->AddFrame(fSumSpectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
-    // *** container of "Config" ***
+    // *** Container of "Config" ***
     fTabConfig = fTabHolder->AddTab("Config");
     fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
     // Acquisition time settings
@@ -472,7 +472,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fIntLimFrame->AddFrame(fIntLimInputMax, new TGLayoutHints(kLHintsNormal, 0, 0, 2, 2));
     fTabConfig->AddFrame(fIntLimFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));
 
-    // *** container of "DT5781" ***
+    // *** Container of "DT5781" ***
     fTabDT5781 = fTabHolder->AddTab("DT5781");
     fTabDT5781->SetLayoutManager(new TGVerticalLayout(fTabDT5781));
     gClient->GetColorByName("white", fColor);
@@ -498,7 +498,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fDisconnectDAQ->ChangeBackground(fColor);
     fDisconnectDAQ->Connect("Clicked()","PigsGUI",this,"DisconnectDAQ()");
 
-    // *** container of "About" ***
+    // *** Container of "About" ***
     fTabAbout = fTabHolder->AddTab("About");
     fTabAbout->SetLayoutManager(new TGVerticalLayout(fTabAbout));
     ufont = gClient->GetFont("-*-fixed-medium-r-*-*-15-*-*-*-*-*-*-*");
