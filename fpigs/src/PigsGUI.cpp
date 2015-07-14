@@ -281,7 +281,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "         Four Channel Version\n"
 "\n"
 "   by Ondrej Chvala <ochvala@utk.edu>\n"
-"        version 0.085, July 2015\n"
+"        version 0.088, July 2015\n"
 "   https://github.com/ondrejch/DAQ-DT5781\n"
 "                 GNU/GPL";
     int32_t i = 0; // helper variable
@@ -456,7 +456,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fIntLimFrame = new TGGroupFrame(fTabConfig, "ADC window for integration");
     fIntLimFrame->SetTitlePos(TGGroupFrame::kCenter);
     fUseIntegration = new TGCheckButton(fIntLimFrame, "Energy integration On/Off");
-    fUseIntegration->SetOn();
+    fUseIntegration->SetOn(kFALSE);         // Start with regular counts
     fUseIntegration->SetToolTipText("If enabled, the detector response is calculated by integrating "
             "the energy deposited in ADC bins within the limits specidied below.\n"
             "If disabled, the hit count is used as a detector response.");
@@ -471,6 +471,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fIntLimInputMax->GetEntry()->Connect("TextChanged(char*)", "PigsGUI", this, "SetIntegralLimitMax()");
     fIntLimFrame->AddFrame(fIntLimInputMax, new TGLayoutHints(kLHintsNormal, 0, 0, 2, 2));
     fTabConfig->AddFrame(fIntLimFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));
+    this->ToggleUseIntegration();           // Updates the integration entries' status
 
     // *** Container of "DT5781" ***
     fTabDT5781 = fTabHolder->AddTab("DT5781");

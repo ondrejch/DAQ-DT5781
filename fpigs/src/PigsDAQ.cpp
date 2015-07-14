@@ -260,7 +260,8 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
             gui->SetProgressBarPosition(pctProgress);
             if(fVerbose>9) std::cout<<__PRETTY_FUNCTION__ << " progress: " << pctProgress << std::endl;
         }
-        usleep(usecSleepPollDAQ);        // Waits to poll DT5781 // TODO re-implement using TTimer?
+/*        usleep(usecSleepPollDAQ);        // Waits to poll DT5781 // TODO re-implement using TTimer?*/
+        gSystem->Sleep(usecSleepPollDAQ/1000);
         gSystem->ProcessEvents();
 
         keepGoing = 0;                   // Check if we still take data
