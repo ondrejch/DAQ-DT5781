@@ -24,6 +24,7 @@ public:
     PigsStorage(TString foutname);  // Use this constructor
     PigsStorage();
     virtual ~PigsStorage();
+    virtual void Print(Option_t *option="") const;  // Prints the storage information to stdout
 
     PigsEvent * getE()     { return e;   }
     TFile * getOutFile()   { return outf;}
@@ -32,7 +33,6 @@ public:
 
 private:
     TFile *outf;                // Filename to write the tree
-    TString fFileName;          // Name of the output file
     TTree *t;                   // Tree with measurements
     PigsEvent *e;               // Measurement object
 
