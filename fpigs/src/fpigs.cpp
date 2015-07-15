@@ -1,7 +1,7 @@
 /*
  * Name        : fpigs.cpp
  * Author      : Ondrej Chvala <ochvala@utk.edu>
- * Version     : 0.08 beta
+ * Version     : 0.09 beta
  * Copyright   : GNU/GPL
  * Description : Main program for Four-channel Position Indicating Gamma Sensor (F-PIGS)
  */
