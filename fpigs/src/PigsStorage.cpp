@@ -37,6 +37,6 @@ PigsStorage::~PigsStorage() {
 void PigsStorage::Print(Option_t *) const {
     // Prints information about the storage
     std::cout << "*** Printing information of " << this->GetName() <<" ***"<< std::endl;
-    std::cout << "File name: "  << this->getOutFileName << std::endl;
+    std::cout << "File name: "  << this->getOutFileName() << std::endl;
     std::cout << "Recorded events: " << t->GetEntries() << std::endl;
 }
