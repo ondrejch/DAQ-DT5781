@@ -20,6 +20,7 @@
 #include <TGClient.h>
 #include <TGTextView.h>
 #include <TGNumberEntry.h>
+#include <TGSlider.h>
 #include <TH1F.h>
 #include <TMultiGraph.h>
 #include <TGraph.h>
@@ -72,26 +73,38 @@ private:
     TRootEmbeddedCanvas *fLatestHistoCanvas;
     TCanvas *cCurrHCanvas;
     TGHProgressBar *fHCurrHProgressBar;
+
+    // History tab objects
     TGCompositeFrame *fTabHisto;        // container of "History"
     TRootEmbeddedCanvas *fLastMeas;
     TMultiGraph *fMG;
     TGraph *fGraph[4];
     TCanvas *cLastMeas;
+   
+    // Sum histogram tab objects
     TGCompositeFrame *fTabSum;          // container of "Sum"
     TRootEmbeddedCanvas *fSumSpectra;
     TCanvas *cSumSpectra;
+
+    // Arrow tab objects
     TGCompositeFrame *fTabArrow;        // container of "Arrow"
     TRootEmbeddedCanvas *fArrowECanvas;
     TCanvas *cArrowCanvas;
+
+    // Config tab objects
     TGCompositeFrame *fTabConfig;       // container of "Config"
     TGGroupFrame *fControlFrame;
-    TGNumberEntry *fAcqTimeEntry;
+    TGCompositeFrame *fAcqTimeFrame;
+    TGNumberEntry *fAcqTimeEntry; // Acquisition time number entry box    
+    TGHSlider *fAcqTimeSlider;
+    TGLabel *fAcqTimeLabel, *fAcqTimeLabelText;
     TGGroupFrame *fScalerFrame;
     PigsScalerInput *fScalerInput[4];
     TGGroupFrame *fIntLimFrame;
     TGCheckButton *fUseIntegration;
     PigsIntLimInput *fIntLimInputMin;
     PigsIntLimInput *fIntLimInputMax;
+    TGLayoutHints *fL1;
 
     TGCompositeFrame *fTabDT5781;       // container of "DT5781"
     TGTextView *fDTinfo;
@@ -118,6 +131,7 @@ private:
     int32_t fIntegralMin, fIntegralMax; // Bin limits for integration used by CalcResponseV2
 
     static const int32_t fHistColors[4];        // Colors for history plot
+    static const int32_t fDefaultAcqTime = 10; // Default acquisition time [sec]
     static const int32_t fGUIsizeX    = 1200;   // GUI size in pixels
     static const int32_t fGUIsizeY    = 1000;
     static const int32_t fVerbose = 1;  // Verbosity level settings
@@ -149,6 +163,25 @@ public:
 };
 
 
+// Auxilliary class for acquisition time input slider
+/*
+class PigsAcqSlider : public TGHorizontalFrame {
+protected:
+ TGHSlider *fEntry;
+
+public:
+  PigsIntLimSlider(const TGWindow *p, const char *name) : TGHorizontalFrame(p) {
+     fEntry = new TGHSlider(this,1,40,-1);
+     fEntry->SetRange(0.1,300.0);
+     AddFrame(fEntry, new TGLayoutHints(kLHintsLeft));
+     TGLabel *label = new TGLabel(this,name);
+     AddFrame(label, new TGLayoutHints(kLHintsLeft,10));    
+  }  
+  Int_t GetPosition() const { return fEntry->GetPosition(); }
+
+  ClassDef(PigsIntLimSlider, 0)
+};
+*/
 class PigsIntLimInput : public TGHorizontalFrame {
 // Auxiliary class for integral limit value input
 protected:

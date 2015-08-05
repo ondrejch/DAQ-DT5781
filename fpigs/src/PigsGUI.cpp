@@ -35,7 +35,8 @@ int32_t PigsGUI::InitDAQ() {
         if(fVerbose) for (ch=0; ch<4;ch++) daq->PrintChannelParameters(ch);
         fDTinfo->AddLineFast("Board configured");
         fStartDAQ->SetState(kButtonUp);             // Enable acquisition
-        fAcqTimeEntry->SetState(1);                 // Enable changing of the acquisition time
+        //fAcqTimeEntry->SetState(kTRUE);                 // Enable changing of the acquisition time
+        fAcqTimeSlider->SetState(kTRUE);                // Enable changing of the acquisition time
         this->SetAcquisitionLoopTime();             // Set default acquisition time
         TGText tbuff; tbuff.LoadBuffer(daq->getBoardInfo());
         fDTinfo->AddText(&tbuff);
@@ -51,6 +52,9 @@ int32_t PigsGUI::DisconnectDAQ() {
     int32_t ret = 0;
     fDTinfo->AddLine("*** Disconnecting the DAQ ***");
     if (daq) ret = daq->EndLibrary();
+    if (!ret) {
+       fAcqTimeSlider->SetState(kFALSE);
+    }
     return ret;
 }
 
@@ -108,10 +112,12 @@ int32_t PigsGUI::RunAcquisition() {
 
 void PigsGUI::SetAcquisitionLoopTime() {
     // Changes the acquisition time
-    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- val: " <<
-            fAcqTimeEntry->GetNumberEntry()->GetNumber() << std::endl;
+    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- val: " << 
+            //fAcqTimeEntry->GetNumberEntry()->GetNumber() << std::endl;
+            fAcqTimeSlider->GetPosition() << std::endl;    
     if(daq) {
-        daq->SetAcquisitionLoopTime(fAcqTimeEntry->GetNumberEntry()->GetNumber());
+        //daq->SetAcquisitionLoopTime(fAcqTimeEntry->GetNumberEntry()->GetNumber());
+        daq->SetAcquisitionLoopTime(fAcqTimeSlider->GetPosition());
     }
 }
 
@@ -430,6 +436,34 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // Acquisition time settings
     fControlFrame = new TGGroupFrame(fTabConfig, "Acquisition time [sec]");
     fControlFrame->SetTitlePos(TGGroupFrame::kCenter);
+
+    // Acquisition time entry
+    fAcqTimeFrame = new TGCompositeFrame(fTabConfig, 100, 1, kHorizontalFrame); 
+    fAcqTimeLabelText = new TGLabel(fAcqTimeFrame,"Acquire time:",
+            uGC->GetGC(),ufont->GetFontStruct());
+    fAcqTimeLabelText->SetTextJustify(kTextLeft);
+    fAcqTimeLabelText->SetWrapLength(-1);
+    fAcqTimeLabel = new TGLabel(fAcqTimeFrame,"    ",
+            uGC->GetGC(),ufont->GetFontStruct());
+    fAcqTimeLabel->SetTextColor(0x0066ff);
+    fAcqTimeLabel->SetTextJustify(kTextCenterX);
+    fAcqTimeLabel->SetWrapLength(-1);
+    fAcqTimeLabel->SetMinWidth(3);
+    
+    fAcqTimeSlider = new TGHSlider(fControlFrame,300,kSlider1 | kScaleBoth,-1);
+    fAcqTimeSlider->Connect("PositionChanged(Int_t)", "PigsGUI", this, "SetAcquisitionLoopTime()");
+    fAcqTimeSlider->Connect("PositionChanged(Int_t)", "TGLabel", fAcqTimeLabel, "SetText(Int_t)");
+    fAcqTimeSlider->SetRange(1,300); // Integer positions; @TODO: Set time in millisec?
+    fAcqTimeSlider->SetPosition(fDefaultAcqTime); // 10 second acquire time by default
+
+    fAcqTimeFrame->AddFrame(fAcqTimeLabelText, new TGLayoutHints(kLHintsLeft, 10, 5, 10, 10));
+    fAcqTimeFrame->AddFrame(fAcqTimeLabel, new TGLayoutHints(kLHintsRight, 0, 10, 10, 10 ));
+
+    fControlFrame->AddFrame(fAcqTimeSlider, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
+    fControlFrame->AddFrame(fAcqTimeFrame, new TGLayoutHints(kLHintsBottom, 10, 10, 5, 5));
+
+
+    /* 
     fAcqTimeEntry = new TGNumberEntry(fControlFrame, (Double_t) 10.0 ,5,-1, TGNumberFormat::kNESRealOne,
             TGNumberFormat::kNEAPositive,TGNumberFormat::kNELLimitMinMax, 0.1, 600);
     fAcqTimeEntry->GetNumberEntry()->SetToolTipText("Time for one DAQ loop in seconds.");
@@ -437,9 +471,14 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
             "SetAcquisitionLoopTime()");
     fAcqTimeEntry->GetNumberEntry()->Connect("ReturnPressed()", "PigsGUI", this,
             "SetAcquisitionLoopTime()");
-    fControlFrame->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
-    fTabConfig->AddFrame(fControlFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));
-    fAcqTimeEntry->SetState(0);
+    
+    
+    //fControlFrame->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
+    */
+    fTabConfig->AddFrame(fControlFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));    
+    //fAcqTimeEntry->SetState(kFALSE);
+    fAcqTimeSlider->SetState(kFALSE);
+
     // Scale Factor setting
     fScalerFrame = new TGGroupFrame(fTabConfig, "Channel gain compensation");
     fScalerFrame->SetTitlePos(TGGroupFrame::kCenter);
