@@ -113,7 +113,7 @@ int32_t PigsDAQ::AddBoardUSB() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     // The following is for direct USB connection
     connParam.LinkType = CAENDPP_USB;
-    connParam.LinkNum = 0;              // This defines the USB port to use and must increase with board number; ex: for board 3 must be 3
+    connParam.LinkNum = 1;              // This defines the USB port to use and must increase with board number; ex: for board 3 must be 3
     connParam.ConetNode = 0;            // This MUST be 0
     connParam.VMEBaseAddress = 0x0;     // For direct connection the address must be 0
     brd = 0;                            // We only have one board
