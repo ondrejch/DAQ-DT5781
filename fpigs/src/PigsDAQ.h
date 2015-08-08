@@ -70,7 +70,7 @@ public:
 
     int32_t isChannelDisabled(int32_t ch);          // 0 if enabled, 1 if disabled
     void PrintChannelParameters(int32_t ch);        // Prints Channel Parameters
-    char * decodeError(char *dest, int32_t code);   // Decodes the given error code into a message
+    char * decodeError(char* dest, int32_t code);   // Decodes the given error code into a message
 
     int32_t ConfigureChannel(int32_t ch);       // Sets channel parameters specified in Init & Set calls
     int32_t StopAcquisition(int32_t ch);        // Stops acquisition for channel ch

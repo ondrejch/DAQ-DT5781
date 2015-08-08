@@ -17,7 +17,6 @@ int32_t PigsGUI::InitDAQ() {
     // Initialization of the PigsDAQ object, DPP library, DAQ configuration, storage
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int32_t ret = 0;
-    int32_t ch;
 
     if (storage) delete storage;                        // Storage initialization
     fDateTime.Set();
@@ -30,14 +29,24 @@ int32_t PigsGUI::InitDAQ() {
 
     fDTinfo->AddLine("*** Initializing the DAQ ***");   // DAQ initialization
     daq = PigsDAQ::getInstance();
-    if (!ret) { ret = daq->InitDPPLib();  fDTinfo->AddLineFast("DPP firmware instantiated"); }
-    if (!ret) { ret = daq->AddBoardUSB(); fDTinfo->AddLineFast("Board added"); }
+ 
+    // Initialize
+    ret = daq->InitDPPLib();
+    if (!ret) {
+       fDTinfo->AddLineFast("DPP firmware instantiated");   
+       // Add board via USB
+       ret = daq->AddBoardUSB(); 
+    }
+    if (!ret) { fDTinfo->AddLineFast("Board added"); }
+    std::cout << "Init(): return code = " << ret << std::endl;
+
+    // Initialize each channel
     if (!ret) ret = daq->BasicInit();
     if (!ret) ret = daq->ConfigureBoard();
-    for (ch=0; ch<4;ch++) if (!ret) ret = daq->ConfigureChannel(ch);
+    for (size_t ch=0; ch<4;ch++) if (!ret) ret = daq->ConfigureChannel(ch);
     if (!ret) {
         daq->PrintBoardInfo();
-        if(fVerbose) for (ch=0; ch<4;ch++) daq->PrintChannelParameters(ch);
+        if(fVerbose) for (size_t ch=0; ch<4;ch++) daq->PrintChannelParameters(ch);
         fDTinfo->AddLineFast("Board configured");
         fStartDAQ->SetState(kButtonUp);             // Enable acquisition
         fAcqTimeEntry->SetState(kTRUE);                 // Enable changing of the acquisition time
@@ -47,6 +56,11 @@ int32_t PigsGUI::InitDAQ() {
         TGText tbuff; tbuff.LoadBuffer(daq->getBoardInfo());
         fDTinfo->AddText(&tbuff);
         fDTinfo->Update();
+    }
+    // Print out any error we get
+    if(ret != 0) {
+       char daqErr[MAX_ERRMSG_LEN + 1]; // Decoded error to return if DAQ operation fails       
+       fDTinfo->AddLineFast(daq->decodeError(daqErr, ret));
     }
     daq->setGUI(this);            // set GUI pointer
 	return ret;
@@ -85,7 +99,7 @@ int32_t PigsGUI::RunAcquisition() {
         if(!ret) {
             daq->RefreshCurrHist();             // transfer data to TH1F
             for (ch=0; ch<4;ch++) {
-				cCurrHCanvas->GetPad(ch+1)->cd();
+                cCurrHCanvas->GetPad(ch+1)->cd();
                 daq->getCurrHist(ch)->Draw();         // plot latest TH1F
                 cCurrHCanvas->GetPad(ch+1)->Update();
                 ev->spectrum[ch]        = daq->getCurrHist(ch); // save current measurement
@@ -99,20 +113,19 @@ int32_t PigsGUI::RunAcquisition() {
                     ev->detectorResponse[ch]= this->CalcResponseV2(ch);
                 else
                     ev->detectorResponse[ch]= this->CalcResponseV1(ch);
-
             }
             ev->acqTime = daq->GetAcquisitionLoopTime();
-			ev->arrowAngle = -1.0;               // TODO calculate arrow angle
+            ev->arrowAngle = -1.0;               // TODO calculate arrow angle
             gSystem->ProcessEvents();
             cCurrHCanvas->Modified(); 
             storage->getTree()->Fill();
-			GetFuzzy(ev->goodCounts);
-			NormalizeFuzzyInputs();
-			UpdateHistory();                     // Updates the history & average tabs
-			UpdateArrow();                       // Updates the arrow tab
+            GetFuzzy(ev->goodCounts);
+            NormalizeFuzzyInputs();
+            UpdateHistory();                     // Updates the history & average tabs
+            UpdateArrow();                       // Updates the arrow tab
 
         }
-		fHCurrHProgressBar->SetPosition(1);
+        fHCurrHProgressBar->SetPosition(1);
     }
     storage->getTree()->Write();                 // This may be excessive, but we have SSD for storage :)
     fStartDAQ->SetState(kButtonUp);
@@ -126,8 +139,8 @@ void PigsGUI::SetAcquisitionLoopTimeSlider() {
     if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- val: " << 
             fAcqTimeSlider->GetPosition() << std::endl;    
     if(daq) {
-        float acqTime = fAcqTimeSlider->GetPosition()/1000.0;
-        //daq->SetAcquisitionLoopTime(acqTime);
+        float acqTime = fAcqTimeSlider->GetPosition()/10.0;
+        daq->SetAcquisitionLoopTime(acqTime);
         fAcqTimeEntry->GetNumberEntry()->SetNumber(acqTime);
         //this->SetAcquisitionTimeText(acqTime);
     }
@@ -139,8 +152,8 @@ void PigsGUI::SetAcquisitionLoopTimeNumberEntry() {
             fAcqTimeEntry->GetNumberEntry()->GetNumber() << std::endl;
     if(daq) {
         float acqTime = fAcqTimeEntry->GetNumberEntry()->GetNumber();
-        //daq->SetAcquisitionLoopTime(acqTime);
-        fAcqTimeSlider->SetPosition(static_cast<int>(ceil(acqTime*1000))); // position in ms
+        daq->SetAcquisitionLoopTime(acqTime);
+        fAcqTimeSlider->SetPosition(static_cast<int>(ceil(acqTime*10))); // position in 100 ms increments
         //this->SetAcquisitionTimeText(acqTime);
     }
 }
@@ -548,8 +561,8 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     //fAcqTimeSlider = new TGHSlider(fControlFrame,300,kSlider1 | kScaleBoth,-1);
     fAcqTimeSlider->Connect("PositionChanged(Int_t)", "PigsGUI", this, "SetAcquisitionLoopTimeSlider()");
     //fAcqTimeSlider->Connect("PositionChanged(Int_t)", "TGLabel", fAcqTimeLabel, "SetText(Int_t)");
-    fAcqTimeSlider->SetRange(100,600000); // time in ms => [0.1 - 600 sec]
-    fAcqTimeSlider->SetPosition(fDefaultAcqTime*1000); // 10 second acquire time by default
+    fAcqTimeSlider->SetRange(1,6000); // time in 100 ms increments => [0.1 - 600 sec]
+    fAcqTimeSlider->SetPosition(fDefaultAcqTime*10); // 10 second acquire time by default
 
 
     fAcqTimeFrame->AddFrame(fAcqTimeSlider, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
@@ -565,9 +578,9 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fAcqTimeFrame->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
     //fControlFrame->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
     
-   
-    //fAcqTimeEntry->SetState(kFALSE);
-    //fAcqTimeSlider->SetState(kFALSE);
+    // Disable acquisition time adjustmnt until DAQ initialized
+    fAcqTimeEntry->SetState(kFALSE);
+    fAcqTimeSlider->SetState(kFALSE);
 /*
     fAcqTimeLabelFrame = new TGCompositeFrame(fTabConfig, 100, 10, kHorizontalFrame); 
     fAcqTimeLabelText = new TGLabel(fAcqTimeLabelFrame,"Acquire time:",
