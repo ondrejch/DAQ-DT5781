@@ -39,6 +39,8 @@ CFLAGS += -Wall -O2 -I$(SRCDIR)
 VPATH = src
 LDFLAGS= 
 
+_FUZZYDEF = "${SRCDIR}/fismain.fis"
+
 DEPS = $(wildcard $(SRCDIR)/*.h)
 _SRCS = $(wildcard $(SRCDIR)/*.cpp) 
 _OBJS = $(_SRCS:.cpp=.o) 
@@ -90,6 +92,6 @@ $(EXEC1) : ${FUZZY_OBJS} $(OBJS) $(DICTSRC) $(EXEC1NAME).cpp
 	@echo [${CC}] Compiling $(EXEC1)
 	@if [ ! -d $(EXEDIR) ]; then mkdir -p $(EXEDIR); fi
 	@$(CC) $(CFLAGS) $(COPTS) $(OBJDIR)/$(DICT).o ${FUZZY_OBJS} $(OBJS) $(LIBS) -o $@
-	
+	@if [ -e ${_FUZZYDEF} ]; then cp ${_FUZZYDEF} ${EXEDIR}; fi
 clean:
 	rm -rf $(OBJDIR)/*  $(LIBDIR)/*.so $(EXEC1) 
