@@ -29,6 +29,8 @@
 #include <TTimeStamp.h>
 #include <TColor.h>
 #include <TArrow.h>
+#include <TEllipse.h>
+#include <TText.h>
 #include <TImage.h>
 #include <TApplication.h>
 #include <Riostream.h>
@@ -51,10 +53,11 @@ public:
     int32_t RunAcquisition();           // Loop acquisition
     int32_t StopAcquisition();          // Stops acquisition loop
     int32_t HardStopAcquisition();      // Stops acquisition on channel 0
-    void SetAcquisitionLoopTime();                     // Changes acquisition time using GUI
     void SetProgressBarPosition(Float_t fposition);    // Set the position of the progress bar
     Float_t CalcResponseV1(int32_t ch); // Simple response function that returns scaled number of counts
     Float_t CalcResponseV2(int32_t ch); // Detector response function using energy integrals
+    void SetAcquisitionLoopTimeSlider();            // Changes acquisition time using GUI slider
+    void SetAcquisitionLoopTimeNumberEntry();       // Changes acquisition time using GUI number entry
     void SetGainScalerCh0();            // Changes scaler gain using GUI
     void SetGainScalerCh1();            // Changes scaler gain using GUI
     void SetGainScalerCh2();            // Changes scaler gain using GUI
@@ -62,9 +65,16 @@ public:
     void SetIntegralLimitMin();         // Changes lower limit for energy integration using GUI
     void SetIntegralLimitMax();         // Changes upper limit for energy integration using GUI
     void ToggleUseIntegration();        // Use count sum or energy integration as detector response, set from GUI
-
+    float GetFuzzy(const uint32_t[4]);  // Array of counts for fuzzy input
+	float NormalizeFuzzyInputs();		// Normalize counts for fuzzy input 
+	double RawFuzzArray[4];             // Raw array for fuzzy inputs
+	double Normalized[4];               // Normalized four member array
+	int32_t result;
+	
 private:
+    void UpdateArrow();
     void UpdateHistory();
+    //void SetAcquisitionTimeText(float);       // Changes acquisition time label
     TGMainFrame *fMainGUIFrame;         // Main GUI window
     TGLabel *fMainTitle;                //
     TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
@@ -89,12 +99,17 @@ private:
     // Arrow tab objects
     TGCompositeFrame *fTabArrow;        // container of "Arrow"
     TRootEmbeddedCanvas *fArrowECanvas;
+    TGGroupFrame *fArrowFramex;
+    TGNumberEntry *fArrowEntryx;
+    TGGroupFrame *fArrowFramey;
+    TGNumberEntry *fArrowEntryy;    
     TCanvas *cArrowCanvas;
+    TArrow *ar1;						// Initialize arrow name
 
-    // Config tab objects
     TGCompositeFrame *fTabConfig;       // container of "Config"
     TGGroupFrame *fControlFrame;
     TGCompositeFrame *fAcqTimeFrame;
+    TGCompositeFrame *fAcqTimeLabelFrame;
     TGNumberEntry *fAcqTimeEntry; // Acquisition time number entry box    
     TGHSlider *fAcqTimeSlider;
     TGLabel *fAcqTimeLabel, *fAcqTimeLabelText;
@@ -130,6 +145,15 @@ private:
     Float_t fScaleFactor[4];            // Scaling of the detector response
     int32_t fIntegralMin, fIntegralMax; // Bin limits for integration used by CalcResponseV2
 
+	float fuzz_angle;
+	float fake_fuzzy;
+	float ox;
+	float oy;
+	float comp_x1;
+	float comp_y1;
+	float comp_x2;
+	float comp_y2;
+	
     static const int32_t fHistColors[4];        // Colors for history plot
     static const int32_t fDefaultAcqTime = 10; // Default acquisition time [sec]
     static const int32_t fGUIsizeX    = 1200;   // GUI size in pixels

@@ -30,18 +30,24 @@ EXEDIR = bin
 # produced library
 LIBDIR = lib
 
-COPTS = -fPIC -DLINUX -Wall $(shell root-config --cflags) -I/usr/local/include/CAEN 
+#COPTS = -fPIC -DLINUX -Wall $(shell root-config --cflags) -I/usr/local/include/CAEN 
+COPTS = -fPIC -DLINUX -Wall -Wno-write-strings -Wno-unused-function $(shell root-config --cflags) -I/usr/local/include/CAEN 
 
 LIBS = $(shell root-config --libs --glibs) -L/usr/local/lib/CAEN -lCAENDPPLib
 
-CFLAGS += -Wall -I$(SRCDIR)
+CFLAGS += -Wall -O2 -I$(SRCDIR)
 VPATH = src
 LDFLAGS= 
 
 DEPS = $(wildcard $(SRCDIR)/*.h)
-_SRCS = $(wildcard $(SRCDIR)/*.cpp)
-_OBJS = $(_SRCS:.cpp=.o)
+_SRCS = $(wildcard $(SRCDIR)/*.cpp) 
+_OBJS = $(_SRCS:.cpp=.o) 
+
+_FUZZY_SRCS = $(wildcard ${SRCDIR}/*.c )
+_FUZZY_OBJS = $(_FUZZY_SRCS:.c=.o)
+
 OBJS = $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(_OBJS))
+FUZZY_OBJS = $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(_FUZZY_OBJS))
 
 DICT = fPigsDict
 DICTSUF = cpp
@@ -55,12 +61,17 @@ EXEC1 = $(EXEDIR)/$(EXEC1NAME).exe
 
 ##########################################################################
 
-all: $(OBJS) $(DICTSRC) $(EXEC1) 
+all: $(FUZZY_OBJS) $(OBJS) $(DICTSRC) $(EXEC1) 
+
+# compile the fuzzy logic processor objects first
+$(OBJDIR)/%.o: %.c ${DEPS}
+	@if [ ! -d $(OBJDIR) ]; then mkdir -p $(OBJDIR); fi
+	@echo [${CC}] Compiling C object $< 
+	@$(CC) -c $(CFLAGS) $(COPTS) $< -o $@
 
 # compile each class individually; recompile only those with changes
 $(OBJDIR)/%.o: %.cpp $(DEPS)
-	@if [ ! -d $(OBJDIR) ]; then mkdir -p $(OBJDIR); fi
-	@echo [${CC}] Compiling class $<
+	@echo [${CC}] Compiling class $<        
 	@$(CC) -c $(CFLAGS) $(COPTS) $< -o $@
 
 # generate dictionary for all classes, including shared dictionary 
@@ -75,10 +86,10 @@ $(DICTSRC): $(DEPS)
 	@$(CC) -shared  -o $(LIBDIR)/$(DICT).so  $(OBJS) $(OBJDIR)/$(DICT).o $(LIBS)
 
 # link executable
-$(EXEC1) : $(OBJS) $(DICTSRC) $(EXEC1NAME).cpp 
+$(EXEC1) : ${FUZZY_OBJS} $(OBJS) $(DICTSRC) $(EXEC1NAME).cpp 
 	@echo [${CC}] Compiling $(EXEC1)
 	@if [ ! -d $(EXEDIR) ]; then mkdir -p $(EXEDIR); fi
-	@$(CC) $(CFLAGS) $(COPTS) $(OBJDIR)/$(DICT).o $(OBJS) $(LIBS) -o $@
+	@$(CC) $(CFLAGS) $(COPTS) $(OBJDIR)/$(DICT).o ${FUZZY_OBJS} $(OBJS) $(LIBS) -o $@
 	
 clean:
 	rm -rf $(OBJDIR)/*  $(LIBDIR)/*.so $(EXEC1) 
