@@ -30,7 +30,7 @@ DOUBLE get_fuzzy(DOUBLE** dataMatrix, int data_col_n)
 	int fis_row_n, fis_col_n;
 
         // NOTE: We need to store this with the GUI exe somehow...
-        fis_file = "fismain.fis";
+        fis_file = "bin/fismain.fis";
 
 	/* obtain FIS matrix */
 	fisMatrix = returnFismatrix(fis_file, &fis_row_n, &fis_col_n);

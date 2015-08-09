@@ -118,9 +118,10 @@ DOUBLE**fisCopyMatrix(DOUBLE **source, int row_n, int col_n)
 	int i, j;
 
 	target = (DOUBLE **)fisCreateMatrix(row_n, col_n, sizeof(DOUBLE));
-	for (i = 0; i < row_n; i++)
+	for (i = 0; i < row_n; i++) {
 		for (j = 0; j < col_n; j++)
 			target[i][j] = source[i][j];
+        }
 	return(target);
 }
 
@@ -131,8 +132,9 @@ void fisPrintMatrix(DOUBLE **matrix, int row_n, int col_n)
 {
 	int i, j;
 	for (i = 0; i < row_n; i++) {
-		for (j = 0; j < col_n; j++)
+		for (j = 0; j < col_n; j++) {
 			PRINTF("%.3f ", matrix[i][j]);
+                }
 		PRINTF("\n");
 	}
 }
@@ -140,8 +142,9 @@ void fisPrintMatrix(DOUBLE **matrix, int row_n, int col_n)
 void fisPrintArray(DOUBLE *array, int size)
 {
 	int i;
-	for (i = 0; i < size; i++)
+	for (i = 0; i < size; i++) {
 		PRINTF("%.3f ", array[i]);
+        }
 	PRINTF("\n");
 }
 
@@ -441,7 +444,7 @@ DOUBLE defuzzCentroid(FIS *fis, int m, DOUBLE *mf, int numofpoints)
 	DOUBLE sum = 0;
 	int i;
 
-	for (i = 0; i < numofpoints; i++){
+	for (i = 0; i < numofpoints; i++) {
 		total_mf += mf[i];
        		sum += mf[i]*(min + step*i);
 	}
@@ -497,11 +500,12 @@ DOUBLE defuzzMeanOfMax(FIS *fis, int m, DOUBLE *mf, int numofpoints)
 
 	sum = 0;
 	count = 0;
-	for (i = 0; i < numofpoints; i++)
+	for (i = 0; i < numofpoints; i++) {
 		if (mf[i] == mf_max) {
 			count++;
 			sum += i;
 		}
+        }
 	return(min+step*sum/count);
 }
 
@@ -517,7 +521,7 @@ DOUBLE defuzzSmallestOfMax(FIS *fis, int m, DOUBLE *mf, int numofpoints)
 	DOUBLE distance; /* distance to the origin */
 
 	mf_max = fisArrayOperation(mf, numofpoints, fisMax);
-	for (i = 0; i < numofpoints; i++)
+	for (i = 0; i < numofpoints; i++) {
 		if (mf[i] == mf_max) {
 			distance = ABS(min + step*i);
 			if (min_distance > distance) {
@@ -525,6 +529,7 @@ DOUBLE defuzzSmallestOfMax(FIS *fis, int m, DOUBLE *mf, int numofpoints)
 				min_index = i;
 			}
 		}
+        }
 	return(min + step*min_index);
 }
 
@@ -540,7 +545,7 @@ DOUBLE defuzzLargestOfMax(FIS *fis, int m, DOUBLE *mf, int numofpoints)
 	DOUBLE distance; /* distance to the origin */
 
 	mf_max = fisArrayOperation(mf, numofpoints, fisMax);
-	for (i = 0; i < numofpoints; i++)
+	for (i = 0; i < numofpoints; i++) {
 		if (mf[i] == mf_max) {
 			distance = ABS(min + step*i);
 			if (max_distance < distance) {
@@ -548,6 +553,7 @@ DOUBLE defuzzLargestOfMax(FIS *fis, int m, DOUBLE *mf, int numofpoints)
 				max_index = i;
 			}
 		}
+        }
 	return(min + step*max_index);
 }
 /***********************************************************************
@@ -598,7 +604,7 @@ void fisAssignMfPointer(FIS *fis)
 	};
 
 	/* input MF's */
-	for (i = 0; i < fis->in_n; i++)
+	for (i = 0; i < fis->in_n; i++) {
 		for (j = 0; j < fis->input[i]->mf_n; j++) {
 			mf_node = fis->input[i]->mf[j];
 			found = 0;
@@ -634,9 +640,10 @@ void fisAssignMfPointer(FIS *fis)
 #endif
 			}
 		}
+        }
 
 	/* output MF's */
-	for (i = 0; i < fis->out_n; i++)
+	for (i = 0; i < fis->out_n; i++) {
 		for (j = 0; j < fis->output[i]->mf_n; j++) {
 			mf_node = fis->output[i]->mf[j];
 			found = 0;
@@ -661,7 +668,7 @@ void fisAssignMfPointer(FIS *fis)
 					fisError("Exiting ...");
 				}
 				mf_node->userDefined = 1;
-			}
+			} 
 #else
 				PRINTF("MF type '%s' for output %d is unknown.\n",
 					mf_node->type, i+1);
@@ -670,8 +677,9 @@ void fisAssignMfPointer(FIS *fis)
 					PRINTF("%s ", dispatch[i].mfType);
 				fisError("\n");
 #endif
-			}
-		}
+			} // end found == 0
+		} // end for j = 0.. fis->output[i]_mf_n
+       } // end for i=0..fis->out_n
 }
 
 /* Assign a other function pointers */
@@ -1011,9 +1019,9 @@ void fisComputeOutputMfValueArray(FIS *fis, int numofpoints)
 				PRINTF("Cannot find MF type %s!\n", mf_node->type);
 				fisError("Exiting ...");
 #endif
-			}
-		}
-	}
+			} // end if (!mf_node->userDefined)
+		} // end for j = 0.. fis->output[i]->mf[j]
+	} // end for i=0.. fis->out_n
 }
 
 /* Copyright 1994-2002 The MathWorks, Inc.  */
@@ -1027,10 +1035,10 @@ void fisGetString2(char *target, DOUBLE *array, int max_leng)
 
 	/* Find the actual length of the string */
 	/* If the string is not ended with 0, take max_leng */
-	for (actual_leng = 0; actual_leng < max_leng; actual_leng++)
+	for (actual_leng = 0; actual_leng < max_leng; actual_leng++) {
 		if (array[actual_leng] == 0)
 			break;
-
+        }
 	if (actual_leng + 1 > STR_LEN) {
 		PRINTF("actual_leng = %d\n", actual_leng);
 		PRINTF("STR_LEN = %d\n", STR_LEN);
@@ -1092,7 +1100,7 @@ void fisCheckDataStructure(FIS *fis)
 	}
 	/* check if it's sugeno system with "NOT" consequent */
 	if (strcmp(fis->type, "sugeno") == 0)
-	for (i = 0; i < fis->rule_n; i++)
+	for (i = 0; i < fis->rule_n; i++) {
 		for (j = 0; j < fis->out_n; j++) {
 			mf_index = fis->rule_list[i][fis->in_n+j];
 			if (mf_index < 0) {
@@ -1101,9 +1109,11 @@ void fisCheckDataStructure(FIS *fis)
 				fisError("Exiting ...");
 			}
 		}
+        }
+
 	/* check if it's sugeno system with zero consequent */
-	if (strcmp(fis->type, "sugeno") == 0)
-	for (i = 0; i < fis->rule_n; i++)
+	if (strcmp(fis->type, "sugeno") == 0) {
+           for (i = 0; i < fis->rule_n; i++) {
 		for (j = 0; j < fis->out_n; j++) {
 			mf_index = fis->rule_list[i][fis->in_n+j];
 			if (mf_index == 0) {
@@ -1111,6 +1121,8 @@ void fisCheckDataStructure(FIS *fis)
 				PRINTF("This output in the rule is assumed zero in subsequent calculation.\n\n");
 			}
 		}
+           }
+       }
 }
 
 /* Build FIS node and load parameter from fismatrix directly */
@@ -1213,21 +1225,23 @@ void fisBuildFisNode(FIS *fis, DOUBLE **fismatrix, int col_n, int numofpoints)
 
 	/* get Mamdani output MF parameters and compute MF value array */
 	if (strcmp(fis->type, "mamdani") == 0) {
-		for (i = 0; i < fis->out_n; i++)
+		for (i = 0; i < fis->out_n; i++) {
 			for (j = 0; j < fis->output[i]->mf_n; j++) {
 				fis->output[i]->mf[j]->value_array =
 					(DOUBLE *)fisCalloc(numofpoints, sizeof(DOUBLE));
 				fis->output[i]->mf[j]->nparams = MF_PARA_N;
 				fis->output[i]->mf[j]->params = 
 					(DOUBLE *)fisCalloc(MF_PARA_N,sizeof(DOUBLE));
-				for (k = 0; k < MF_PARA_N; k++)
+				for (k = 0; k < MF_PARA_N; k++) {
 					fis->output[i]->mf[j]->params[k] = fismatrix[start][k];
+                                }
 				start++;
 			}
+                }
 		fisComputeOutputMfValueArray(fis, numofpoints);
 	/* get Sugeno output equation parameters */
 	} else if (strcmp(fis->type, "sugeno") == 0) {
-		for (i = 0; i < fis->out_n; i++)
+		for (i = 0; i < fis->out_n; i++) {
 			for (j = 0; j < fis->output[i]->mf_n; j++) {
 				fis->output[i]->mf[j]->nparams = fis->in_n+1;
 				fis->output[i]->mf[j]->params =
@@ -1236,6 +1250,7 @@ void fisBuildFisNode(FIS *fis, DOUBLE **fismatrix, int col_n, int numofpoints)
 					fis->output[i]->mf[j]->params[k] = fismatrix[start][k];
 				start++;
 			}
+               }
 	} else {
 		PRINTF("fis->type = %s\n", fis->type);
 		fisError("Unknown fis type!");
@@ -1291,7 +1306,7 @@ void fisLoadParameter(FIS *fis, DOUBLE **fismatrix, int numofpoints)
 
 	/* get Mamdani output MF parameters */
 	if (strcmp(fis->type, "mamdani") == 0) {
-		for (i = 0; i < fis->out_n; i++)
+		for (i = 0; i < fis->out_n; i++) {
 			for (j = 0; j < fis->output[i]->mf_n; j++) {
 				fis->output[i]->mf[j]->nparams = MF_PARA_N;
 				fis->output[i]->mf[j]->params = 
@@ -1301,11 +1316,12 @@ void fisLoadParameter(FIS *fis, DOUBLE **fismatrix, int numofpoints)
 						fismatrix[start][k];
 				start++;
 			}
+                }
 		fisComputeOutputMfValueArray(fis, numofpoints);
 
 	/* get Sugeno output equation parameters */
 	} else if (strcmp(fis->type, "sugeno") == 0) {
-		for (i = 0; i < fis->out_n; i++)
+		for (i = 0; i < fis->out_n; i++) {
 			for (j = 0; j < fis->output[i]->mf_n; j++) {
 				fis->output[i]->mf[j]->nparams = fis->in_n+1;
 				fis->output[i]->mf[j]->params =
@@ -1315,6 +1331,7 @@ void fisLoadParameter(FIS *fis, DOUBLE **fismatrix, int numofpoints)
 						fismatrix[start][k];
 				start++;
 			}
+                }
 	} else {
 		PRINTF("fis->type = %s\n", fis->type);
 		fisError("Unknown fis type!");
@@ -1337,15 +1354,17 @@ void fisLoadParameter1(FIS *fis, DOUBLE *para_array, int numofpoints)
 	int paraN;
 
 	/* get input MF parameters */
-	for (int i = 0; i < fis->in_n; i++)
+	for (int i = 0; i < fis->in_n; i++) {
 		for (int j = 0; j < fis->input[i]->mf_n; j++) {
 			paraN = fisGetMfParaN(fis->input[i]->mf[j]->type);
 			fis->input[i]->mf[j]->nparams = paraN;
 			fis->input[i]->mf[j]->params = 
 				(DOUBLE *)fisCalloc(MF_PARA_N,sizeof(DOUBLE));
-			for (int k = 0; k < paraN; k++)
+			for (int k = 0; k < paraN; k++) {
 				fis->input[i]->mf[j]->params[k] = para_array[start++];
+                        }
 		}
+        }
 
 	/* get Mamdani output MF parameters */
 	if (strcmp(fis->type, "mamdani") == 0) {
@@ -1402,9 +1421,10 @@ FIS *fisMatchName(FIS *head, char *name)
 {
 	FIS *p, *matched_p = NULL;
 
-	for (p = head; p != NULL; p = p->next)
+	for (p = head; p != NULL; p = p->next) {
 		if (strcmp(p->name, name) == 0)
 			matched_p = p;
+        }
 	return(matched_p);
 }
 
@@ -1416,9 +1436,10 @@ int fisFindMaxHandle(FIS *head)
 	if (head == NULL)
 		return(0);
 
-	for (p = head; p != NULL; p = p->next)
+	for (p = head; p != NULL; p = p->next) {
 		if (p->handle > max_handle)
 			max_handle = p->handle;
+        }
 	return(max_handle);
 }
 /***********************************************************************
@@ -1433,7 +1454,7 @@ void fisComputeInputMfValue(FIS *fis)
 	int i, j;
 	MF *mf_node;
 
-	for (i = 0; i < fis->in_n; i++)
+	for (i = 0; i < fis->in_n; i++) {
 		for (j = 0; j < fis->input[i]->mf_n; j++) {
 			mf_node = fis->input[i]->mf[j];
 			if (!mf_node->userDefined)
@@ -1449,6 +1470,7 @@ void fisComputeInputMfValue(FIS *fis)
 #endif
 			}
 		}
+       }
 }
 
 /* Compute rule output (for Sugeno model only) */
@@ -1458,7 +1480,7 @@ void fisComputeTskRuleOutput(FIS *fis)
 	DOUBLE out;
 	MF *mf_node;
 
-	for (i = 0; i < fis->out_n; i++)
+	for (i = 0; i < fis->out_n; i++) {
 		for (j = 0; j < fis->output[i]->mf_n; j++) {
 			mf_node = fis->output[i]->mf[j];
 			out = 0;
@@ -1467,6 +1489,7 @@ void fisComputeTskRuleOutput(FIS *fis)
 			out = out + mf_node->params[fis->in_n];
 			mf_node->value = out;
 		}
+        }
 }
 
 
@@ -1529,9 +1552,10 @@ void fisComputeFiringStrength(FIS *fis)
 	}
 
 	/* Scale the original firing strength by rule_weight */
-	for (i = 0; i < fis->rule_n; i++)
+	for (i = 0; i < fis->rule_n; i++) {
 		fis->firing_strength[i] = 
 			fis->rule_weight[i]*fis->firing_strength[i];
+        }
 }
 
 #ifdef MATLAB_MEX_FILE
@@ -1584,38 +1608,46 @@ void fisFinalOutputMf2(FIS *fis, int m, DOUBLE *aggMF, int numofpoints)
 	/* The following should not be based on t-conorm */
 	for (i = 0; i < fis->rule_n; i++) {
 		which_mf = fis->rule_list[i][fis->in_n+m];
-		if (which_mf > 0)
-			for (j = 0; j < numofpoints; j++)
+		if (which_mf > 0) {
+			for (j = 0; j < numofpoints; j++) {
 				/*
 				fis->BigOutMfMatrix[i][j] = 
 					fis->output[m]->mf[which_mf-1]->value_array[j];
 				*/
 				fis->BigOutMfMatrix[j*fis->rule_n+i] = 
 					fis->output[m]->mf[which_mf-1]->value_array[j];
-		else if (which_mf < 0)
-			for (j = 0; j < numofpoints; j++)
+                        }
+                }
+		else if (which_mf < 0) {
+			for (j = 0; j < numofpoints; j++) {
 				/*
 				fis->BigOutMfMatrix[i][j] = 
 					1-fis->output[m]->mf[-which_mf-1]->value_array[j];
 				*/
 				fis->BigOutMfMatrix[j*fis->rule_n+i] = 
 					1 - fis->output[m]->mf[-which_mf-1]->value_array[j];
+                        }
+                }
 		else	/* which_mf == 0 */
-			for (j = 0; j < numofpoints; j++)
+			for (j = 0; j < numofpoints; j++) {
 				fis->BigOutMfMatrix[j*fis->rule_n+i] = 0; 
+                        }
 	}
 
 	/* fill in BigWeightMatrix */
-	for (i = 0; i < fis->rule_n; i++)
-		for (j = 0; j < numofpoints; j++)
+	for (i = 0; i < fis->rule_n; i++) {
+		for (j = 0; j < numofpoints; j++) {
 				fis->BigWeightMatrix[j*fis->rule_n+i] = 
 					fis->firing_strength[i];
-
+                }
+        }
 	/* apply implication operator */
-	if (!fis->userDefinedImp)
-		for (i = 0; i < (fis->rule_n)*numofpoints; i++)
+	if (!fis->userDefinedImp) {
+		for (i = 0; i < (fis->rule_n)*numofpoints; i++) {
 			fis->BigOutMfMatrix[i] = (*fis->impFcn)(
 				fis->BigWeightMatrix[i], fis->BigOutMfMatrix[i]);
+                }
+        }
 	else {
 #ifdef MATLAB_MEX_FILE
 		fisCallMatlabFcn2(fis->BigWeightMatrix, fis->BigOutMfMatrix,
@@ -1627,11 +1659,13 @@ void fisFinalOutputMf2(FIS *fis, int m, DOUBLE *aggMF, int numofpoints)
 	}
 	
 	/* apply MATLAB aggregate operator */
-	if (!fis->userDefinedAgg)
-		for (i = 0; i < numofpoints; i++)
+	if (!fis->userDefinedAgg) {
+		for (i = 0; i < numofpoints; i++) {
 			aggMF[i] = fisArrayOperation(
 			fis->BigOutMfMatrix+i*fis->rule_n,
 			fis->rule_n, fis->aggFcn);
+                }
+        }
 	else {
 #ifdef MATLAB_MEX_FILE
 		fisCallMatlabFcn1(fis->BigOutMfMatrix, fis->rule_n,
@@ -1700,10 +1734,10 @@ void fisEvaluate(FIS *fis, int numofpoints)
 		}
 		/* Weighted average to find the overall output*/
 		total_wf = 0;
-		for (k = 0; k < fis->rule_n; k++)
+		for (k = 0; k < fis->rule_n; k++) {
 			total_wf += (fis->firing_strength[k]*
 				fis->rule_output[k]);
-
+                }
 		if (strcmp(fis->defuzzMethod, "wtaver") == 0)
 			fis->output[i]->value = total_wf/total_w;
 		else if (strcmp(fis->defuzzMethod, "wtsum") == 0)
@@ -1905,17 +1939,19 @@ DOUBLE *array;
 	index = 0;	/* index of array */
 	while (start <= (int)strlen(string)-1) {
 		/* find end */
-		for (end = start; end < (int)strlen(string); end++)
+		for (end = start; end < (int)strlen(string); end++) {
 			if (string[end] == ' ')
 				break;
+                }
 		for (i = start; i <= end; i++)
 			tmp[i-start] = string[i]; 
 		tmp[i-start] = 0;
 		array[index++] = atof(tmp);
 		/* find new start */
-		for (start = end; start < (int)strlen(string); start++)
+		for (start = end; start < (int)strlen(string); start++) {
 			if (string[start] != ' ')
 				break;
+                }
 	}
 	/*
 	printf("%s\n", string);
@@ -2101,8 +2137,9 @@ int *col_n_p;
 	now = 0;
 	getString(buf, fp, fismatrix[now++]);	/* name */
 	getString(buf, fp, fismatrix[now++]);	/* type */
-	for (i = 0; i < STR_LEN && fismatrix[1][i] != 0; i++)
+	for (i = 0; i < STR_LEN && fismatrix[1][i] != 0; i++) {
 		fisType[i] = (int) fismatrix[1][i];
+        }
 	fisType[i] = 0;
 	in_n = (int)getNumber(buf, fp);
 	out_n = (int)getNumber(buf, fp);
@@ -2150,8 +2187,9 @@ int *col_n_p;
 			if (sscanf(buf, " Name = '%[^']' ", str1) == 1)
 				break;
 		}
-		for (j = 0; j < (int)strlen(str1); j++)
+		for (j = 0; j < (int)strlen(str1); j++) {
 			fismatrix[now][j] = str1[j];
+                }
 		now++;
 	}
 	fclose(fp);
@@ -2182,8 +2220,9 @@ int *col_n_p;
 					str1, str2, str3, str4) == 4)
 					break;
 			}
-			for (k = 0; k < (int)strlen(str2); k++)
+			for (k = 0; k < (int)strlen(str2); k++) {
 				fismatrix[now][k] = str2[k];
+                        }
 			now++;
 		}
 	}
