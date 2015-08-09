@@ -115,14 +115,14 @@ int32_t PigsGUI::RunAcquisition() {
                     ev->detectorResponse[ch]= this->CalcResponseV1(ch);
             }
             ev->acqTime = daq->GetAcquisitionLoopTime();
-            ev->arrowAngle = -1.0;               // TODO calculate arrow angle
-            gSystem->ProcessEvents();
+			NormalizeFuzzyInputs();
+			ev->arrowAngle = UpdateArrow();      // Updates the arrow tab, calculates the arrow angle
+			gSystem->ProcessEvents();
             cCurrHCanvas->Modified(); 
             storage->getTree()->Fill();
-            GetFuzzy(ev->goodCounts);
-            NormalizeFuzzyInputs();
+            //CalcFuzzy(fuzzyTest,4);
+			//GetFuzzy(ev->goodCounts);
             UpdateHistory();                     // Updates the history & average tabs
-            UpdateArrow();                       // Updates the arrow tab
 
         }
         fHCurrHProgressBar->SetPosition(1);
@@ -306,33 +306,51 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
     gClient->NeedRedraw(fHCurrHProgressBar);
 }
 
-//void PigsGUI::Arrow_Coords(double arrow_func, double xpos2, double ypos2) {
-	// Set arrow x,y coordinates
-    // Use calculated fuzzy output *22.5 and sin/cos to solve for x,y
-
-	
-//}
 
 // Update the arrow tab
-void PigsGUI::UpdateArrow() {
+float PigsGUI::UpdateArrow() {
+	// Update the arrow tab
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+	
+    int32_t i;                          // helper variable
+    float fuzz_angle;                   // arrow angle to be calculated
+	//    float fake_fuzzy;
+    float ox, oy;                       // plotting tmp variables
+    float comp_x1, comp_y1;
+    float comp_x2, comp_y2;
+    
+	double** fuzzyTest = new double*[1];    
+	double* fuzzyRow = new double[4];
+	
+	//double **tmpNormalized;             // Ugly hack to communicate with fismain
+    //tmpNormalized = new double*[4];
+    for(i=0; i<4; i++) {
+        fuzzyRow[i]= Normalized[i];
+    }
+	fuzzyTest[0] = &fuzzyRow[0];
+	double fuzzyVal = calc_fuzzy(fuzzyTest, 4);
+	std::cout << "Fuzzy Pos = " << fuzzyVal << std::endl;
+	
+	// Get the arrow angle
+    //fuzz_angle =  CalcFuzzy(tmpNormalized,4);
+	
 	cArrowCanvas->cd();
 	// Define where origin is
 	ox = 0.5;
 	oy = 0.5;
 	// Create fake fuzzy output between 0-16
-	fake_fuzzy = 16*((float) rand()) / (float) RAND_MAX;
+	//fake_fuzzy = 16*((float) rand()) / (float) RAND_MAX;
 	//fake_fuzzy = (rand()%16);
-	cout << fake_fuzzy << "////";
+	//cout << fake_fuzzy << "////";
 	// Create x,y around circle
-	fuzz_angle = fake_fuzzy*22.5;
-	cout << fuzz_angle << "////";
+	fuzz_angle = fuzzyVal*22.5;
+	std::cout << "Fuzzy Angle = " << fuzz_angle << std::endl;
+	//cout << fuzz_angle << "////";
 	comp_x2 = 0.5 + 0.2*cos(fuzz_angle*M_PI/180);
 	comp_y2 = 0.5 + 0.2*sin(fuzz_angle*M_PI/180);
-	//comp_x2 = ox - (comp_x1 - ox);
-	//comp_y2 = oy - (comp_y1 - oy);
 	comp_x1 = -comp_x2 + 2*ox;
 	comp_y1 = -comp_y2 + 2*oy;
-	cout << comp_x1 <<"////"<< comp_x2 <<"////"<< comp_y1 <<"////"<< comp_y2;
+	//cout << comp_x1 <<"////"<< comp_x2 <<"////"<< comp_y1 <<"////"<< comp_y2;
 	ar1->SetX1(comp_x1);
 	ar1->SetY1(comp_y1);
 	ar1->SetX2(comp_x2);
@@ -343,6 +361,7 @@ void PigsGUI::UpdateArrow() {
 	cArrowCanvas->Modified();
 	cArrowCanvas->Update();
 	
+	return fuzzyVal;
 }
 
 
@@ -695,7 +714,7 @@ float PigsGUI::NormalizeFuzzyInputs(){
 		RawFuzzArray[i]=ev->goodCounts[i];
 		cout << RawFuzzArray[i]<<",";
 	}	
-	cout << "]""\n";
+	cout << "]";
 	cout << endl;
     int min = *std::min_element(RawFuzzArray,RawFuzzArray+4);
     int max = *std::max_element(RawFuzzArray,RawFuzzArray+4);
@@ -703,10 +722,12 @@ float PigsGUI::NormalizeFuzzyInputs(){
 	std::cout << "The largest element is " << *std::max_element(RawFuzzArray,RawFuzzArray+4) << '\n';
 	cout << endl;
 	
+	cout << "[";
 	for(int i=0; i<4; i++){
 		Normalized[i] = 100*(RawFuzzArray[i]-min)/(max-min);
 		cout << Normalized[i]<<",";
 	}		
+	cout << "]";
 	cout << endl;
 
 	return 0;	

@@ -40,6 +40,9 @@
 #include <PigsStorage.h>
 #include <PigsDAQ.h>
 
+#include "fis.h"
+#include "fismain.h"
+
 class PigsDAQ;
 class PigsScalerInput;
 class PigsIntLimInput;
@@ -70,9 +73,11 @@ public:
 	double RawFuzzArray[4];             // Raw array for fuzzy inputs
 	double Normalized[4];               // Normalized four member array
 	int32_t result;
+	//int CalcFuzzy(int argc, char **argv);
+
 	
 private:
-    void UpdateArrow();
+    float UpdateArrow();
     void UpdateHistory();
     //void SetAcquisitionTimeText(float);       // Changes acquisition time label
     TGMainFrame *fMainGUIFrame;         // Main GUI window
@@ -156,8 +161,8 @@ private:
 	
     static const int32_t fHistColors[4];        // Colors for history plot
     static const int32_t fDefaultAcqTime = 10; // Default acquisition time [sec]
-    static const int32_t fGUIsizeX    = 1200;   // GUI size in pixels
-    static const int32_t fGUIsizeY    = 1000;
+    static const int32_t fGUIsizeX    = 600;   // GUI size in pixels
+    static const int32_t fGUIsizeY    = 600;
     static const int32_t fVerbose = 1;  // Verbosity level settings
     const char *fAboutMsg;              // "About" tab text
 
