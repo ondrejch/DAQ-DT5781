@@ -7,12 +7,17 @@
  */
 
 #include "PigsGUI.h"
+#include "fismain.h"
+#include <cstdlib>
+#include <math.h>
+#include <iostream>
+#include <algorithm> 
+
 
 int32_t PigsGUI::InitDAQ() {
     // Initialization of the PigsDAQ object, DPP library, DAQ configuration, storage
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int32_t ret = 0;
-    int32_t ch;
 
     if (storage) delete storage;                        // Storage initialization
     fDateTime.Set();
@@ -25,24 +30,41 @@ int32_t PigsGUI::InitDAQ() {
 
     fDTinfo->AddLine("*** Initializing the DAQ ***");   // DAQ initialization
     daq = PigsDAQ::getInstance();
-    if (!ret) { ret = daq->InitDPPLib();  fDTinfo->AddLineFast("DPP firmware instantiated"); }
-    if (!ret) { ret = daq->AddBoardUSB(); fDTinfo->AddLineFast("Board added"); }
+ 
+    // Initialize
+    ret = daq->InitDPPLib();
+    if (!ret) {
+       fDTinfo->AddLineFast("DPP firmware instantiated");   
+       // Add board via USB
+       ret = daq->AddBoardUSB(); 
+    }
+    if (!ret) { fDTinfo->AddLineFast("Board added"); }
+    std::cout << "Init(): return code = " << ret << std::endl;
+
+    // Initialize each channel
     if (!ret) ret = daq->BasicInit();
     if (!ret) ret = daq->ConfigureBoard();
-    for (ch=0; ch<4;ch++) if (!ret) ret = daq->ConfigureChannel(ch);
+    for (size_t ch=0; ch<4;ch++) if (!ret) ret = daq->ConfigureChannel(ch);
     if (!ret) {
         daq->PrintBoardInfo();
-        if(fVerbose) for (ch=0; ch<4;ch++) daq->PrintChannelParameters(ch);
+        if(fVerbose) for (size_t ch=0; ch<4;ch++) daq->PrintChannelParameters(ch);
         fDTinfo->AddLineFast("Board configured");
         fStartDAQ->SetState(kButtonUp);             // Enable acquisition
-        fAcqTimeEntry->SetState(1);                 // Enable changing of the acquisition time
-        this->SetAcquisitionLoopTime();             // Set default acquisition time
+        fAcqTimeEntry->SetState(kTRUE);                 // Enable changing of the acquisition time
+        fAcqTimeSlider->SetState(kTRUE);                // Enable changing of the acquisition time
+        this->SetAcquisitionLoopTimeSlider();          // Set default acquisition time
+        //this->SetAcquisitionTimeText(fDefaultAcqTime);
         TGText tbuff; tbuff.LoadBuffer(daq->getBoardInfo());
         fDTinfo->AddText(&tbuff);
         fDTinfo->Update();
     }
+    // Print out any error we get
+    if(ret != 0) {
+       char daqErr[MAX_ERRMSG_LEN + 1]; // Decoded error to return if DAQ operation fails       
+       fDTinfo->AddLineFast(daq->decodeError(daqErr, ret));
+    }
     daq->setGUI(this);            // set GUI pointer
-    return ret;
+	return ret;
 }
 
 int32_t PigsGUI::DisconnectDAQ() {
@@ -51,6 +73,9 @@ int32_t PigsGUI::DisconnectDAQ() {
     int32_t ret = 0;
     fDTinfo->AddLine("*** Disconnecting the DAQ ***");
     if (daq) ret = daq->EndLibrary();
+    if (!ret) {
+       fAcqTimeSlider->SetState(kFALSE);
+    }
     return ret;
 }
 
@@ -94,9 +119,11 @@ int32_t PigsGUI::RunAcquisition() {
             NormalizeFuzzyInputs();
             ev->arrowAngle = UpdateArrow();      // Updates the arrow tab, calculates the arrow angle
             gSystem->ProcessEvents();
-            cCurrHCanvas->Modified();
+            cCurrHCanvas->Modified(); 
             storage->getTree()->Fill();
+            NormalizeFuzzyInputs();
             UpdateHistory();                     // Updates the history & average tabs
+
         }
         fHCurrHProgressBar->SetPosition(1);
     }
@@ -107,15 +134,34 @@ int32_t PigsGUI::RunAcquisition() {
     return ret;
 }
 
-void PigsGUI::SetAcquisitionLoopTime() {
+void PigsGUI::SetAcquisitionLoopTimeSlider() {
     // Changes the acquisition time
-    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- val: " <<
-            fAcqTimeEntry->GetNumberEntry()->GetNumber() << std::endl;
+    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- val: " << 
+            fAcqTimeSlider->GetPosition() << std::endl;    
     if(daq) {
-        daq->SetAcquisitionLoopTime(fAcqTimeEntry->GetNumberEntry()->GetNumber());
+        float acqTime = fAcqTimeSlider->GetPosition()/10.0;
+        daq->SetAcquisitionLoopTime(acqTime);
+        fAcqTimeEntry->GetNumberEntry()->SetNumber(acqTime);
+        //this->SetAcquisitionTimeText(acqTime);
     }
 }
 
+void PigsGUI::SetAcquisitionLoopTimeNumberEntry() {
+    // Changes the acquisition time
+    if(fVerbose) std::cout << __PRETTY_FUNCTION__ << " -- val: " << 
+            fAcqTimeEntry->GetNumberEntry()->GetNumber() << std::endl;
+    if(daq) {
+        float acqTime = fAcqTimeEntry->GetNumberEntry()->GetNumber();
+        daq->SetAcquisitionLoopTime(acqTime);
+        fAcqTimeSlider->SetPosition(static_cast<int>(ceil(acqTime*10))); // position in 100 ms increments
+        //this->SetAcquisitionTimeText(acqTime);
+    }
+}
+/*
+void PigsGUI::SetAcquisitionTimeText(float acqTime) {
+    fAcqTimeLabel->SetText(static_cast<int>(ceil(acqTime)));
+}
+*/
 // Channel gain settings - one may write this more neatly has we have more time...
 void PigsGUI::SetGainScalerCh0() {
     // Changes the scaler gain for channel 0
@@ -279,7 +325,7 @@ float PigsGUI::UpdateArrow() {
     }
 
     // Get the arrow angle, calls the routine in fismain
-    fuzz_angle =  get_fuzzy(tmpNormalized, 4);
+    fuzz_angle =  calc_fuzzy(tmpNormalized, 4);
 
     cArrowCanvas->cd();
     // Define where origin is
@@ -306,6 +352,7 @@ float PigsGUI::UpdateArrow() {
     
     return fuzz_angle;
 }
+
 
 PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // Creates the GUI
@@ -447,8 +494,8 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     }
     fTabHisto->AddFrame(fLastMeas, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
-    // *** Container of "Sum" ***
-    fTabSum = fTabHolder->AddTab("Sum");
+    // *** Container of "Average" ***
+    fTabSum = fTabHolder->AddTab("Average");
     fTabSum->SetLayoutManager(new TGVerticalLayout(fTabSum));
     // embedded canvas
     fSumSpectra = new TRootEmbeddedCanvas("SumHEC",fTabSum,fGUIsizeX-10,fGUIsizeY-110);
@@ -463,26 +510,76 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fTabSum->AddFrame(fSumSpectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
     // *** Container of "Arrow" ***
-    fTabArrow = fTabHolder->AddTab("Arrow");
+	fTabArrow = fTabHolder->AddTab("Arrow");
     fTabArrow->SetLayoutManager(new TGVerticalLayout(fTabArrow));
-    // embedded canvas
     fArrowECanvas = new TRootEmbeddedCanvas("ArrowHEC",fTabArrow,fGUIsizeX-10,fGUIsizeY-110);
     Int_t wfArrowECanvas = fArrowECanvas->GetCanvasWindowId();
-    cArrowCanvas = new TCanvas("cArrowCanvas", 10, 10, wfArrowECanvas);
-    fArrowECanvas->AdoptCanvas(cArrowCanvas);
-    fTabArrow->AddFrame(fSumSpectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+    cArrowCanvas = new TCanvas("cArrowCanvas", 5, 5, wfArrowECanvas);
+    // Draw compass circle
+	TEllipse *el1 = new TEllipse(0.5,0.5,0.48,0.48);
+    el1->SetFillColor(14);
+    el1->SetFillStyle(1001);
+    el1->SetLineColor(1);
+    el1->SetLineWidth(6);
+    el1->Draw();
+    // Add bearing labels
+	TText *north = new TText(0.5,0.9,"N");
+    north->SetTextColor(2);
+    north->SetTextSize(0.1);
+    north->SetTextAlign(12);
+    north->SetTextAlign(21);
+    north->Draw();
+    TText *south = new TText(0.5,0.04,"S");
+    south->SetTextSize(0.1);
+    south->SetTextAlign(12);
+    south->SetTextAlign(21);
+    south->Draw();
+    TText *east = new TText(0.92,0.5,"E");
+    east->SetTextSize(0.1);
+    east->SetTextAlign(12);
+    east->SetTextAlign(21);
+    east->Draw();
+    TText *west = new TText(0.08,0.5,"W");
+    west->SetTextSize(0.1);
+    west->SetTextAlign(12);
+    west->SetTextAlign(21);
+    west->Draw();
+	// Draw initial arrow pointing North
+	ar1 = new TArrow(0.5,0.3,0.5,0.7,0.3,"|>");
+    ar1->SetAngle(30);
+    ar1->SetLineWidth(5);
+    ar1->SetFillColor(4);
+    ar1->Draw();
+	fArrowECanvas->AdoptCanvas(cArrowCanvas);
+    fTabArrow->AddFrame(fArrowECanvas, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
     // *** Container of "Config" ***
     fTabConfig = fTabHolder->AddTab("Config");
     fTabConfig->SetLayoutManager(new TGVerticalLayout(fTabConfig));
+
     // Acquisition time settings
     fControlFrame = new TGGroupFrame(fTabConfig, "Acquisition time [sec]");
     fControlFrame->SetTitlePos(TGGroupFrame::kCenter);
-    fAcqTimeEntry = new TGNumberEntry(fControlFrame, (Double_t) 10.0 ,5,-1, TGNumberFormat::kNESRealOne,
-            TGNumberFormat::kNEAPositive,TGNumberFormat::kNELLimitMinMax, 0.1, 600);
+
+
+    // Acquisition time entry
+    fAcqTimeFrame = new TGCompositeFrame(fControlFrame, 200, 10, kHorizontalFrame); 
+  
+    fAcqTimeSlider = new TGHSlider(fAcqTimeFrame,300,kSlider1 | kScaleBoth,-1);
+    //fAcqTimeSlider = new TGHSlider(fControlFrame,300,kSlider1 | kScaleBoth,-1);
+    fAcqTimeSlider->Connect("PositionChanged(Int_t)", "PigsGUI", this, "SetAcquisitionLoopTimeSlider()");
+    //fAcqTimeSlider->Connect("PositionChanged(Int_t)", "TGLabel", fAcqTimeLabel, "SetText(Int_t)");
+    fAcqTimeSlider->SetRange(1,6000); // time in 100 ms increments => [0.1 - 600 sec]
+    fAcqTimeSlider->SetPosition(fDefaultAcqTime*10); // 10 second acquire time by default
+
+
+    fAcqTimeFrame->AddFrame(fAcqTimeSlider, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
+
+    //fAcqTimeEntry = new TGNumberEntry(fControlFrame, (Double_t) fDefaultAcqTime ,5,-1, TGNumberFormat::kNESRealOne, TGNumberFormat::kNEAPositive,TGNumberFormat::kNELLimitMinMax, 0.1, 600);
+    fAcqTimeEntry = new TGNumberEntry(fAcqTimeFrame, (Double_t) fDefaultAcqTime ,5,-1, TGNumberFormat::kNESRealOne, TGNumberFormat::kNEAPositive,TGNumberFormat::kNELLimitMinMax, 0.1, 600);
     fAcqTimeEntry->GetNumberEntry()->SetToolTipText("Time for one DAQ loop in seconds.");
     fAcqTimeEntry->GetNumberEntry()->Connect("TextChanged(char*)", "PigsGUI", this,
-            "SetAcquisitionLoopTime()");
+            "SetAcquisitionLoopTimeNumberEntry()");
     fAcqTimeEntry->GetNumberEntry()->Connect("ReturnPressed()", "PigsGUI", this,
             "SetAcquisitionLoopTimeNumberEntry()");
     
@@ -622,6 +719,7 @@ void PigsGUI::NormalizeFuzzyInputs() {
     }        
     if(fVerbose) std::cout << std::endl;
 }                        
+
 
 PigsGUI::~PigsGUI() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;

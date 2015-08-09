@@ -76,14 +76,14 @@ int32_t PigsDAQ::BasicInit() {
     return fErrCode;
 }
 
+/// \fn      int32_t SetDAQParams();
+/// \brief   Configures DAQ parameters for PIGS purposes.
+///             Sets everything which is not in the dgtzParams structure
+///
+/// \param   No parameters yet, it could be implemented better.
+///
+/// \return  0 = Success; negative numbers are error codes
 int32_t PigsDAQ::SetDAQParams(){
-    /// \fn      int32_t SetDAQParams();
-    /// \brief   Configures DAQ parameters for PIGS purposes.
-    ///             Sets everything which is not in the dgtzParams structure
-    ///
-    /// \param   No parameters yet, it could be implemented better.
-    ///
-    /// \return  0 = Success; negative numbers are error codes
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
     // Set the Acquisition Mode
@@ -99,21 +99,21 @@ int32_t PigsDAQ::SetDAQParams(){
     return 0;
 }
 
+// Initialize the DPP library
 int32_t PigsDAQ::InitDPPLib() {
-    // Initialize the DPP library
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     fErrCode = CAENDPP_InitLibrary(&handle);    // The handle will be used to command the library
     if(fErrCode != CAENDPP_RetCode_Ok)
-        std::cerr<<"Problem initializing the library: "<< decodeError(codeStr,fErrCode) << std::endl;
+        std::cerr<<"Problem initializing the library: "<< decodeError(codeStr, fErrCode) << std::endl;
     return fErrCode;
 }
 
+// Adds board 0 & prints board information
 int32_t PigsDAQ::AddBoardUSB() {
-    // Adds board 0 & prints board information
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     // The following is for direct USB connection
     connParam.LinkType = CAENDPP_USB;
-    connParam.LinkNum = 0;              // This defines the USB port to use and must increase with board number; ex: for board 3 must be 3
+    connParam.LinkNum = 1;              // This defines the USB port to use and must increase with board number; ex: for board 3 must be 3
     connParam.ConetNode = 0;            // This MUST be 0
     connParam.VMEBaseAddress = 0x0;     // For direct connection the address must be 0
     brd = 0;                            // We only have one board
@@ -121,14 +121,14 @@ int32_t PigsDAQ::AddBoardUSB() {
     // Add board to the Library
     fErrCode = CAENDPP_AddBoard(handle, connParam, &brd);
     if(fErrCode != CAENDPP_RetCode_Ok) {
-        std::cerr<<"Error adding board with selected connection parameters: "<< decodeError(codeStr,fErrCode) << std::endl;
+        std::cerr<<"Error adding board with selected connection parameters: "<< decodeError(codeStr, fErrCode) << std::endl;
         return fErrCode;
     }
 
     // Get Board Info
     fErrCode  = CAENDPP_GetDPPInfo(handle, brd, &info);
     if(fErrCode != CAENDPP_RetCode_Ok) {
-        std::cerr<<"Error getting board info: "<< decodeError(codeStr,fErrCode) << std::endl;
+        std::cerr<<"Error getting board info: "<< decodeError(codeStr, fErrCode) << std::endl;
         return fErrCode;
     }
     if(fVerbose>9) PrintBoardInfo();
@@ -142,21 +142,21 @@ int32_t PigsDAQ::AddBoardUSB() {
     return fErrCode;
 }
 
+// Prints board info into stdout
 void PigsDAQ::PrintBoardInfo() {
-    // Prints board info into stdout
     std::cout << "Board "<< info.ModelName << ", Serial#: " << info.SerialNumber << std::endl;
     std::cout << "  Channels: " << info.Channels << ", License: " << info.License << std::endl;
     std::cout << "  Firmware AMC: " << info.AMC_FirmwareRel << ", ROC" << info.ROC_FirmwareRel << std::endl;
 }
 
+// Configures board 0
 int32_t PigsDAQ::ConfigureBoard() {
-    // Configures board 0
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
     fErrCode  = CAENDPP_SetBoardConfiguration(handle, 0, acqMode, dgtzParams);
     if(fErrCode != CAENDPP_RetCode_Ok) {
         std::cerr<<"Can't configure board "<<info.ModelName << ", Serial#: " << info.SerialNumber
-                << ": " << decodeError(codeStr,fErrCode) << std::endl;
+                << ": " << decodeError(codeStr, fErrCode) << std::endl;
         return fErrCode;
     }
     if(fVerbose && fErrCode == CAENDPP_RetCode_Ok) {
@@ -165,12 +165,12 @@ int32_t PigsDAQ::ConfigureBoard() {
     return fErrCode;
 }
 
+/// \fn      void PrintChannelParameters(int32_t ch);
+/// \brief   Prints the given Channel Parameters
+///
+/// \param   [IN]   ch      : The channel to modify
+///
 void PigsDAQ::PrintChannelParameters(int32_t ch) {
-    /// \fn      void PrintChannelParameters(int32_t ch);
-    /// \brief   Prints the given Channel Parameters
-    ///
-    /// \param   [IN]   ch      : The channel to modify
-    ///
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
     // Print the Configuration
@@ -195,9 +195,9 @@ void PigsDAQ::PrintChannelParameters(int32_t ch) {
     printf("\n");
 }
 
+// Stop Acquisition for channel ch; -1 for all channels
 int32_t PigsDAQ::StopAcquisition(int32_t ch) {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-    // Stop Acquisition for channel ch; -1 for all channels
     fErrCode = CAENDPP_StopAcquisition(handle, ch);
     if (fErrCode != CAENDPP_RetCode_Ok) {
         printf ("Error Stopping Acquisition for channel %d: %s\n", ch, decodeError(codeStr, fErrCode));
@@ -207,8 +207,8 @@ int32_t PigsDAQ::StopAcquisition(int32_t ch) {
     return fErrCode;
 }
 
+// Sets how long the DAQ runs, Float_t seconds to uint ns.
 void PigsDAQ::SetAcquisitionLoopTime(Float_t sec) {
-    // Sets how long the DAQ runs, Float_t seconds to uint ns.
     StopCriteriaValue =  (uint64_t)1000000000L*sec;               // [ns] Run for  10 seconds
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ <<
             " StopCriteriaValue = " << StopCriteriaValue << std::endl;
@@ -219,6 +219,8 @@ Float_t PigsDAQ::GetAcquisitionLoopTime() const {
     return (Float_t) (StopCriteriaValue/1000000000L);
 }
 
+// @TODO: Add poll time to this function
+// @TODO: Add check if any histograms are ready (bail if not)
 int32_t PigsDAQ::AcquisitionSingleLoop() {
     // Currently does only one cycle in the loop...
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << " begin " << std::endl;
@@ -302,8 +304,8 @@ int32_t PigsDAQ::AcquisitionSingleLoop() {
     return fErrCode;
 }
 
+// creates TH1F from h1
 int32_t PigsDAQ::RefreshCurrHist() {
-    // creates TH1F from h1
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     fDt.GetDate(0, 0, &year, &month, &day);     // Get date and time from the time stamp
     fDt.GetTime(0, 0, &hour, &min,   &sec);
@@ -336,8 +338,8 @@ void PigsDAQ::PrintAcquisotionInfo(int32_t ch) {
     printf(" ICR\t= %.3f counts/s\n", countsPerSecond[ch]);
 }
 
+// Configures channel with parameters set in the class data
 int32_t PigsDAQ::ConfigureChannel(int32_t ch) {
-    // Configures channel with parameters set in the class data
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     if (isChannelDisabled(ch)) {
         printf("Warning: Channel %d disabled\n",ch);
@@ -360,14 +362,14 @@ int32_t PigsDAQ::ConfigureChannel(int32_t ch) {
     return fErrCode;
 }
 
+/// \fn      int32_t isChannelDisabled(int32_t handle, int32_t ch);
+/// \brief   Get if a channel is Enabled
+///
+/// \param   [IN] handle    : Handle to the Library
+/// \param   [IN] ch        : Channel index to check
+///
+/// \return  0 if the channel is enabled, 1 if it is disabled
 int32_t PigsDAQ::isChannelDisabled(int32_t ch) {
-    /// \fn      int32_t isChannelDisabled(int32_t handle, int32_t ch);
-    /// \brief   Get if a channel is Enabled
-    ///
-    /// \param   [IN] handle    : Handle to the Library
-    /// \param   [IN] ch        : Channel index to check
-    ///
-    /// \return  0 if the channel is enabled, 1 if it is disabled
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int32_t enabled;
     int32_t ret;
@@ -377,13 +379,13 @@ int32_t PigsDAQ::isChannelDisabled(int32_t ch) {
     return !enabled;
 }
 
+/// \fn      int32_t SetDgtzParams(CAENDPP_DgtzParams_t *Params);
+/// \brief   Configures Dgtz parameters for PIGS purposes
+///
+/// \param   [OUT]  Params      : Pointer to the parameters structure
+///
+/// \return  0 = Success; negative numbers are error codes
 int32_t PigsDAQ::SetDgtzParams() {
-    /// \fn      int32_t SetDgtzParams(CAENDPP_DgtzParams_t *Params);
-    /// \brief   Configures Dgtz parameters for PIGS purposes
-    ///
-    /// \param   [OUT]  Params      : Pointer to the parameters structure
-    ///
-    /// \return  0 = Success; negative numbers are error codes
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
     // The channel mask is used to set the enabled Acquisition Input Channels
@@ -418,13 +420,13 @@ int32_t PigsDAQ::SetDgtzParams() {
     return 0;
 }
 
+/// \fn      int32_t InitDgtzParams(CAENDPP_DgtzParams_t *Params);
+/// \brief   Initialize the configuration parameters to their default value
+///
+/// \param   [OUT]  Params      : Pointer to the parameters structure to fill
+///
+/// \return  0 = Success; negative numbers are error codes
 int32_t PigsDAQ::InitDgtzParams() {
-    /// \fn      int32_t InitDgtzParams(CAENDPP_DgtzParams_t *Params);
-    /// \brief   Initialize the configuration parameters to their default value
-    ///
-    /// \param   [OUT]  Params      : Pointer to the parameters structure to fill
-    ///
-    /// \return  0 = Success; negative numbers are error codes
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
     // set listMode default parameters
@@ -517,20 +519,22 @@ int32_t PigsDAQ::InitDgtzParams() {
     return 0;
 }
 
-char * PigsDAQ::decodeError(char *dest, int32_t code) {
-    /// \fn      char *decodeError(char *dest, int32_t ret);
-    /// \brief   Decodes the given error code into a message
-    ///
-    /// \param   [IN] dest   : the string to be filled
-    /// \param   [IN] ret    : the error code
-    ///
-    /// \return  a pointer to the string if success, otherwise NULL
+/// \fn      char *decodeError(int32_t ret);
+/// \brief   Decodes the given error code into a message
+///
+/// \param   [IN] dest   : the string to be filled
+/// \param   [IN] ret    : the error code
+///
+/// \return  a pointer to the string if success, otherwise NULL
+
+//TODO: Fix this. Should not return same variable being input...
+char * PigsDAQ::decodeError( char* dest, int32_t code) {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
-    char codeStr[10];
+    char errCodeStr[10];
     size_t nc = MAX_ERRMSG_LEN;
-    sprintf(codeStr, " [%d]", code);
-    nc -= strlen(codeStr);
+    sprintf(errCodeStr, " [%d]", code);
+    nc -= strlen(errCodeStr);
     switch(code) {
     case CAENDPP_RetCode_Ok: strncpy(dest, "Success", nc); break;
     case CAENDPP_RetCode_GenericError: strncpy(dest, "Generic Error", nc); break;
@@ -578,16 +582,16 @@ char * PigsDAQ::decodeError(char *dest, int32_t code) {
     case CAENDPP_RetCode_Autoset: strncpy(dest, "Autoset Error", nc); break;
     default: strncpy(dest, "UNKNOWN Error", nc); break;
     }
-    strcat(dest, codeStr);
+    strcat(dest, errCodeStr);
     return dest;
 }
 
+// Close the Library
 int32_t PigsDAQ::EndLibrary() {
-    // Close the Library
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     fErrCode =  CAENDPP_EndLibrary(handle);
     if(fErrCode != CAENDPP_RetCode_Ok) {
-        std::cerr<<"Error closing the library: "<< decodeError(codeStr,fErrCode) << std::endl;
+        std::cerr<<"Error closing the library: "<< decodeError(codeStr, fErrCode) << std::endl;
     }
     return fErrCode;
 }

@@ -1,0 +1,92 @@
+[System]
+Name='17Pos360DegRefined'
+Type='mamdani'
+Version=2.0
+NumInputs=4
+NumOutputs=1
+NumRules=16
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='Quad_1'
+Range=[0 100]
+NumMFs=5
+MF1='Low':'gbellmf',[12.57 2.5 8.538e-16]
+MF2='Low/Mid':'gbellmf',[12.5 2.5 25.26]
+MF3='Mid':'gbellmf',[12.5 2.5 50]
+MF4='Mid/High':'gbellmf',[12.5 2.5 75]
+MF5='High':'gbellmf',[12.5 2.5 100]
+
+[Input2]
+Name='Quad_2'
+Range=[0 100]
+NumMFs=5
+MF1='Low':'gbellmf',[12.5 2.5 -2.22e-16]
+MF2='Low/Mid':'gbellmf',[12.5 2.5 25]
+MF3='Mid':'gbellmf',[12.5 2.5 50]
+MF4='Mid/High':'gbellmf',[12.5 2.5 75]
+MF5='High':'gbellmf',[12.5 2.5 100]
+
+[Input3]
+Name='Quad_3'
+Range=[0 100]
+NumMFs=5
+MF1='Low':'gbellmf',[12.5 2.5 8.538e-16]
+MF2='Low/Mid':'gbellmf',[12.5 2.5 25]
+MF3='Mid':'gbellmf',[12.5 2.5 50]
+MF4='Mid/High':'gbellmf',[12.5 2.5 75]
+MF5='High':'gbellmf',[12.5 2.5 100]
+
+[Input4]
+Name='Quad_4'
+Range=[0 100]
+NumMFs=5
+MF1='Low':'gbellmf',[12.5 2.5 8.538e-16]
+MF2='Low/Mid':'gbellmf',[12.5 2.5 25]
+MF3='Mid':'gbellmf',[12.5 2.5 50]
+MF4='Mid/High':'gbellmf',[12.5 2.5 75]
+MF5='High':'gbellmf',[12.5 2.5 100]
+
+[Output1]
+Name='Position'
+Range=[-2 17]
+NumMFs=16
+MF1='Pos_0':'trimf',[-2 0 1]
+MF2='Pos_1':'trimf',[0 1 2]
+MF3='Pos_2':'trimf',[1 2 3]
+MF4='Pos_3':'trimf',[2 3 4]
+MF5='Pos_4':'trimf',[3 4 5]
+MF6='Pos_5':'trimf',[4 5 6]
+MF7='Pos_7':'trimf',[6 7 8]
+MF8='Pos_6':'trimf',[5 6 7]
+MF9='Pos_8':'trimf',[7 8 9]
+MF10='Pos_9':'trimf',[8 9 10]
+MF11='Pos_10':'trimf',[9 10 11]
+MF11='Pos_11':'trimf',[10 11 12]
+MF12='Pos_12':'trimf',[11 12 13]
+MF13='Pos_13':'trimf',[12 13 14]
+MF14='Pos_14':'trimf',[13 14 15]
+MF15='Pos_15':'trimf',[14 15 16]
+MF16='Pos_16':'trimf',[15 16 17]
+
+[Rules]
+5 1 1 5, 1 (1) : 1
+5 2 1 4, 2 (1) : 1
+5 3 1 3, 3 (1) : 1
+5 4 1 2, 4 (1) : 1
+5 5 1 1, 5 (1) : 1
+4 5 2 1, 6 (1) : 1
+3 5 3 1, 8 (1) : 1
+2 5 4 1, 7 (1) : 1
+1 5 5 1, 9 (1) : 1
+1 4 5 2, 10 (1) : 1
+1 3 5 3, 11 (1) : 1
+1 2 5 4, 12 (1) : 1
+1 1 5 5, 13 (1) : 1
+2 1 4 5, 14 (1) : 1
+3 1 3 5, 15 (1) : 1
+4 1 2 5, 16 (1) : 1
