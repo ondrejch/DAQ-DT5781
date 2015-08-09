@@ -115,10 +115,8 @@ int32_t PigsGUI::RunAcquisition() {
                     ev->detectorResponse[ch]= this->CalcResponseV1(ch);
             }
             ev->acqTime = daq->GetAcquisitionLoopTime();
-            GetFuzzy(ev->goodCounts);	         // Fuzzy logic call
             NormalizeFuzzyInputs();
-            UpdateArrow();                       // Updates the arrow tab, calculates the arrow angle
-            ev->arrowAngle = fuzz_angle;         // set the arrow angle
+            ev->arrowAngle = UpdateArrow();      // Updates the arrow tab, calculates the arrow angle
             gSystem->ProcessEvents();
             cCurrHCanvas->Modified(); 
             storage->getTree()->Fill();
@@ -302,41 +300,53 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
     gClient->NeedRedraw(fHCurrHProgressBar);
 }
 
-void PigsGUI::UpdateArrow() {
+float PigsGUI::UpdateArrow() {
 	// Update the arrow tab
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+
+    int32_t i;                          // helper variable
+    float fuzz_angle;                   // arrow angle to be calculated
+//    float fake_fuzzy;
+    float ox, oy;                       // plotting tmp variables
+    float comp_x1, comp_y1;
+    float comp_x2, comp_y2;
+    double **tmpNormalized;             // Ugly hack to communicate with fismain
+    tmpNormalized = new double*[4];
+    for(i=0; i<4; i++) {
+        tmpNormalized[i] = new double[1];
+        tmpNormalized[i][0] = Normalized[i];
+    }
+
+    // Get the arrow angle
+    fuzz_angle =  get_fuzzy(tmpNormalized,4);
+
 	cArrowCanvas->cd();
 	// Define where origin is
 	ox = 0.5;
 	oy = 0.5;
 	// Create fake fuzzy output between 0-16
-	fake_fuzzy = 16.0*((float) rand()) / (float) RAND_MAX;
-	//fake_fuzzy = (rand()%16);
-	if(fVerbose) std::cout << fake_fuzzy << "////";
+//	  fake_fuzzy = 16.0*((float) rand()) / (float) RAND_MAX;
+//    fuzz_angle =  fake_fuzzy*22.5;
+//    if(fVerbose) std::cout << fake_fuzzy << "////";
 	// Create x,y around circle
-	fuzz_angle = fake_fuzzy*22.5;
-	cout << fuzz_angle << "////";
+	if(fVerbose) std::cout << "** Arrow Angle = " << fuzz_angle << std::endl;
 	comp_x2 = 0.5 + 0.2*cos(fuzz_angle*M_PI/180);
 	comp_y2 = 0.5 + 0.2*sin(fuzz_angle*M_PI/180);
 	//comp_x2 = ox - (comp_x1 - ox);
 	//comp_y2 = oy - (comp_y1 - oy);
 	comp_x1 = -comp_x2 + 2*ox;
 	comp_y1 = -comp_y2 + 2*oy;
-	cout << comp_x1 <<"////"<< comp_x2 <<"////"<< comp_y1 <<"////"<< comp_y2;
+	if(fVerbose) std::cout << comp_x1 <<"////"<< comp_x2 <<"////"<< comp_y1 <<"////"<< comp_y2 << std::endl;
 	ar1->SetX1(comp_x1);
 	ar1->SetY1(comp_y1);
 	ar1->SetX2(comp_x2);
 	ar1->SetY2(comp_y2);
-/*
-    ar1->SetAngle(30);
-    ar1->SetLineWidth(5);
-    ar1->SetFillColor(4);
-*/
+
 	cArrowCanvas->Modified();
 	cArrowCanvas->Update();
 	
+	return fuzz_angle;
 }
-
 
 PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // Creates the GUI
@@ -360,7 +370,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "         Four Channel Version\n"
 "\n"
 "   by Ondrej Chvala <ochvala@utk.edu>\n"
-"        version 0.095, July 2015\n"
+"        version 0.096, July 2015\n"
 "   https://github.com/ondrejch/DAQ-DT5781\n"
 "                 GNU/GPL";
     int32_t i = 0; // helper variable
@@ -681,33 +691,30 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fAboutText->MoveResize((fGUIsizeX-tmpw)/2,(fGUIsizeY-tmph)/3,tmpw,tmph);
 }
 
-float PigsGUI::NormalizeFuzzyInputs(){
-	cout << "[";
-	for(int i=0; i<4; i++){
-		RawFuzzArray[i]=ev->goodCounts[i];
-		cout << RawFuzzArray[i]<<",";
+void PigsGUI::NormalizeFuzzyInputs() {
+    // Normalize counts for fuzzy input
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
+    int i, min, max;
+    if(fVerbose) std::cout << "[";
+	for(i=0; i<4; i++){
+		RawFuzzArray[i] = ev->goodCounts[i];
+		if(fVerbose) std::cout << RawFuzzArray[i] << ",";
 	}	
-	cout << "]""\n";
-	cout << endl;
-    int min = *std::min_element(RawFuzzArray,RawFuzzArray+4);
-    int max = *std::max_element(RawFuzzArray,RawFuzzArray+4);
-	std::cout << "The smallest element is " << *std::min_element(RawFuzzArray,RawFuzzArray+4) << '\n';
-	std::cout << "The largest element is " << *std::max_element(RawFuzzArray,RawFuzzArray+4) << '\n';
-	cout << endl;
-	
-	for(int i=0; i<4; i++){
-		Normalized[i] = 100*(RawFuzzArray[i]-min)/(max-min);
-		cout << Normalized[i]<<",";
+    min = *std::min_element(RawFuzzArray, RawFuzzArray+4);
+    max = *std::max_element(RawFuzzArray, RawFuzzArray+4);
+	if(fVerbose) {
+	    std::cout << "]""\n";
+	    std::cout << std::endl;
+	    std::cout << "The smallest element is " << *std::min_element(RawFuzzArray,RawFuzzArray+4) << std::endl;
+	    std::cout << "The largest element is "  << *std::max_element(RawFuzzArray,RawFuzzArray+4) << std::endl;
+	    std::cout << std::endl;
+	}
+	for(i=0; i<4; i++){
+		Normalized[i] = 100.0*(RawFuzzArray[i]-min)/(max-min);
+		if(fVerbose) std::cout << Normalized[i] << ",";
 	}		
-	cout << endl;
-
-	return 0;	
+	if(fVerbose) std::cout << std::endl;
 }						
-
-									
-float PigsGUI::GetFuzzy(const uint32_t[4]){
-	return 0;
-}
 
 PigsGUI::~PigsGUI() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
