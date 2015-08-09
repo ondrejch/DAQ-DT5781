@@ -115,14 +115,14 @@ int32_t PigsGUI::RunAcquisition() {
                     ev->detectorResponse[ch]= this->CalcResponseV1(ch);
             }
             ev->acqTime = daq->GetAcquisitionLoopTime();
-            ev->arrowAngle = -1.0;               // TODO calculate arrow angle
+            GetFuzzy(ev->goodCounts);	         // Fuzzy logic call
+            NormalizeFuzzyInputs();
+            UpdateArrow();                       // Updates the arrow tab, calculates the arrow angle
+            ev->arrowAngle = fuzz_angle;         // set the arrow angle
             gSystem->ProcessEvents();
             cCurrHCanvas->Modified(); 
             storage->getTree()->Fill();
-            GetFuzzy(ev->goodCounts);
-            NormalizeFuzzyInputs();
             UpdateHistory();                     // Updates the history & average tabs
-            UpdateArrow();                       // Updates the arrow tab
 
         }
         fHCurrHProgressBar->SetPosition(1);
@@ -157,11 +157,7 @@ void PigsGUI::SetAcquisitionLoopTimeNumberEntry() {
         //this->SetAcquisitionTimeText(acqTime);
     }
 }
-/*
-void PigsGUI::SetAcquisitionTimeText(float acqTime) {
-    fAcqTimeLabel->SetText(static_cast<int>(ceil(acqTime)));
-}
-*/
+
 // Channel gain settings - one may write this more neatly has we have more time...
 void PigsGUI::SetGainScalerCh0() {
     // Changes the scaler gain for channel 0
@@ -306,23 +302,17 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
     gClient->NeedRedraw(fHCurrHProgressBar);
 }
 
-//void PigsGUI::Arrow_Coords(double arrow_func, double xpos2, double ypos2) {
-	// Set arrow x,y coordinates
-    // Use calculated fuzzy output *22.5 and sin/cos to solve for x,y
-
-	
-//}
-
-// Update the arrow tab
 void PigsGUI::UpdateArrow() {
+	// Update the arrow tab
+    if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 	cArrowCanvas->cd();
 	// Define where origin is
 	ox = 0.5;
 	oy = 0.5;
 	// Create fake fuzzy output between 0-16
-	fake_fuzzy = 16*((float) rand()) / (float) RAND_MAX;
+	fake_fuzzy = 16.0*((float) rand()) / (float) RAND_MAX;
 	//fake_fuzzy = (rand()%16);
-	cout << fake_fuzzy << "////";
+	if(fVerbose) std::cout << fake_fuzzy << "////";
 	// Create x,y around circle
 	fuzz_angle = fake_fuzzy*22.5;
 	cout << fuzz_angle << "////";
@@ -337,9 +327,11 @@ void PigsGUI::UpdateArrow() {
 	ar1->SetY1(comp_y1);
 	ar1->SetX2(comp_x2);
 	ar1->SetY2(comp_y2);
+/*
     ar1->SetAngle(30);
     ar1->SetLineWidth(5);
     ar1->SetFillColor(4);
+*/
 	cArrowCanvas->Modified();
 	cArrowCanvas->Update();
 	
@@ -368,7 +360,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
 "         Four Channel Version\n"
 "\n"
 "   by Ondrej Chvala <ochvala@utk.edu>\n"
-"        version 0.090, July 2015\n"
+"        version 0.095, July 2015\n"
 "   https://github.com/ondrejch/DAQ-DT5781\n"
 "                 GNU/GPL";
     int32_t i = 0; // helper variable
@@ -578,7 +570,7 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fAcqTimeFrame->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
     //fControlFrame->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
     
-    // Disable acquisition time adjustmnt until DAQ initialized
+    // Disable acquisition time adjustment until DAQ initialized
     fAcqTimeEntry->SetState(kFALSE);
     fAcqTimeSlider->SetState(kFALSE);
 /*
