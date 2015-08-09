@@ -97,10 +97,6 @@ int32_t PigsGUI::RunAcquisition() {
             cCurrHCanvas->Modified();
             storage->getTree()->Fill();
             UpdateHistory();                     // Updates the history & average tabs
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
         }
         fHCurrHProgressBar->SetPosition(1);
     }
@@ -264,15 +260,13 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
     gClient->NeedRedraw(fHCurrHProgressBar);
 }
 
-<<<<<<< Updated upstream
-=======
+
 float PigsGUI::UpdateArrow() {
-	// Update the arrow tab
+    // Update the arrow tab
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
 
     int32_t i;                          // Helper variable
     float fuzz_angle;                   // Arrow angle to be calculated
-//    float fake_fuzzy;
     float ox, oy;                       // Plotting variables for coordinates
     float comp_x1, comp_y1;
     float comp_x2, comp_y2;
@@ -287,33 +281,32 @@ float PigsGUI::UpdateArrow() {
     // Get the arrow angle, calls the routine in fismain
     fuzz_angle =  get_fuzzy(tmpNormalized, 4);
 
-	cArrowCanvas->cd();
-	// Define where origin is
-	ox = 0.5;
-	oy = 0.5;
-	// Create fake fuzzy output between 0-16
-//	  fake_fuzzy = 16.0*((float) rand()) / (float) RAND_MAX;
-//    fuzz_angle =  fake_fuzzy*22.5;
-//    if(fVerbose) std::cout << fake_fuzzy << "////";
-	// Create x,y around circle
-	if(fVerbose) std::cout << "** Arrow Angle = " << fuzz_angle << std::endl;
-	comp_x2 = 0.5 + 0.2*cos(fuzz_angle*M_PI/180.0);
-	comp_y2 = 0.5 + 0.2*sin(fuzz_angle*M_PI/180.0);
-	comp_x1 = -comp_x2 + 2.0*ox;
-	comp_y1 = -comp_y2 + 2.0*oy;
-	if(fVerbose) std::cout << comp_x1 <<"////"<< comp_x2 <<"////"<< comp_y1 <<"////"<< comp_y2 << std::endl;
-	ar1->SetX1(comp_x1);
-	ar1->SetY1(comp_y1);
-	ar1->SetX2(comp_x2);
-	ar1->SetY2(comp_y2);
+    cArrowCanvas->cd();
+    // Define where origin is
+    ox = 0.5;
+    oy = 0.5;
+    // Create fake fuzzy output between 0-16
+        //      fake_fuzzy = 16.0*((float) rand()) / (float) RAND_MAX;
+        //    fuzz_angle =  fake_fuzzy*22.5;
+        //    if(fVerbose) std::cout << fake_fuzzy << "////";
+    // Create x,y around circle
+    if(fVerbose) std::cout << "** Arrow Angle = " << fuzz_angle << std::endl;
+    comp_x2 = 0.5 + 0.2*cos(fuzz_angle*M_PI/180.0);
+    comp_y2 = 0.5 + 0.2*sin(fuzz_angle*M_PI/180.0);
+    comp_x1 = -comp_x2 + 2.0*ox;
+    comp_y1 = -comp_y2 + 2.0*oy;
+    if(fVerbose) std::cout << comp_x1 <<"////"<< comp_x2 <<"////"<< comp_y1 <<"////"<< comp_y2 << std::endl;
+    ar1->SetX1(comp_x1);
+    ar1->SetY1(comp_y1);
+    ar1->SetX2(comp_x2);
+    ar1->SetY2(comp_y2);
 
-	cArrowCanvas->Modified();
-	cArrowCanvas->Update();
-	
-	return fuzz_angle;
+    cArrowCanvas->Modified();
+    cArrowCanvas->Update();
+    
+    return fuzz_angle;
 }
 
->>>>>>> Stashed changes
 PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     // Creates the GUI
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
@@ -491,12 +484,6 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fAcqTimeEntry->GetNumberEntry()->Connect("TextChanged(char*)", "PigsGUI", this,
             "SetAcquisitionLoopTime()");
     fAcqTimeEntry->GetNumberEntry()->Connect("ReturnPressed()", "PigsGUI", this,
-<<<<<<< Updated upstream
-            "SetAcquisitionLoopTime()");
-    fControlFrame->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
-    fTabConfig->AddFrame(fControlFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));
-    fAcqTimeEntry->SetState(0);
-=======
             "SetAcquisitionLoopTimeNumberEntry()");
     
     fAcqTimeFrame->AddFrame(fAcqTimeEntry, new TGLayoutHints(kLHintsNormal, 5, 5, 5, 5));
@@ -524,7 +511,6 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
    // fControlFrame->AddFrame(fAcqTimeLabelFrame, new TGLayoutHints(kLHintsBottom, 10, 10, 5, 5));
     fTabConfig->AddFrame(fControlFrame, new TGLayoutHints(kLHintsNormal, 10, 10, 10, 10));    
 
->>>>>>> Stashed changes
     // Scale Factor setting
     fScalerFrame = new TGGroupFrame(fTabConfig, "Channel gain compensation");
     fScalerFrame->SetTitlePos(TGGroupFrame::kCenter);
@@ -614,34 +600,29 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fAboutText->MoveResize((fGUIsizeX-tmpw)/2,(fGUIsizeY-tmph)/3,tmpw,tmph);
 }
 
-<<<<<<< Updated upstream
-=======
 void PigsGUI::NormalizeFuzzyInputs() {
     // Normalize counts for fuzzy input
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     int i, min, max;
     if(fVerbose) std::cout << "[";
-	for(i=0; i<4; i++){
-		RawFuzzArray[i] = ev->goodCounts[i];
-		if(fVerbose) std::cout << RawFuzzArray[i] << ",";
-	}	
+    for(i=0; i<4; i++){
+        RawFuzzArray[i] = ev->goodCounts[i];
+        if(fVerbose) std::cout << RawFuzzArray[i] << ",";
+    }    
     min = *std::min_element(RawFuzzArray, RawFuzzArray+4);
     max = *std::max_element(RawFuzzArray, RawFuzzArray+4);
-	if(fVerbose) {
-	    std::cout << "]""\n";
-//	    std::cout << std::endl;
-	    std::cout << "The smallest element is " << *std::min_element(RawFuzzArray,RawFuzzArray+4) << std::endl;
-	    std::cout << "The largest  element is " << *std::max_element(RawFuzzArray,RawFuzzArray+4) << std::endl;
-//	    std::cout << std::endl;
-	}
-	for(i=0; i<4; i++){
-		Normalized[i] = 100.0*(RawFuzzArray[i]-min)/(max-min);
-		if(fVerbose) std::cout << Normalized[i] << ",";
-	}		
-	if(fVerbose) std::cout << std::endl;
-}						
+    if(fVerbose) {
+        std::cout << "]""\n";
+        std::cout << "The smallest element is " << *std::min_element(RawFuzzArray,RawFuzzArray+4) << std::endl;
+        std::cout << "The largest  element is " << *std::max_element(RawFuzzArray,RawFuzzArray+4) << std::endl;
+    }
+    for(i=0; i<4; i++){
+        Normalized[i] = 100.0*(RawFuzzArray[i]-min)/(max-min);
+        if(fVerbose) std::cout << Normalized[i] << ",";
+    }        
+    if(fVerbose) std::cout << std::endl;
+}                        
 
->>>>>>> Stashed changes
 PigsGUI::~PigsGUI() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     HardStopAcquisition();
