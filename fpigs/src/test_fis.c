@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main(int argc, char **argv) {
-    double** fuzzyTest =  new double*[1];    
+    double** fuzzyTest = new double*[1];    
     double* fuzzyRow = new double[4];
      
     fuzzyRow[0] = 0.0;
@@ -13,9 +13,7 @@ int main(int argc, char **argv) {
     fuzzyRow[3] = 100.0;
     fuzzyTest[0] = &fuzzyRow[0];    
 
-    double* fuzzyPos = new double[1];
-  
-    fuzzyPos[0] = get_fuzzy(fuzzyTest, 4);
-    std::cout << "Fuzzy pos = " << fuzzyPos[0] << std::endl;
-
+    double fuzzyVal = calc_fuzzy(fuzzyTest, 4);
+    std::cout << "Fuzzy pos = " << fuzzyVal << std::endl;
+    // Note: calc_fuzzy does pointer cleanup on fuzzyTest; no need to delete afterwards
 }
