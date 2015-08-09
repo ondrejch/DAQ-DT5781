@@ -64,7 +64,7 @@ int32_t PigsGUI::InitDAQ() {
        fDTinfo->AddLineFast(daq->decodeError(daqErr, ret));
     }
     daq->setGUI(this);            // set GUI pointer
-	return ret;
+    return ret;
 }
 
 int32_t PigsGUI::DisconnectDAQ() {
@@ -121,7 +121,6 @@ int32_t PigsGUI::RunAcquisition() {
             gSystem->ProcessEvents();
             cCurrHCanvas->Modified(); 
             storage->getTree()->Fill();
-            NormalizeFuzzyInputs();
             UpdateHistory();                     // Updates the history & average tabs
 
         }
@@ -310,47 +309,48 @@ void PigsGUI::SetProgressBarPosition(Float_t fposition) {
 float PigsGUI::UpdateArrow() {
     // Update the arrow tab
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
-
-    int32_t i;                          // Helper variable
-    float fuzz_angle;                   // Arrow angle to be calculated
-    float ox, oy;                       // Plotting variables for coordinates
+    
+    int32_t i;                          // helper variable
+    float fuzz_angle;                   // arrow angle to be calculated
+    //    float fake_fuzzy;
+    float ox, oy;                       // plotting tmp variables
     float comp_x1, comp_y1;
     float comp_x2, comp_y2;
-
-    double **tmpNormalized;             // Ugly hack to communicate with fismain
-    tmpNormalized = new double*[4];     // We have double[4] and need double**
+    
+    double** fuzzyInput = new double*[1];    
+    double* fuzzyRow = new double[4];
+    
     for(i=0; i<4; i++) {
-        tmpNormalized[i] = new double[1];
-        tmpNormalized[i][0] = Normalized[i];
+        fuzzyRow[i]= Normalized[i];
     }
-
-    // Get the arrow angle, calls the routine in fismain
-    fuzz_angle =  calc_fuzzy(tmpNormalized, 4);
-
+    fuzzyInput[0] = &fuzzyRow[0];
+    double fuzzyVal = calc_fuzzy(fuzzyInput, 4);
+    if(fVerbose) std::cout << "Fuzzy Pos = " << fuzzyVal << std::endl;
+    
     cArrowCanvas->cd();
     // Define where origin is
     ox = 0.5;
     oy = 0.5;
-    // Create fake fuzzy output between 0-16
-        //      fake_fuzzy = 16.0*((float) rand()) / (float) RAND_MAX;
-        //    fuzz_angle =  fake_fuzzy*22.5;
-        //    if(fVerbose) std::cout << fake_fuzzy << "////";
-    // Create x,y around circle
-    if(fVerbose) std::cout << "** Arrow Angle = " << fuzz_angle << std::endl;
-    comp_x2 = 0.5 + 0.2*cos(fuzz_angle*M_PI/180.0);
-    comp_y2 = 0.5 + 0.2*sin(fuzz_angle*M_PI/180.0);
-    comp_x1 = -comp_x2 + 2.0*ox;
-    comp_y1 = -comp_y2 + 2.0*oy;
-    if(fVerbose) std::cout << comp_x1 <<"////"<< comp_x2 <<"////"<< comp_y1 <<"////"<< comp_y2 << std::endl;
+
+    fuzz_angle = fuzzyVal*22.5;
+    if(fVerbose) std::cout << "Fuzzy Angle = " << fuzz_angle << std::endl;
+
+    comp_x2 = 0.5 + 0.2*cos(fuzz_angle*M_PI/180);
+    comp_y2 = 0.5 + 0.2*sin(fuzz_angle*M_PI/180);
+    comp_x1 = -comp_x2 + 2*ox;
+    comp_y1 = -comp_y2 + 2*oy;
+    //cout << comp_x1 <<"////"<< comp_x2 <<"////"<< comp_y1 <<"////"<< comp_y2;
     ar1->SetX1(comp_x1);
     ar1->SetY1(comp_y1);
     ar1->SetX2(comp_x2);
     ar1->SetY2(comp_y2);
-
+    ar1->SetAngle(30);
+    ar1->SetLineWidth(5);
+    ar1->SetFillColor(4);
     cArrowCanvas->Modified();
     cArrowCanvas->Update();
     
-    return fuzz_angle;
+    return fuzzyVal;
 }
 
 
@@ -510,20 +510,20 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     fTabSum->AddFrame(fSumSpectra, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
     // *** Container of "Arrow" ***
-	fTabArrow = fTabHolder->AddTab("Arrow");
+    fTabArrow = fTabHolder->AddTab("Arrow");
     fTabArrow->SetLayoutManager(new TGVerticalLayout(fTabArrow));
     fArrowECanvas = new TRootEmbeddedCanvas("ArrowHEC",fTabArrow,fGUIsizeX-10,fGUIsizeY-110);
     Int_t wfArrowECanvas = fArrowECanvas->GetCanvasWindowId();
     cArrowCanvas = new TCanvas("cArrowCanvas", 5, 5, wfArrowECanvas);
     // Draw compass circle
-	TEllipse *el1 = new TEllipse(0.5,0.5,0.48,0.48);
+    TEllipse *el1 = new TEllipse(0.5,0.5,0.48,0.48);
     el1->SetFillColor(14);
     el1->SetFillStyle(1001);
     el1->SetLineColor(1);
     el1->SetLineWidth(6);
     el1->Draw();
     // Add bearing labels
-	TText *north = new TText(0.5,0.9,"N");
+    TText *north = new TText(0.5,0.9,"N");
     north->SetTextColor(2);
     north->SetTextSize(0.1);
     north->SetTextAlign(12);
@@ -544,13 +544,13 @@ PigsGUI::PigsGUI(const TGWindow *p) : TGMainFrame(p, fGUIsizeX, fGUIsizeY)  {
     west->SetTextAlign(12);
     west->SetTextAlign(21);
     west->Draw();
-	// Draw initial arrow pointing North
-	ar1 = new TArrow(0.5,0.3,0.5,0.7,0.3,"|>");
+    // Draw initial arrow pointing North
+    ar1 = new TArrow(0.5,0.3,0.5,0.7,0.3,"|>");
     ar1->SetAngle(30);
     ar1->SetLineWidth(5);
     ar1->SetFillColor(4);
     ar1->Draw();
-	fArrowECanvas->AdoptCanvas(cArrowCanvas);
+    fArrowECanvas->AdoptCanvas(cArrowCanvas);
     fTabArrow->AddFrame(fArrowECanvas, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
     // *** Container of "Config" ***
@@ -719,8 +719,7 @@ void PigsGUI::NormalizeFuzzyInputs() {
     }        
     if(fVerbose) std::cout << std::endl;
 }                        
-
-
+                                   
 PigsGUI::~PigsGUI() {
     if(fVerbose) std::cout<<__PRETTY_FUNCTION__ << std::endl;
     HardStopAcquisition();
