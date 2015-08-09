@@ -10,10 +10,9 @@
 
 PigsStorage::PigsStorage() {
     // Constructor with a default file name
-    fFileName = "pigs_outfile.root";
-    outf = new TFile(fFileName.Data(),"RECREATE");
+    outf = new TFile("pigs_outfile.root","RECREATE");
     e = new PigsEvent();
-    t = new TTree("t",Form("PigsDAQ measurements - %s",fFileName.Data()));
+    t = new TTree("t",Form("PigsDAQ measurements - %s","pigs_outfile.root"));
     t->Branch("e","PigsEvent",&e);
 }
 
@@ -35,3 +34,9 @@ PigsStorage::~PigsStorage() {
     }
 }
 
+void PigsStorage::Print(Option_t *) const {
+    // Prints information about the storage
+    std::cout << "*** Printing information of " << this->GetName() <<" ***"<< std::endl;
+    std::cout << "File name: "  << this->getOutFileName() << std::endl;
+    std::cout << "Recorded events: " << t->GetEntries() << std::endl;
+}

@@ -1,10 +1,10 @@
-//============================================================================
-// Name        : fpigs.cpp
-// Author      : Ondrej Chvala <ochvala@utk.edu>
-// Version     :
-// Copyright   : GNU/GPL
-// Description : Hello World in C++, Ansi-style
-//============================================================================
+/*
+ * Name        : fpigs.cpp
+ * Author      : Ondrej Chvala <ochvala@utk.edu>
+ * Version     : 0.09 beta
+ * Copyright   : GNU/GPL
+ * Description : Main program for Four-channel Position Indicating Gamma Sensor (F-PIGS)
+ */
 
 #include <iostream>
 #include <PigsDAQ.h>
@@ -16,52 +16,15 @@
 #include <TEnv.h>
 #include <TApplication.h>
 
-using namespace std;
-
-/*int test1(void) {
-    // Simple test subroutine
-    int ret = 0;
-    TThread *t;
-
-    PigsDAQ *daq = PigsDAQ::getInstance();
-    t = new TThread("AcqThread",(void(*)(void *))daq->AcquisitionSingleLoop(), (void*) 0);
-    if (!ret) ret = daq->InitDPPLib();
-    if (!ret) ret = daq->AddBoardUSB();
-    if (!ret) ret = daq->BasicInit();
-    if (!ret) ret = daq->ConfigureBoard();
-    if (!ret) ret = daq->ConfigureChannel(0);
-    if (!ret) {
-        daq->PrintBoardInfo();
-        daq->PrintChannelParameters(0);
-        //ret = daq->AcquisitionSingleLoop();
-        //ret = daq->ThreadAcqSingleLoop();
-        t->Run();
-    }
-    t->Join();
-    if (!ret) {
-        daq->PrintAcquisotionInfo();
-        ret = daq->RefreshCurrHist();
-    }
-    if (!ret) {
-        TFile *f = new TFile("AFile.root", "RECREATE", "Example");
-        TH1D *h = daq->getCurrHist();
-        h->Write();
-        f->Write();
-        f->Close();
-    }
-    ret = daq->EndLibrary();
-    return ret;
-}*/
-
 int main(int argc, char *argv[]) {
     int ret = 0;
-    cout << "Welcome to FPIGS DAQ!" << endl;
-    // ret = test1(); // run simple non-GUI tests
+    std::cout << "Welcome to F-PIGS DAQ!" << std::endl;
+
 //    gEnv->SetValue("Gui.Backend", "qt");
 //    gEnv->SetValue("Gui.Factory", "qt");
     gEnv->SetValue("Gui.DefaultFont", "-adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-iso8859-1");
     TApplication fpigsApp("F-PIGS", &argc, argv);
-    new PigsGUI(gClient->GetRoot());     // Popup the GUI...
+    new PigsGUI(gClient->GetRoot());     // Popup the GUI
     fpigsApp.Run();
 
     return ret;
