@@ -187,7 +187,7 @@ public:
 };
 
 
-// Auxilliary class for acquisition time input slider
+// Auxiliary class for acquisition time input slider
 /*
 class PigsAcqSlider : public TGHorizontalFrame {
 protected:
