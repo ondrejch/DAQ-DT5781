@@ -36,6 +36,7 @@
 #include <PigsEvent.h>
 #include <PigsStorage.h>
 #include <PigsDAQ.h>
+#include "fismain.h"
 
 class PigsDAQ;
 class PigsScalerInput;
@@ -61,9 +62,20 @@ public:
     void SetIntegralLimitMin();         // Changes lower limit for energy integration using GUI
     void SetIntegralLimitMax();         // Changes upper limit for energy integration using GUI
     void ToggleUseIntegration();        // Use count sum or energy integration as detector response, set from GUI
+<<<<<<< Updated upstream
 
 private:
     void UpdateHistory();
+=======
+	
+private:
+    void NormalizeFuzzyInputs();        // Normalize counts for fuzzy input
+    double RawFuzzArray[4];             // Raw array for fuzzy inputs
+    double Normalized[4];               // Normalized four member array
+    float UpdateArrow();                // Updates the arrow tab, calculates the arrow angle
+    void UpdateHistory();               // Updates the History tab
+    //void SetAcquisitionTimeText(float);       // Changes acquisition time label
+>>>>>>> Stashed changes
     TGMainFrame *fMainGUIFrame;         // Main GUI window
     TGLabel *fMainTitle;                //
     TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
@@ -82,16 +94,35 @@ private:
     TCanvas *cSumSpectra;
     TGCompositeFrame *fTabArrow;        // container of "Arrow"
     TRootEmbeddedCanvas *fArrowECanvas;
+<<<<<<< Updated upstream
+=======
+//    TGGroupFrame *fArrowFramex;
+//    TGNumberEntry *fArrowEntryx;
+//    TGGroupFrame *fArrowFramey;
+//    TGNumberEntry *fArrowEntryy;
+>>>>>>> Stashed changes
     TCanvas *cArrowCanvas;
     TGCompositeFrame *fTabConfig;       // container of "Config"
     TGGroupFrame *fControlFrame;
+<<<<<<< Updated upstream
     TGNumberEntry *fAcqTimeEntry;
+=======
+    TGCompositeFrame *fAcqTimeFrame;
+//    TGCompositeFrame *fAcqTimeLabelFrame;
+    TGNumberEntry *fAcqTimeEntry;       // Acquisition time number entry box
+    TGHSlider *fAcqTimeSlider;
+//    TGLabel *fAcqTimeLabel, *fAcqTimeLabelText;
+>>>>>>> Stashed changes
     TGGroupFrame *fScalerFrame;
     PigsScalerInput *fScalerInput[4];
     TGGroupFrame *fIntLimFrame;
     TGCheckButton *fUseIntegration;
     PigsIntLimInput *fIntLimInputMin;
     PigsIntLimInput *fIntLimInputMax;
+<<<<<<< Updated upstream
+=======
+//    TGLayoutHints *fL1;
+>>>>>>> Stashed changes
 
     TGCompositeFrame *fTabDT5781;       // container of "DT5781"
     TGTextView *fDTinfo;
@@ -116,8 +147,14 @@ private:
 
     Float_t fScaleFactor[4];            // Scaling of the detector response
     int32_t fIntegralMin, fIntegralMax; // Bin limits for integration used by CalcResponseV2
+<<<<<<< Updated upstream
 
     static const int32_t fHistColors[4];        // Colors for history plot
+=======
+	
+    static const int32_t fHistColors[4];        // Colors for history plot
+    static const int32_t fDefaultAcqTime = 10;  // Default acquisition time [sec]
+>>>>>>> Stashed changes
     static const int32_t fGUIsizeX    = 1200;   // GUI size in pixels
     static const int32_t fGUIsizeY    = 1000;
     static const int32_t fVerbose = 1;  // Verbosity level settings
@@ -149,6 +186,28 @@ public:
 };
 
 
+<<<<<<< Updated upstream
+=======
+// Auxiliary class for acquisition time input slider
+/*
+class PigsAcqSlider : public TGHorizontalFrame {
+protected:
+ TGHSlider *fEntry;
+
+public:
+  PigsIntLimSlider(const TGWindow *p, const char *name) : TGHorizontalFrame(p) {
+     fEntry = new TGHSlider(this,1,40,-1);
+     fEntry->SetRange(0.1,300.0);
+     AddFrame(fEntry, new TGLayoutHints(kLHintsLeft));
+     TGLabel *label = new TGLabel(this,name);
+     AddFrame(label, new TGLayoutHints(kLHintsLeft,10));    
+  }  
+  Int_t GetPosition() const { return fEntry->GetPosition(); }
+
+  ClassDef(PigsIntLimSlider, 0)
+};
+*/
+>>>>>>> Stashed changes
 class PigsIntLimInput : public TGHorizontalFrame {
 // Auxiliary class for integral limit value input
 protected:
