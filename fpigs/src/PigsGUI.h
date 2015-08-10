@@ -41,6 +41,9 @@
 #include <PigsDAQ.h>
 #include "fismain.h"
 
+#include "fis.h"
+#include "fismain.h"
+
 class PigsDAQ;
 class PigsScalerInput;
 class PigsIntLimInput;
@@ -66,14 +69,14 @@ public:
     void SetIntegralLimitMin();         // Changes lower limit for energy integration using GUI
     void SetIntegralLimitMax();         // Changes upper limit for energy integration using GUI
     void ToggleUseIntegration();        // Use count sum or energy integration as detector response, set from GUI
-	
+      
 private:
-    void NormalizeFuzzyInputs();        // Normalize counts for fuzzy input
-    double RawFuzzArray[4];             // Raw array for fuzzy inputs
-    double Normalized[4];               // Normalized four member array
     float UpdateArrow();                // Updates the arrow tab, calculates the arrow angle
     void UpdateHistory();               // Updates the History tab
-    //void SetAcquisitionTimeText(float);       // Changes acquisition time label
+    void NormalizeFuzzyInputs();        // Normalize counts for fuzzy input
+
+    double RawFuzzArray[4];             // Raw array for fuzzy inputs
+    double Normalized[4];               // Normalized four member array
     TGMainFrame *fMainGUIFrame;         // Main GUI window
     TGLabel *fMainTitle;                //
     TGTextButton *fStartDAQ, *fStopDAQ, *fExitDAQ; // buttons
@@ -98,27 +101,21 @@ private:
     // Arrow tab objects
     TGCompositeFrame *fTabArrow;        // container of "Arrow"
     TRootEmbeddedCanvas *fArrowECanvas;
-//    TGGroupFrame *fArrowFramex;
-//    TGNumberEntry *fArrowEntryx;
-//    TGGroupFrame *fArrowFramey;
-//    TGNumberEntry *fArrowEntryy;
     TCanvas *cArrowCanvas;
-    TArrow *ar1;						// Initialize arrow name
+    TArrow *ar1;                  // Initialize arrow name
 
     TGCompositeFrame *fTabConfig;       // container of "Config"
     TGGroupFrame *fControlFrame;
     TGCompositeFrame *fAcqTimeFrame;
-//    TGCompositeFrame *fAcqTimeLabelFrame;
     TGNumberEntry *fAcqTimeEntry;       // Acquisition time number entry box
     TGHSlider *fAcqTimeSlider;
-//    TGLabel *fAcqTimeLabel, *fAcqTimeLabelText;
     TGGroupFrame *fScalerFrame;
     PigsScalerInput *fScalerInput[4];
     TGGroupFrame *fIntLimFrame;
     TGCheckButton *fUseIntegration;
     PigsIntLimInput *fIntLimInputMin;
     PigsIntLimInput *fIntLimInputMax;
-//    TGLayoutHints *fL1;
+    TGLayoutHints *fL1;
 
     TGCompositeFrame *fTabDT5781;       // container of "DT5781"
     TGTextView *fDTinfo;
@@ -143,11 +140,12 @@ private:
 
     Float_t fScaleFactor[4];            // Scaling of the detector response
     int32_t fIntegralMin, fIntegralMax; // Bin limits for integration used by CalcResponseV2
-	
+   
     static const int32_t fHistColors[4];        // Colors for history plot
-    static const int32_t fDefaultAcqTime = 10;  // Default acquisition time [sec]
-    static const int32_t fGUIsizeX    = 1200;   // GUI size in pixels
-    static const int32_t fGUIsizeY    = 1000;
+    static const int32_t fDefaultAcqTime = 10; // Default acquisition time [sec]
+    static const int32_t fGUIsizeX    = 600;   // GUI size in pixels
+    static const int32_t fGUIsizeY    = 600;
+
     static const int32_t fVerbose = 1;  // Verbosity level settings
     const char *fAboutMsg;              // "About" tab text
 
@@ -177,6 +175,7 @@ public:
 };
 
 
+
 // Auxiliary class for acquisition time input slider
 /*
 class PigsAcqSlider : public TGHorizontalFrame {
@@ -196,6 +195,7 @@ public:
   ClassDef(PigsIntLimSlider, 0)
 };
 */
+
 class PigsIntLimInput : public TGHorizontalFrame {
 // Auxiliary class for integral limit value input
 protected:

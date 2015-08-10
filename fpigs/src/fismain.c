@@ -17,7 +17,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-DOUBLE get_fuzzy(DOUBLE** dataMatrix, int data_col_n)
+DOUBLE calc_fuzzy(DOUBLE** dataMatrix, int data_col_n)
 {
     // Assume we always have one row of data in this version
     // i.e., dataMatrix is a type DOUBLE[data_col_n][1]
@@ -30,8 +30,10 @@ DOUBLE get_fuzzy(DOUBLE** dataMatrix, int data_col_n)
     char *fis_file;
     int fis_row_n, fis_col_n;
 
+
     // NOTE: We need to store this with the GUI exe somehow...
-    fis_file = "fismain.fis";
+    fis_file = "bin/fismain.fis";
+
 
     /* obtain FIS matrix */
     fisMatrix = returnFismatrix(fis_file, &fis_row_n, &fis_col_n);

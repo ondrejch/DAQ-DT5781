@@ -6,7 +6,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-DOUBLE get_fuzzy(DOUBLE**, int);
+DOUBLE calc_fuzzy(DOUBLE**, int);
 #ifdef __cplusplus
 }
 #endif

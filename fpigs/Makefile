@@ -48,6 +48,13 @@ _OBJS = $(_SRCS:.cpp=.o)
 _FUZZY_SRCS = $(wildcard ${SRCDIR}/*.c )
 _FUZZY_OBJS = $(_FUZZY_SRCS:.c=.o)
 
+TESTNAME = test_fis
+TEST_SRC = $(SRCDIR)/$(TESTNAME).c
+TESTEXE = ${EXEDIR}/${TESTNAME}.exe
+
+# Don't include test files in sources
+_FUZZY_SRCS := $(filter-out $(TEST_SRC), $(_FUZZY_SRCS))
+
 OBJS = $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(_OBJS))
 FUZZY_OBJS = $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(_FUZZY_OBJS))
 
@@ -63,7 +70,7 @@ EXEC1 = $(EXEDIR)/$(EXEC1NAME).exe
 
 ##########################################################################
 
-all: $(FUZZY_OBJS) $(OBJS) $(DICTSRC) $(EXEC1) 
+all: $(FUZZY_OBJS) $(OBJS) $(DICTSRC) $(EXEC1) $(TESTEXE) 
 
 # compile the fuzzy logic processor objects first
 $(OBJDIR)/%.o: %.c ${DEPS}
@@ -93,5 +100,10 @@ $(EXEC1) : ${FUZZY_OBJS} $(OBJS) $(DICTSRC) $(EXEC1NAME).cpp
 	@if [ ! -d $(EXEDIR) ]; then mkdir -p $(EXEDIR); fi
 	@$(CC) $(CFLAGS) $(COPTS) $(OBJDIR)/$(DICT).o ${FUZZY_OBJS} $(OBJS) $(LIBS) -o $@
 	@if [ -e ${_FUZZYDEF} ]; then cp ${_FUZZYDEF} ${EXEDIR}; fi
+
+$(TESTEXE) : ${FUZZY_OBJS} $(TEST_SRC)
+	@echo [${CC}] Compiling test $(TESTEXE)
+	@$(CC) $(CFLAGS) $(COPTS) ${FUZZY_OBJS} $(TEST_SRC) -o $@
+
 clean:
 	rm -rf $(OBJDIR)/*  $(LIBDIR)/*.so $(EXEC1) 
